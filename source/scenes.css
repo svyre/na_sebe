@@ -1,0 +1,48 @@
+/* Motion belongs to the game world. Controls and budget stay still. */
+.story-hud-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.scene-motion-toggle{position:relative;display:grid;place-items:center;width:30px;height:30px;flex-shrink:0;padding:0;border:1px solid #aebebae0;background:#f9faf0ed;color:#48606b;border-radius:50%;cursor:pointer}
+.scene-motion-toggle:after{content:'';position:absolute;inset:-9px;border-radius:50%}
+.scene-motion-toggle:hover:not(:disabled){background:#fff;border-color:#647f8c}
+.scene-motion-toggle:focus-visible{outline:3px solid #315fdf;outline-offset:3px}
+.scene-motion-toggle:disabled{opacity:.55;cursor:default}
+.story-location{max-width:70%;line-height:1.4}
+.story-stage .character-idle,.story-stage .character-pose{transform-box:fill-box;transform-origin:50% 100%}
+.story-stage .scene-object-picked{transform-box:fill-box;transform-origin:50% 90%}
+.scene-reaction-glints{opacity:0}
+.ambient-washer{transform-box:fill-box;transform-origin:center}
+.story-stage[data-motion="on"] .scene-environment{animation:scene-settle .4s ease-out both}
+.story-stage[data-motion="on"] .character-idle{animation:character-breathe 6s ease-in-out infinite}
+.story-stage[data-motion="on"] .pose-neutral{animation:character-arrive .55s cubic-bezier(.2,.7,.25,1) both}
+.story-stage[data-motion="on"] .pose-happy{animation:character-joy .85s ease-in-out both}
+.story-stage[data-motion="on"] .pose-thinking{animation:character-consider .8s ease-in-out both}
+.story-stage[data-motion="on"] .scene-object-picked{animation:object-confirm .42s ease-out both}
+.story-stage[data-motion="on"] .scene-reaction-glints{animation:choice-glints .7s ease-out both}
+.story-stage[data-motion="on"] .ambient-cloud{animation:cloud-drift 18s ease-in-out infinite alternate}
+.story-stage[data-motion="on"] .ambient-steam{animation:steam-rise 3s ease-in-out infinite}
+.story-stage[data-motion="on"] .ambient-cursor{animation:cursor-blink 4s steps(1,end) infinite}
+.story-stage[data-motion="on"] .ambient-indicator{animation:terminal-light 5s ease-in-out infinite}
+.story-stage[data-motion="on"] .ambient-washer{animation:washer-turn 12s linear infinite}
+.story-stage[data-motion="on"] .ambient-train{animation:train-depart 26s ease-in-out infinite}
+.story-stage[data-motion="on"] .ambient-water{animation:water-drift 5s ease-in-out infinite alternate}
+.story-stage[data-motion="on"] .ambient-rain{animation:rain-fall 1.3s linear infinite}
+.story-stage[data-motion="on"] .ambient-snow{animation:snow-drift 7s ease-in-out infinite alternate}
+/* Pausing returns every layer to its clear static pose, including a departing train. */
+.story-stage[data-motion="off"] *{animation:none!important;transition:none!important}
+@keyframes scene-settle{from{opacity:.65}to{opacity:1}}
+@keyframes character-breathe{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-.7px) scaleY(1.007)}}
+@keyframes character-arrive{from{opacity:0;transform:translateY(6px) rotate(-1deg)}to{opacity:1;transform:translateY(0) rotate(0)}}
+@keyframes character-joy{0%{transform:translateY(0) rotate(0)}22%{transform:translateY(-8px) rotate(-2deg)}43%{transform:translateY(0) rotate(1.5deg)}65%{transform:translateY(-3px) rotate(-1deg)}100%{transform:translateY(0) rotate(0)}}
+@keyframes character-consider{0%{transform:rotate(0)}40%{transform:rotate(-2deg) translateY(1px)}70%{transform:rotate(.5deg)}100%{transform:rotate(0)}}
+@keyframes object-confirm{0%{transform:scale(1)}45%{transform:scale(1.045) translateY(-2px)}100%{transform:scale(1)}}
+@keyframes choice-glints{0%{opacity:0;transform:translateY(3px)}35%{opacity:1}100%{opacity:0;transform:translateY(-9px)}}
+@keyframes cloud-drift{from{transform:translateX(-7px)}to{transform:translateX(10px)}}
+@keyframes steam-rise{0%{opacity:.1;transform:translateY(3px)}40%{opacity:.8}100%{opacity:0;transform:translateY(-9px)}}
+@keyframes cursor-blink{0%,70%{opacity:1}71%,100%{opacity:.2}}
+@keyframes terminal-light{0%,100%{opacity:.4}45%,60%{opacity:1}}
+@keyframes washer-turn{to{transform:rotate(360deg)}}
+@keyframes train-depart{0%,70%{transform:translateX(0);opacity:1}90%{transform:translateX(925px);opacity:1}90.01%{transform:translateX(-925px);opacity:0}92%{opacity:1}100%{transform:translateX(0);opacity:1}}
+@keyframes water-drift{from{transform:translateX(-4px)}to{transform:translateX(8px)}}
+@keyframes rain-fall{from{transform:translate(0,-13px)}to{transform:translate(-7px,10px)}}
+@keyframes snow-drift{from{transform:translate(0,-4px)}to{transform:translate(5px,11px)}}
+@media(max-width:760px){.story-hud{gap:8px}.story-location{font-size:8px;max-width:62%;padding:5px 7px}.story-hud-actions{gap:4px}.scene-motion-toggle{width:27px;height:27px}.scene-motion-toggle svg{width:12px;height:12px}}
+@media(prefers-reduced-motion:reduce){.story-stage *{animation:none!important;transition:none!important}}
