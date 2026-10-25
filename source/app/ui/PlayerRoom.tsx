@@ -1,0 +1,48 @@
+import { useState } from 'react';
+import { Armchair, ArrowRight, BedDouble, BookOpen, BriefcaseBusiness, Check, Flower2, House, LampDesk, Landmark, LibraryBig, ListChecks, Moon, Pause, Play, Plus, ShoppingBag, Sun, Table2, X } from 'lucide-react';
+import { HOUSING, JOBS, ROOM_ITEMS, macroFor, roomEffects, roomGifts, roomInventory, rub, type GameState, type Plan, type RoomItemId, type DifficultyId } from '@/lib/game';
+import type { CharacterId } from '@/lib/character';
+import { RoomInterior } from './PlayerRoomArt';
+import { useSceneMotion } from './useSceneMotion';
+
+export type RoomAction='study'|'work'|'rest'|'events'|'bank'|'housing'|'furniture';
+const actions=[
+ {id:'events',name:'Ситуации месяца',place:'Доска планов',icon:ListChecks,x:66,y:27},
+ {id:'study',name:'Учёба',place:'Рабочий стол',icon:BookOpen,x:25,y:53},
+ {id:'work',name:'Работа',place:'Ноутбук',icon:BriefcaseBusiness,x:30,y:38},
+ {id:'rest',name:'Отдых',place:'Кровать',icon:BedDouble,x:74,y:65},
+ {id:'bank',name:'Мой банк',place:'Телефон',icon:Landmark,x:41,y:48},
+ {id:'furniture',name:'Обустройство',place:'Мебель и уют',icon:Armchair,x:87,y:56},
+ {id:'housing',name:'Жильё',place:'Сменить жильё',icon:House,x:89,y:29},
+] as const;
+export const roomIcons={lamp:LampDesk,desk:Table2,chair:Armchair,mattress:BedDouble,shelf:LibraryBig,plant:Flower2};
+
+export function PlayerRoom({state,plan,month,difficulty,character,remaining,total,onAction,onClear}:{state:GameState;plan:Plan;month:number;difficulty:DifficultyId;character:CharacterId;remaining:number;total:number;onAction:(action:RoomAction)=>void;onClear:()=>void}){
+ const [night,setNight]=useState(()=>{try{return localStorage.getItem('na-sebe-room-light')==='night';}catch{return false;}}),motion=useSceneMotion();
+ const housing=HOUSING.find(h=>h.id===plan.housing)!,owned=roomInventory(state),effects=roomEffects(state),gifts=roomGifts(plan,month).filter(id=>!owned.includes(id)),planned=[...new Set([...(plan.roomBuy||[]),...gifts])];
+ const toggleLight=()=>{const next=!night;setNight(next);try{localStorage.setItem('na-sebe-room-light',next?'night':'day');}catch{}};
+ const note=(id:RoomAction)=>id==='events'?`${total-remaining} из ${total} решений`:id==='study'?`${plan.study} ч в плане`:id==='work'?JOBS.find(j=>j.id===plan.job)!.name:id==='rest'?`${rub(plan.leisure)} в плане`:id==='bank'?'Резерв, фонд и платежи':id==='housing'?`${rub(Math.round(housing.cost*macroFor(month,difficulty).inflation))} в месяц`:`${owned.length} из 6 улучшений`;
+ return <section className="player-room" aria-labelledby="player-room-title">
+  <header className="player-room-heading"><div><span>{housing.name}</span><h2 id="player-room-title">Твоя комната</h2><p>Здесь начинается каждый новый месяц.</p></div><div className="room-scene-controls"><button type="button" onClick={toggleLight} aria-label={night?'Включить дневной свет':'Включить вечерний свет'} title={night?'Дневной свет':'Вечерний свет'}>{night?<Moon size={16}/>:<Sun size={16}/>}<span>{night?'Вечер':'День'}</span></button><button type="button" className="room-motion-toggle" disabled={motion.reduced} aria-pressed={motion.enabled} aria-label={motion.reduced?'Анимация отключена настройками устройства':motion.enabled?'Остановить анимацию':'Включить анимацию'} onClick={motion.toggle}>{motion.enabled?<Pause size={16}/>:<Play size={16}/>}</button></div></header>
+  <div className={`player-room-canvas ${night?'room-night':''}`} data-motion={motion.enabled?'on':'off'}>
+   <RoomInterior housing={plan.housing} owned={owned} planned={planned} character={character} energy={state.energy} night={night} ready={!remaining}/>
+   <div className="room-hotspots" role="group" aria-label="Предметы в твоей комнате">{actions.map(({id,place,icon:Icon,x,y})=><button type="button" key={id} style={{left:`${x}%`,top:`${y}%`}} className={`room-hotspot hotspot-${id}`} aria-label={`${place}: ${id==='events'?'открыть ситуации месяца':id==='furniture'?'обустроить комнату':`открыть раздел «${place==='Телефон'?'Мой банк':actions.find(a=>a.id===id)!.name}»`}`} onClick={()=>onAction(id)}><span><Icon size={17}/>{id==='events'&&remaining>0&&<i>{remaining}</i>}</span><b>{place}</b></button>)}</div>
+  </div>
+  <div className="room-month-prompt"><span className={remaining?'room-progress-ring':'room-progress-ring complete'}>{remaining?<ListChecks size={22}/>:<Check size={22}/>}</span><div><b>{remaining?`${remaining===1?'Осталась':'Осталось'} ${remaining} ${remaining===1?'ситуация':'ситуации'}`:'Решения месяца собраны'}</b><p>{remaining?'Открой доску планов и выбери, как поступить.':'Проверь бюджет, время и покупки перед завершением месяца.'}</p></div><button type="button" onClick={()=>onAction(remaining?'events':'housing')}>{remaining?'К ситуациям':'Проверить план'}<ArrowRight size={16}/></button></div>
+  <div className="room-actions" aria-label="Действия из комнаты">{actions.filter(a=>a.id!=='events').map(({id,name,icon:Icon})=><button type="button" key={id} onClick={()=>onAction(id)}><Icon size={20}/><span><b>{name}</b><small>{note(id)}</small></span><ArrowRight size={14}/></button>)}</div>
+  <footer className="room-state-note"><div><b>{owned.length?'Комната помогает каждый месяц':'Базовая мебель уже включена в жильё'}</b><span>{owned.length?`Учёба +${effects.education} · ресурс +${effects.energy}. Улучшения переезжают вместе с тобой.`:'Нажимай на предметы или используй кнопки под комнатой.'}</span></div>{planned.length>0&&<div className="room-planned-note"><ShoppingBag size={16}/><span>Появится после закрытия месяца: {planned.map(id=>ROOM_ITEMS[id].name.toLowerCase()).join(', ')}.</span>{!!plan.roomBuy?.length&&<button type="button" onClick={onClear}>Убрать покупки</button>}</div>}</footer>
+ </section>;
+}
+
+export function RoomShop({state,plan,month,disabled,onChange,onClose}:{state:GameState;plan:Plan;month:number;disabled:boolean;onChange:(items:RoomItemId[])=>void;onClose:()=>void}){
+ const owned=roomInventory(state),selected=plan.roomBuy||[],gifts=roomGifts(plan,month),cost=selected.reduce((sum,id)=>sum+ROOM_ITEMS[id].cost,0),hours=selected.reduce((sum,id)=>sum+ROOM_ITEMS[id].hours,0);
+ return <section className="room-shop panel" aria-labelledby="room-shop-title"><header><div><span>Сделай пространство своим</span><h2 id="room-shop-title">Обустройство комнаты</h2></div><button type="button" className="icon-button" onClick={onClose} aria-label="Закрыть обустройство"><X size={20}/></button></header><p>Покупки войдут в бюджет этого месяца. На установку нужно время, а помощь учёбе и восстановлению начнётся со следующего месяца.</p>
+  <div className="room-shop-grid">{(Object.keys(ROOM_ITEMS) as RoomItemId[]).map(id=>{const item=ROOM_ITEMS[id],Icon=roomIcons[id],bought=owned.includes(id),inPlan=selected.includes(id),gift=gifts.includes(id)&&!bought;return <article key={id} className={`room-shop-item ${inPlan?'in-plan':''} ${bought?'owned':''}`} data-item={id}><div className="room-item-symbol"><Icon size={29}/>{bought&&<span><Check size={13}/></span>}</div><h3>{item.name}</h3><p>{item.description}</p><span className="room-item-effect">{item.education?`Учёба +${item.education}`:`Ресурс +${item.energy}`} / месяц</span><div className="room-item-price"><b>{rub(item.cost)}</b><small>{item.hours} ч на установку</small></div><button type="button" disabled={disabled||bought||gift&&!inPlan} aria-pressed={inPlan} aria-label={bought?`${item.name}: уже в комнате`:gift&&!inPlan?`${item.name}: появится из ситуации`:inPlan?`Убрать из плана: ${item.name}`:`Добавить в план: ${item.name}`} onClick={()=>onChange(inPlan?selected.filter(x=>x!==id):[...selected,id])}>{bought?<><Check size={15}/>В комнате</>:inPlan?<><X size={15}/>Убрать из плана</>:gift?'Из ситуации':<><Plus size={15}/>В план</>}</button></article>;})}</div>
+  <div className="room-shop-summary"><div><span>Запланировано на комнату</span><b>{rub(cost)}<small>{hours} ч</small></b></div><p>Оплата — при завершении месяца. Стоимость мебели считается расходом и не добавляется к капиталу.</p></div>
+ </section>;
+}
+
+export function FinalRoom({state,housing,character}:{state:GameState;housing:string;character:CharacterId}){
+ const owned=roomInventory(state),motion=useSceneMotion();
+ return <section className="player-room final-player-room" aria-label="Твоя комната в конце года"><header className="player-room-heading"><div><span>{HOUSING.find(h=>h.id===housing)?.name}</span><h2>Твоя комната к концу года</h2><p>{owned.length?`${owned.length} из 6 улучшений за первый самостоятельный год.`:'Ты завершил год с базовой обстановкой и своей стратегией.'}</p></div></header><div className="player-room-canvas" data-motion={motion.enabled?'on':'off'}><RoomInterior housing={housing} owned={owned} character={character} energy={state.energy} ready/></div><footer className="room-final-items">{owned.length?owned.map(id=>{const Icon=roomIcons[id];return <span key={id}><Icon size={15}/>{ROOM_ITEMS[id].name}</span>}):<p>Базовая мебель была включена в стоимость жилья. Все покупки и их последствия видны в истории.</p>}</footer></section>;
+}

@@ -112,7 +112,7 @@ export default function App() {
     {modal&&<Modal wide={modal==='setup'||modal==='character'} title={modal==='character'?'Твой персонаж':modal==='setup'?'Твой первый год':'Начать новую историю?'} onClose={()=>{setModal(null);setError('');}}>
       {modal==='character'?<div className="change-character"><CharacterPicker value={character} onChange={setCharacter}/><button type="button" className="button primary full" onClick={applyCharacter}>Сохранить персонажа<Check size={17}/></button><p className="character-save-note">Деньги, решения и пройденные месяцы сохранятся.</p></div>:modal==='restart'?<><p className="muted">Новая история заменит текущую игру в этом браузере. Перед началом можно скачать отчёт.</p><div className="modal-actions"><button className="button secondary" onClick={()=>setModal(null)}>Остаться</button><button className="button primary" onClick={()=>configure()}>Новая игра<ArrowRight size={17}/></button></div></>:
       <form onSubmit={start}>
-        <p className="modal-intro">Выбери персонажа и цель. Впереди 12 месяцев: в каждом случайно выпадет от 1 до 3 ситуаций из набора 60. За год истории не повторяются.</p>
+        <p className="modal-intro">Выбери персонажа и цель. Твоя комната станет главным экраном игры. Впереди 12 месяцев: в каждом случайно выпадет от 1 до 3 ситуаций из набора 60. За год истории не повторяются.</p>
         {solo&&<div className="alert">Новый старт заменит сохранённую одиночную игру.</div>}
         <CharacterPicker value={character} onChange={setCharacter}/>
         <label className="field">Название твоей стратегии<input value={name} onChange={e=>setName(e.target.value)} maxLength={32} placeholder="Например, Спокойно к своей цели"/></label>

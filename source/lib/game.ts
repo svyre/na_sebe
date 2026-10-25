@@ -25,6 +25,24 @@ export const JOBS = [
   {id:'intense',name:'Плотный рабочий график',income:23000,hours:84,fatigue:31,education:-7},
 ];
 export const STUDIES = [{hours:16,name:'Минимум',gain:-2},{hours:32,name:'В балансе',gain:2},{hours:48,name:'Вглубь',gain:5}];
+export const ROOM_ITEMS={
+ lamp:{name:'Настольная лампа',cost:1200,hours:1,education:1,energy:0,description:'Свет для вечерних занятий'},
+ desk:{name:'Удобный стол',cost:6500,hours:4,education:2,energy:0,description:'Больше места для учебных проектов'},
+ chair:{name:'Рабочее кресло',cost:3500,hours:2,education:0,energy:2,description:'Комфортнее проводить время за столом'},
+ mattress:{name:'Хороший матрас',cost:4800,hours:1,education:0,energy:3,description:'Удобнее восстанавливаться после нагрузки'},
+ shelf:{name:'Книжный стеллаж',cost:2200,hours:2,education:1,energy:0,description:'Материалы для занятий под рукой'},
+ plant:{name:'Растение',cost:900,hours:1,education:0,energy:1,description:'Немного уюта в своём пространстве'},
+} as const;
+export type RoomItemId=keyof typeof ROOM_ITEMS;
+export function roomInventory(s:Pick<GameState,'roomItems'>):RoomItemId[]{return Array.isArray(s.roomItems)?[...new Set(s.roomItems.filter((id):id is RoomItemId=>Object.hasOwn(ROOM_ITEMS,id)))]:[];}
+export function roomEffects(s:Pick<GameState,'roomItems'>){return roomInventory(s).reduce((sum,id)=>({education:sum.education+ROOM_ITEMS[id].education,energy:sum.energy+ROOM_ITEMS[id].energy}),{education:0,energy:0});}
+/** Versioning keeps completed pre-room plans reproducible. Gifts are not applied retroactively. */
+export function roomGifts(p:Plan,month:number):RoomItemId[]{
+ if(p.roomVersion!==1)return [];
+ const choices=[{scenario:p.scenario||`main-${month}`,choice:p.choice},...(p.extras||[])],items:RoomItemId[]=[];
+ for(const e of choices){if(e.scenario==='desk'&&(e.choice==='a'||e.choice==='b'))items.push('desk');if(e.scenario==='parcel'&&e.choice==='c')items.push('lamp');}
+ return [...new Set(items)];
+}
 export const OFFERS = [
   {id:'clear',name:'Понятный',rate:24,term:6,fee:0,monthlyFee:0,tag:'6 месяцев'},
   {id:'comfort',name:'Комфорт',rate:18,term:12,fee:1900,monthlyFee:390,tag:'Низкая ставка'},
@@ -1059,10 +1077,10 @@ export const MACRO = [
 ];
 export type Loan = {id:string;name:string;balance:number;rate:number;remaining:number;payment:number;monthlyFee:number};
 export type Pending = {due:number;cash?:number;skills?:number;title:string};
-export type GameState = {cash:number;savings:number;fund:number;education:number;energy:number;skills:number;safety:number;loans:Loan[];pending:Pending[];deficits:number};
-export type Plan = {housing:string;job:string;study:number;leisure:number;save:number;withdraw:number;invest:number;sell:number;borrow:number;offer:string;choice:string;scenario?:string;extras?:{scenario:string;choice:string}[]};
+export type GameState = {cash:number;savings:number;fund:number;education:number;energy:number;skills:number;safety:number;loans:Loan[];pending:Pending[];deficits:number;roomItems?:RoomItemId[]};
+export type Plan = {housing:string;job:string;study:number;leisure:number;save:number;withdraw:number;invest:number;sell:number;borrow:number;offer:string;choice:string;scenario?:string;extras?:{scenario:string;choice:string}[];roomVersion?:1;roomBuy?:RoomItemId[]};
 export type Ledger = {label:string;amount:number;kind:'income'|'expense'|'transfer'};
-export type Report = {month:number;before:GameState;after:GameState;plan:Plan;ledger:Ledger[];explanation:string;warnings:string[];hours:number;net:number;interest:number;market:number;score:number;extras?:{scenario:string;choice:string;explanation:string}[]};
+export type Report = {month:number;before:GameState;after:GameState;plan:Plan;ledger:Ledger[];explanation:string;warnings:string[];hours:number;net:number;interest:number;market:number;score:number;extras?:{scenario:string;choice:string;explanation:string}[];room?:{purchased:RoomItemId[];gifted:RoomItemId[];education:number;energy:number}};
 export type Solo = {name:string;goal:GoalId;difficulty:DifficultyId;month:number;state:GameState;reports:Report[];plans:Plan[]};
 export const INITIAL:GameState = {cash:26000,savings:12000,fund:0,education:72,energy:78,skills:0,safety:5,loans:[],pending:[],deficits:0};
 export const clone = <T,>(v:T):T => JSON.parse(JSON.stringify(v));
@@ -1084,7 +1102,7 @@ export const essential = (p:Plan,month:number,difficulty:DifficultyId='balance')
 export function annuity(amount:number,rate:number,months:number) {const r=rate/1200;return round(r===0?amount/months:amount*r/(1-(1+r)**(-months)));}
 export function creditQuote(amount:number,offerId:string) {const o=OFFERS.find(x=>x.id===offerId)||OFFERS[0];const payment=annuity(amount,o.rate,o.term);return {...o,payment:round(payment+o.monthlyFee),total:round(payment*o.term+o.fee+o.monthlyFee*o.term),overpay:round(payment*o.term+o.fee+o.monthlyFee*o.term-amount)};}
 export function defaultPlan(month=0):Plan {return {housing:'dorm',job:'flex',study:32,leisure:2500,save:0,withdraw:0,invest:0,sell:0,borrow:0,offer:'clear',choice:SCENARIOS[month]?.options[SCENARIOS[month].options.length-1].id||'keep'};}
-export function planHours(plan:Plan,month:number) {return (HOUSING.find(x=>x.id===plan.housing)?.hours||0)+(JOBS.find(x=>x.id===plan.job)?.hours||0)+plan.study+(planScenario(plan,month).options.find(x=>x.id===plan.choice)?.hours||0)+selectedExtraOptions(plan,month).reduce((sum,x)=>sum+(x.option?.hours||0),0);}
+export function planHours(plan:Plan,month:number) {return (HOUSING.find(x=>x.id===plan.housing)?.hours||0)+(JOBS.find(x=>x.id===plan.job)?.hours||0)+plan.study+(planScenario(plan,month).options.find(x=>x.id===plan.choice)?.hours||0)+selectedExtraOptions(plan,month).reduce((sum,x)=>sum+(x.option?.hours||0),0)+(plan.roomBuy||[]).reduce((sum,id)=>sum+(ROOM_ITEMS[id]?.hours||0),0);}
 export function validatePlan(p:Plan,s:GameState,m:number,allowEmptyChoice=false,difficulty:DifficultyId='balance'):string|null {
   if(!p||!Number.isInteger(m)||m<0||m>11)return 'Этот раунд уже завершён.';
   if(!HOUSING.some(x=>x.id===p.housing)||!JOBS.some(x=>x.id===p.job)||!STUDIES.some(x=>x.hours===p.study)||!OFFERS.some(x=>x.id===p.offer))return 'Выбери все параметры плана.';
@@ -1093,6 +1111,12 @@ export function validatePlan(p:Plan,s:GameState,m:number,allowEmptyChoice=false,
   if(p.extras!==undefined){
     if(!Array.isArray(p.extras)||p.extras.length>2||new Set([p.scenario||`main-${m}`,...p.extras.map(x=>x?.scenario)]).size!==p.extras.length+1)return 'Проверь список ситуаций месяца.';
     for(const event of p.extras){const scenario=event&&getScenario(event.scenario);if(!scenario)return 'Неизвестная ситуация в плане.';if(!p.scenario&&EXTRA_SITUATIONS[event.scenario]?.month!==m)return 'Эта ситуация не относится к текущему месяцу.';if(!scenario.options.some(o=>o.id===event.choice)&&!(allowEmptyChoice&&event.choice===''))return 'Выбери решение для каждой ситуации месяца.';}
+  }
+  if(p.roomVersion!==undefined&&p.roomVersion!==1)return 'Неизвестная версия комнаты.';
+  if(p.roomBuy!==undefined){
+    if(!Array.isArray(p.roomBuy)||p.roomBuy.length>6||new Set(p.roomBuy).size!==p.roomBuy.length||p.roomBuy.some(id=>typeof id!=='string'||!Object.hasOwn(ROOM_ITEMS,id)))return 'Проверь список покупок для комнаты.';
+    if(p.roomBuy.some(id=>roomInventory(s).includes(id)))return 'Такое улучшение уже есть в комнате.';
+    if(p.roomBuy.some(id=>roomGifts(p,m).includes(id)))return 'Это улучшение появится из ситуации. Убери повторную покупку в комнате.';
   }
   for(const key of ['leisure','save','withdraw','invest','sell','borrow'] as const)if(!Number.isFinite(p[key])||p[key]<0||p[key]>1000000||!Number.isInteger(p[key]))return 'Суммы должны быть целыми неотрицательными числами.';
   if(p.leisure>15000)return 'На отдых можно запланировать до 15 000 ₽.';
@@ -1137,16 +1161,20 @@ export function settle(input:GameState,plan:Plan,month:number,goal:GoalId='capit
     if(o.loan)s.loans.push({id:`event-${month}${index?'-'+index:''}`,name:'Ремонт частями',balance:o.loan,rate:0,remaining:5,payment:o.loan/5,monthlyFee:0});
     if(o.delayed)s.pending.push({due:month+o.delayed.after,...o.delayed});
   }
+  const owned=roomInventory(input),effects=roomEffects(input),purchased=p.roomBuy||[],gifted=roomGifts(p,month).filter(id=>!owned.includes(id));
+  for(const id of purchased)post('Комната: '+ROOM_ITEMS[id].name,-ROOM_ITEMS[id].cost);
+  if(purchased.length||gifted.length)s.roomItems=[...new Set([...owned,...purchased,...gifted])];
   if(p.save+p.invest>Math.max(0,s.cash)+.01)throw new Error('На переводы не хватает денег. Уменьши пополнение накоплений или фонда.');
   if(p.save){post('На накопительный счёт',-p.save,'transfer');s.savings=round(s.savings+p.save);}
   if(p.invest){post('Покупка доли фонда',-p.invest,'transfer');s.fund=round(s.fund+p.invest);}
   if(reveal)for(const [index,o] of options.entries())if(o.hiddenLoss)post('Потеря: '+o.title,-o.hiddenLoss);
-  s.education=clamp(s.education-1+study.gain+j.education+total('education')-(input.energy<25?3:0));
-  s.energy=clamp(Math.round(s.energy+22+p.leisure/800-j.fatigue-p.study/10-h.hours/8-total('hours')/6+total('energy')));
+  s.education=clamp(s.education-1+study.gain+j.education+total('education')-(input.energy<25?3:0)+effects.education);
+  const installation=purchased.reduce((sum,id)=>sum+ROOM_ITEMS[id].hours,0);
+  s.energy=clamp(Math.round(s.energy+22+p.leisure/800-j.fatigue-p.study/10-h.hours/8-total('hours')/6-installation/6+total('energy')+effects.energy));
   s.skills+=total('skills');s.safety=clamp(s.safety+total('safety'),0,10);
   if(s.cash<0){s.deficits++;warnings.push('Бюджет ушёл в минус. В следующем месяце дефицит нужно закрыть; его стоимость в модели — 3% в месяц.');}
   if(s.education<50)warnings.push('Под угрозой стипендия следующего месяца.');if(s.energy<35)warnings.push('Ресурс заканчивается: пересмотри нагрузку и отдых.');
-  return {month,before,after:s,plan:p,ledger:ledger.filter(x=>x.amount!==0),explanation:option.explanation,warnings,hours:planHours(p,month),net:round(capital(s)-capital(before)),interest,market,score:evaluate(s,goal,p,month,difficulty).total,...(p.extras?{extras:extra.map(x=>({scenario:x.event.scenario,choice:x.event.choice,explanation:x.option?.explanation||''}))}:{})};
+  return {month,before,after:s,plan:p,ledger:ledger.filter(x=>x.amount!==0),explanation:option.explanation,warnings,hours:planHours(p,month),net:round(capital(s)-capital(before)),interest,market,score:evaluate(s,goal,p,month,difficulty).total,...(p.extras?{extras:extra.map(x=>({scenario:x.event.scenario,choice:x.event.choice,explanation:x.option?.explanation||''}))}:{}),...(p.roomVersion===1||owned.length||purchased.length?{room:{purchased,gifted,...effects}}:{})};
 }
 export function replay(reports:Report[],changedMonth:number,choice:string,goal:GoalId,difficulty:DifficultyId='balance'){let state=initialState(difficulty);const result:Report[]=[];let trimmed=0;for(let i=0;i<reports.length;i++){let p=clone(reports[i].plan);if(i===changedMonth)p.choice=choice;
   const oldWithdraw=p.withdraw,oldSell=p.sell;p.withdraw=Math.min(p.withdraw,Math.floor(state.savings));p.sell=Math.min(p.sell,Math.floor(state.fund));trimmed+=oldWithdraw-p.withdraw+oldSell-p.sell;

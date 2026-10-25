@@ -6,7 +6,8 @@
     "build": "node build.mjs",
     "check": "tsc --noEmit",
     "test:game": "node scripts/check-game.mjs",
-    "test:stories": "node scripts/check-situations.mjs && node scripts/check-random-stories.mjs"
+    "test:stories": "node scripts/check-situations.mjs && node scripts/check-random-stories.mjs",
+    "test:room": "node scripts/check-room.mjs"
   },
   "dependencies": {
     "react": "19.2.6",

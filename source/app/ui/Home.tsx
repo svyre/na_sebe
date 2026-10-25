@@ -21,7 +21,7 @@ export function Home({solo, onSolo, onDifficulty, onGuide, onResults}: HomeProps
       <div className="intro-copy">
         <span className="intro-tag"><span className="intro-tag-dot"/>Можно попробовать взрослую жизнь</span>
         <h1 id="intro-title">Твой год.<br/>Твои деньги.<br/>Твои решения.</h1>
-        <p className="intro-description">Съехать от родителей, найти подработку, не потратить всё в сентябре. Проживи первый самостоятельный год: случайные ситуации, решения и последствия — пока в игре.</p>
+        <p className="intro-description">Начни самостоятельный год со своей комнаты: обустраивай её, учись, работай и решай жизненные ситуации — пока в игре.</p>
         <div className="intro-actions">
           <button className="button primary" onClick={begin}>{startLabel}<ArrowUpRight size={20}/></button>
           <button className="intro-guide" onClick={onGuide}><span><Play size={13} fill="currentColor"/></span>Как играть</button>
@@ -66,7 +66,7 @@ export function Home({solo, onSolo, onDifficulty, onGuide, onResults}: HomeProps
     <section className="how-section" aria-labelledby="how-title">
       <div className="how-intro"><span className="section-caption">Маленькие решения. Целый год.</span><h2 id="how-title">Всё как в жизни.<br/>Только с правом<br/>попробовать ещё.</h2><p>В конце увидишь свою историю и сможешь сравнить её с другим решением.</p><button className="text-button" onClick={solo&&solo.month>0?onResults:onGuide}>Посмотреть, как устроена игра<ArrowUpRight size={17}/></button><div className="month-ribbon" aria-label="12 месяцев игры">{['Сен','Окт','Ноя','Дек','Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг'].map((month,i)=><span key={month} className={i===0?'month-start':''}>{month}</span>)}</div></div>
       <div className="how-steps">{[
-        {title:'Разберись в ситуации',text:'Каждый месяц случайно выпадает от 1 до 3 ситуаций без повторов за год: жильё, работа, покупки или неожиданное предложение. Прочитай условия и выбери, как поступить.',icon:BookOpen},
+        {title:'Начни со своей комнаты',text:'Предметы открывают учёбу, работу, банк и ситуации месяца. Обустройство стоит денег, занимает время и помогает в следующих месяцах.',icon:BookOpen},
         {title:'Собери свой план',text:'Распредели деньги и время между работой, учёбой и отдыхом. Бюджет покажет, сколько останется на руках до принятия решения.',icon:Wallet},
         {title:'Узнай, к чему всё привело',text:'Заверши месяц, посмотри операции и последствия. Измени стратегию в следующем месяце, а в финале сравни альтернативный выбор.',icon:GitBranch}
       ].map(({title,text,icon:Icon},i)=><details className="how-step" key={title} open={i===0?true:undefined}><summary><span className="step-number">{i+1}</span><h3>{title}</h3><ChevronDown size={20}/></summary><div className="step-body"><p>{text}</p><Icon size={28}/></div></details>)}</div>

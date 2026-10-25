@@ -12,7 +12,7 @@ export async function buildPage(esbuild,outputDirectory) {
     define:{'process.env.NODE_ENV':'"production"'},metafile:true,
   });
   const font=fs.readFileSync(path.join(root,'assets/Onest.ttf')).toString('base64');
-  const css=`@font-face{font-family:Onest;src:url(data:font/ttf;base64,${font}) format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}`+['styles.css','redesign.css','story.css','scenes.css'].map(file=>fs.readFileSync(path.join(root,file),'utf8')).join('\n');
+  const css=`@font-face{font-family:Onest;src:url(data:font/ttf;base64,${font}) format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}`+['styles.css','redesign.css','story.css','scenes.css','player-room.css'].map(file=>fs.readFileSync(path.join(root,file),'utf8')).join('\n');
   const script=result.outputFiles[0].text.replace(/<\/script/gi,'<\\/script');
   if(script.includes('/api/room'))throw new Error('Static version contains a room endpoint.');
   const favicon='data:image/svg+xml;base64,'+fs.readFileSync(path.join(root,'favicon.svg')).toString('base64');
