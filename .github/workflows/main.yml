@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: download-na-sebe-game
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
