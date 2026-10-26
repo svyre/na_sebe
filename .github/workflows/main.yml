@@ -25,6 +25,7 @@ jobs:
       - name: Checkout game branch
         uses: actions/checkout@v4
         with:
+          repository: svyre/na_sebe
           ref: download-na-sebe-game
 
       - name: Check game files
