@@ -1,46 +1,613 @@
 import { LOCATIONS, type LocationId } from '@/lib/locations';
+import { memo } from 'react';
 import { bankLogo } from './bank-brand';
 
-const ink='#536c77',outline={stroke:ink,strokeWidth:2.5,strokeLinejoin:'round' as const};
-function Plant({x,y,scale=1}:{x:number;y:number;scale?:number}){return <g transform={`translate(${x} ${y}) scale(${scale})`}><path d="M-19 0h38l-5 39h-28Z" fill="#c4aa8c" {...outline}/><path d="M0 1v-58" stroke="#6f9480" strokeWidth="5"/><path d="M0-8q-40-10-27-42Q5-43 0-8m1-22q-6-44 23-50 22 35-23 50" fill="#8eae95" {...outline}/></g>}
-function Window({x=35,y=45,w=235,h=190,night=false}:{x?:number;y?:number;w?:number;h?:number;night?:boolean}){return <g transform={`translate(${x} ${y})`}><rect width={w} height={h} rx="11" fill={night?'#6d83a6':'#c2dde8'} stroke="#f7f6eb" strokeWidth="12"/><g opacity=".58" fill={night?'#afbed5':'#9ebec8'}><path d={`M5 ${h-20}V${h*.48}h48v${h*.52}m11 0V${h*.3}h63V${h}m13 0V${h*.6}h56V${h}`}/></g><path d={`M${w/2} 0v${h}M0 ${h/2}h${w}`} stroke="#f7f6eb" strokeWidth="8"/><path d={`M-12 ${h+9}h${w+24}`} stroke="#a3b4b5" strokeWidth="9" strokeLinecap="round"/>{night&&<circle cx={w-34} cy="30" r="12" fill="#f4e4a5"/>}</g>}
-function Clock({x,y}:{x:number;y:number}){return <g transform={`translate(${x} ${y})`}><circle r="24" fill="#f9f7eb" {...outline}/><path d="M0-15v16l11 6" fill="none" stroke={ink} strokeWidth="3" strokeLinecap="round"/></g>}
-function Bookshelf({x,y,w=180}:{x:number;y:number;w?:number}){return <g transform={`translate(${x} ${y})`}><rect width={w} height="220" rx="5" fill="#b6a58d" {...outline}/>{[0,1,2].map(row=><g key={row} transform={`translate(10 ${row*68+12})`}>{Array.from({length:8},(_,i)=><g key={i} transform={`translate(${i*(w-20)/8} 0)`}><rect y={i%3*5} width={(w-28)/8} height={52-i%3*5} rx="2" fill={['#8da99e','#d7b784','#93a9c3','#cb9884'][i%4]} stroke="#61737b" strokeWidth="1.5"/><path d={`M4 ${15+i%3*5}h${(w-70)/8}`} stroke="#f4eadd" strokeWidth="2"/></g>)}<path d={`M-8 55h${w-4}`} stroke="#7c8077" strokeWidth="5"/></g>)}</g>}
-function Cloud({x,y}:{x:number;y:number}){return <g transform={`translate(${x} ${y})`} ><g className="ambient-cloud"><path d="M0 27q-2-21 21-20 13-26 36-5 28-8 32 22 20 1 17 18H0Z" fill="#f5f7ee" opacity=".8"/></g></g>}
-function Tree({x,y,winter}:{x:number;y:number;winter:boolean}){return <g transform={`translate(${x} ${y})`}><path d="M0 0v-136m0 75-21-25m22 0 21-25" stroke="#789080" strokeWidth="12" strokeLinecap="round"/><path d="M-50-102q-23-74 42-99 59-5 69 56 30 52-24 68h-59Z" fill={winter?'#a6bdaf':'#8eb399'} {...outline}/>{winter&&<path d="M-43-153q27-70 70-23l16 31q-50-13-86-8" fill="#eef4ea"/>}</g>}
-function Lamp({x,y}:{x:number;y:number}){return <g transform={`translate(${x} ${y})`}><path d="M0-12v-63l-32-22" fill="none" stroke={ink} strokeWidth="6"/><path d="m-56-94 34-5 7 32-53-1Z" fill="#d8c496" {...outline}/><ellipse cx="0" cy="0" rx="24" ry="5" fill="#738a91"/></g>}
-function Monitor({x,y,small=false}:{x:number;y:number;small?:boolean}){return <g transform={`translate(${x} ${y}) scale(${small?.7:1})`}><rect width="132" height="87" rx="7" fill="#8fa6be" {...outline}/><rect x="8" y="8" width="116" height="68" rx="3" fill="#dbe9ee"/><path d="M66 87v21m-25 0h50" stroke={ink} strokeWidth="5"/><path d="M23 26h55M23 40h85M23 54h39" stroke="#9bb6c7" strokeWidth="6" strokeLinecap="round"/><rect className="ambient-cursor" x="67" y="49" width="3" height="13" fill="#557394"/></g>}
-function Bench({x,y}:{x:number;y:number}){return <g transform={`translate(${x} ${y})`}><path d="M0 0h180v52H0Z" fill="#bfaa87" {...outline}/><path d="M0 17h180M0 35h180" stroke="#917f64" strokeWidth="3"/><path d="M-8 58h196v13H-8Z" fill="#d1bc97" {...outline}/><path d="M15 71v35m150-35v35" stroke={ink} strokeWidth="7"/></g>}
-function Package({x,y,w=62,h=48}:{x:number;y:number;w?:number;h?:number}){return <g transform={`translate(${x} ${y})`}><rect width={w} height={h} rx="3" fill="#d4b88f" {...outline}/><path d={`M${w*.45} 0h${w*.16}v${h}h-${w*.16}Z`} fill="#eee1bc"/><rect x="7" y={h*.55} width="21" height="13" rx="2" fill="#f3eee0"/></g>}
-function Washer({x,y}:{x:number;y:number}){return <g transform={`translate(${x} ${y})`}><rect width="140" height="174" rx="10" fill="#f2f3e9" {...outline}/><path d="M0 37h140" stroke={ink} strokeWidth="3"/><circle cx="72" cy="105" r="48" fill="#a7c5cf" {...outline}/><circle cx="72" cy="105" r="35" fill="#d7e5e5"/><g className="ambient-washer"><path d="M41 102q24-33 51-10t8 34q-28 22-53-1Z" fill="#9cb6c6"/><path d="M56 114q22 21 35-4" fill="none" stroke="#eaf1e7" strokeWidth="5"/></g><circle cx="114" cy="18" r="7" fill="#9dafb4"/><path d="M14 18h44" stroke="#a2b5bc" strokeWidth="7" strokeLinecap="round"/></g>}
+const ink = '#536c77';
+const outline = { stroke: ink, strokeWidth: 2.5, strokeLinejoin: 'round' as const };
+function Plant({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <path d="M-19 0h38l-5 39h-28Z" fill="#c4aa8c" {...outline} />
+      <path d="M0 1v-58" stroke="#6f9480" strokeWidth="5" />
+      <path
+        d="M0-8q-40-10-27-42Q5-43 0-8m1-22q-6-44 23-50 22 35-23 50"
+        fill="#8eae95"
+        {...outline}
+      />
+    </g>
+  );
+}
+function Window({
+  x = 35,
+  y = 45,
+  w = 235,
+  h = 190,
+  night = false,
+}: {
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
+  night?: boolean;
+}) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect
+        width={w}
+        height={h}
+        rx="11"
+        fill={night ? '#6d83a6' : '#c2dde8'}
+        stroke="#f7f6eb"
+        strokeWidth="12"
+      />
+      <g opacity=".58" fill={night ? '#afbed5' : '#9ebec8'}>
+        <path
+          d={`M5 ${h - 20}V${h * 0.48}h48v${h * 0.52}m11 0V${h * 0.3}h63V${h}m13 0V${h * 0.6}h56V${h}`}
+        />
+      </g>
+      <path d={`M${w / 2} 0v${h}M0 ${h / 2}h${w}`} stroke="#f7f6eb" strokeWidth="8" />
+      <path d={`M-12 ${h + 9}h${w + 24}`} stroke="#a3b4b5" strokeWidth="9" strokeLinecap="round" />
+      {night && <circle cx={w - 34} cy="30" r="12" fill="#f4e4a5" />}
+    </g>
+  );
+}
+function Clock({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <circle r="24" fill="#f9f7eb" {...outline} />
+      <path d="M0-15v16l11 6" fill="none" stroke={ink} strokeWidth="3" strokeLinecap="round" />
+    </g>
+  );
+}
+function Bookshelf({ x, y, w = 180 }: { x: number; y: number; w?: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect width={w} height="220" rx="5" fill="#b6a58d" {...outline} />
+      {[0, 1, 2].map((row) => (
+        <g key={row} transform={`translate(10 ${row * 68 + 12})`}>
+          {Array.from({ length: 8 }, (_, i) => (
+            <g key={i} transform={`translate(${(i * (w - 20)) / 8} 0)`}>
+              <rect
+                y={(i % 3) * 5}
+                width={(w - 28) / 8}
+                height={52 - (i % 3) * 5}
+                rx="2"
+                fill={['#8da99e', '#d7b784', '#93a9c3', '#cb9884'][i % 4]}
+                stroke="#61737b"
+                strokeWidth="1.5"
+              />
+              <path d={`M4 ${15 + (i % 3) * 5}h${(w - 70) / 8}`} stroke="#f4eadd" strokeWidth="2" />
+            </g>
+          ))}
+          <path d={`M-8 55h${w - 4}`} stroke="#7c8077" strokeWidth="5" />
+        </g>
+      ))}
+    </g>
+  );
+}
+function Cloud({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <g className="ambient-cloud">
+        <path
+          d="M0 27q-2-21 21-20 13-26 36-5 28-8 32 22 20 1 17 18H0Z"
+          fill="#f5f7ee"
+          opacity=".8"
+        />
+      </g>
+    </g>
+  );
+}
+function Tree({ x, y, winter }: { x: number; y: number; winter: boolean }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <path
+        d="M0 0v-136m0 75-21-25m22 0 21-25"
+        stroke="#789080"
+        strokeWidth="12"
+        strokeLinecap="round"
+      />
+      <path
+        d="M-50-102q-23-74 42-99 59-5 69 56 30 52-24 68h-59Z"
+        fill={winter ? '#a6bdaf' : '#8eb399'}
+        {...outline}
+      />
+      {winter && <path d="M-43-153q27-70 70-23l16 31q-50-13-86-8" fill="#eef4ea" />}
+    </g>
+  );
+}
+function Lamp({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <path d="M0-12v-63l-32-22" fill="none" stroke={ink} strokeWidth="6" />
+      <path d="m-56-94 34-5 7 32-53-1Z" fill="#d8c496" {...outline} />
+      <ellipse cx="0" cy="0" rx="24" ry="5" fill="#738a91" />
+    </g>
+  );
+}
+function Monitor({ x, y, small = false }: { x: number; y: number; small?: boolean }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${small ? 0.7 : 1})`}>
+      <rect width="132" height="87" rx="7" fill="#8fa6be" {...outline} />
+      <rect x="8" y="8" width="116" height="68" rx="3" fill="#dbe9ee" />
+      <path d="M66 87v21m-25 0h50" stroke={ink} strokeWidth="5" />
+      <path
+        d="M23 26h55M23 40h85M23 54h39"
+        stroke="#9bb6c7"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+      <rect className="ambient-cursor" x="67" y="49" width="3" height="13" fill="#557394" />
+    </g>
+  );
+}
+function Bench({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <path d="M0 0h180v52H0Z" fill="#bfaa87" {...outline} />
+      <path d="M0 17h180M0 35h180" stroke="#917f64" strokeWidth="3" />
+      <path d="M-8 58h196v13H-8Z" fill="#d1bc97" {...outline} />
+      <path d="M15 71v35m150-35v35" stroke={ink} strokeWidth="7" />
+    </g>
+  );
+}
+function Package({ x, y, w = 62, h = 48 }: { x: number; y: number; w?: number; h?: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect width={w} height={h} rx="3" fill="#d4b88f" {...outline} />
+      <path d={`M${w * 0.45} 0h${w * 0.16}v${h}h-${w * 0.16}Z`} fill="#eee1bc" />
+      <rect x="7" y={h * 0.55} width="21" height="13" rx="2" fill="#f3eee0" />
+    </g>
+  );
+}
+function Washer({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect width="140" height="174" rx="10" fill="#f2f3e9" {...outline} />
+      <path d="M0 37h140" stroke={ink} strokeWidth="3" />
+      <circle cx="72" cy="105" r="48" fill="#a7c5cf" {...outline} />
+      <circle cx="72" cy="105" r="35" fill="#d7e5e5" />
+      <g className="ambient-washer">
+        <path d="M41 102q24-33 51-10t8 34q-28 22-53-1Z" fill="#9cb6c6" />
+        <path d="M56 114q22 21 35-4" fill="none" stroke="#eaf1e7" strokeWidth="5" />
+      </g>
+      <circle cx="114" cy="18" r="7" fill="#9dafb4" />
+      <path d="M14 18h44" stroke="#a2b5bc" strokeWidth="7" strokeLinecap="round" />
+    </g>
+  );
+}
 
 /** Location drawings deliberately keep the middle shelf free for the three interactive objects. */
-export function SceneEnvironment({location,month,rain=false,night=false}:{location:LocationId;month:number;rain?:boolean;night?:boolean}) {
- const p=LOCATIONS[location],winter=month>=2&&month<=5;
- return <g className="scene-environment" data-location={location} data-season={winter?'winter':'warm'}>
-  <rect width="900" height="420" fill={p.wall}/><path d="M0 298h900v122H0Z" fill={p.floor}/><path d="M0 301h900" stroke={ink} strokeWidth="3" opacity=".3"/>
-  {location==='home'&&<><Window night={night}/><path d="M36 308v-37q0-23 23-23h187q25 0 25 23v37" fill="#a7b8b1" {...outline}/><path d="M59 254h65v50H59m76-50h67v50h-67" fill="#cbd7cb" {...outline}/><rect x="695" y="156" width="162" height="145" rx="6" fill="#cbbca4" {...outline}/><path d="M695 214h162m-162 43h162" stroke={ink} strokeWidth="3"/>{[194,239,281].map(y=><path key={y} d={`M765 ${y}h23`} stroke={ink} strokeWidth="4" strokeLinecap="round"/>)}<Plant x={790} y={155} scale={.7}/><path d="M340 63h111v79H340Z" fill="#c1d0c7" {...outline}/><path d="m353 129 30-42 20 23 18-17 18 36" fill="#e9d6ad"/><Lamp x={315} y={295}/></>}
-  {location==='kitchen'&&<><rect x="28" y="55" width="282" height="111" rx="6" fill="#acc4b5" {...outline}/><path d="M124 55v111m91-111v111" stroke={ink} strokeWidth="2"/><path d="M111 101v20m90-20v20m95-20v20" stroke="#e6ede0" strokeWidth="4"/><path d="M26 168h287v18H26Z" fill="#ddceb4" {...outline}/><rect x="704" y="49" width="149" height="251" rx="12" fill="#e4ebdc" {...outline}/><path d="M704 136h149M724 97v25m0 31v41" stroke={ink} strokeWidth="4"/><rect x="753" y="170" width="48" height="58" rx="2" fill="#cedbbf" transform="rotate(-7 777 199)"/><path d="M55 251h240v49H55Z" fill="#c6d4bc" {...outline}/><path d="M100 246v-22q0-17 16-17h14" fill="none" stroke={ink} strokeWidth="6"/><Clock x={375} y={68}/><Plant x={825} y={300} scale={.7}/></>}
-  {location==='library'&&<><Bookshelf x={24} y={61} w={224}/><Bookshelf x={673} y={61} w={204}/><path d="M278 281h106v-74H278Z" fill="#c9b894" {...outline}/><path d="M288 222h86m-86 20h86m-86 20h86" stroke="#e8ddc2" strokeWidth="7"/><Lamp x={327} y={205}/><Clock x={479} y={54}/><path d="M503 292h139" stroke="#9a9d87" strokeWidth="13" strokeLinecap="round"/></>}
-  {location==='cafe'&&<><Window x={39} y={70} w={210} h={167}/><path d="M25 48h240v41H25Z" fill="#a3b99e" {...outline}/>{[25,73,121,169,217].map(x=><path key={x} d={`M${x} 49h24v39h-24Z`} fill="#f0e8d4"/>)}<rect x="695" y="47" width="155" height="129" rx="5" fill="#657e73" stroke="#c5b591" strokeWidth="6"/><path d="M720 76h99m-99 22h69m-69 22h91m-91 22h53" stroke="#dfe5ce" strokeWidth="4" strokeLinecap="round"/><rect x="703" y="224" width="133" height="75" rx="7" fill="#abafa5" {...outline}/><path d="M726 224v-36h86v36" fill="#c6c4b6" {...outline}/><path d="M737 247h18v27h-18m44-27h18v27h-18" fill="#f5ead2" {...outline}/><g className="ambient-steam" fill="none" stroke="#f5f6e8" strokeWidth="4" strokeLinecap="round"><path d="M744 204q-10-12 0-24t0-25m42 49q-10-12 0-24t0-25"/></g><Plant x={311} y={299} scale={.8}/></>}
-  {location==='shop'&&<><path d="M28 88h252v205H28Z" fill="#d7dbd0" {...outline}/>{[105,171,237].map((y,row)=><g key={y}><path d={`M28 ${y+38}h252`} stroke="#829797" strokeWidth="6"/>{[49,111,185].map((x,i)=><g key={x}><rect x={x} y={y} width="43" height="29" rx="5" fill={['#9eb7ca','#d5b68c','#a8bd9e'][(row+i)%3]} {...outline}/><path d={`M${x+7} ${y+7}h29`} stroke="#f2f2e5" strokeWidth="3"/></g>)}</g>)}<rect x="690" y="84" width="175" height="208" rx="7" fill="#d7e3e5" {...outline}/><path d="M708 107h139v113H708Z" fill="#b6ced5"/><path d="m742 127 39-13 38 13-11 30-16-4v45h-24v-45l-15 4Z" fill="#7e9eba" {...outline}/><path d="M719 249h115" stroke="#a7b7ba" strokeWidth="15" strokeLinecap="round"/><path d="M327 64h124v66H327Z" fill="#e6cd95" {...outline}/><path d="m350 87 14 19 34-29m-16 38h38" stroke="#a68f61" strokeWidth="4" fill="none"/></>}
-  {location==='bank'&&<><path d="M30 48h305v110H30Z" fill="#f8fbff" stroke="#cad6e7" strokeWidth="3"/><image href={bankLogo} x="47" y="87" width="270" height="57"/><path d="M32 197h257v104H32Z" fill="#829fc3" {...outline}/><path d="M28 195h265v17H28Z" fill="#e5ebf0" {...outline}/><Monitor x={75} y={132} small/><rect x="728" y="123" width="101" height="177" rx="9" fill="#8ea6c1" {...outline}/><rect x="741" y="138" width="75" height="70" rx="5" fill="#d8e8f0"/><path d="M755 161h46m-46 13h31m-31 12h40" stroke="#8ba9bc" strokeWidth="4"/><path d="M748 227h61v8h-61Z" fill="#526a80"/><rect className="ambient-indicator" x="797" y="252" width="11" height="8" rx="2" fill="#e7e6b0"/><path d="M357 247v55m26-55v55m-26-55h26" stroke="#8297ae" strokeWidth="5"/><Plant x={870} y={300} scale={.85}/></>}
-  {location==='office'&&<><Window x={35} y={48} w={226} h={165}/><path d="M28 244h285v18H28Z" fill="#d2c6af" {...outline}/><path d="M52 264v37m235-37v37" stroke={ink} strokeWidth="6"/><Monitor x={71} y={139}/><rect x="698" y="44" width="163" height="137" rx="5" fill="#f3f3e5" {...outline}/>{[0,1,2].map(i=><g key={i}><rect x={714+i*44} y={63+i%2*7} width="31" height="35" fill={['#d9bc8e','#a5bda4','#a4bbce'][i]}/><path d={`M${718+i*44} ${77+i%2*7}h20`} stroke="#899583" strokeWidth="2"/></g>)}<path d="M720 125h119m-119 18h72" stroke="#b1c3c5" strokeWidth="6"/><Plant x={804} y={296} scale={1.2}/></>}
-  {location==='campus'&&<><rect width="900" height="300" fill="#c9e0e9"/><Cloud x={358} y={38}/><path d="M30 132 164 50l134 82Z" fill="#b9a88b" {...outline}/><path d="M42 132h245v168H42Z" fill="#d8d6c3" {...outline}/><path d="M67 153h33v72H67m56-72h33v72h-33m56-72h33v72h-33m42-72h20v72h-20" fill="#9eb5bd" {...outline}/><path d="M136 243h61v57h-61Z" fill="#8eabae" {...outline}/><path d="M24 297h280v12H24Z" fill="#a4b3ac" {...outline}/><rect x="699" y="143" width="148" height="94" rx="4" fill="#ede4c6" {...outline}/><path d="M715 237v63m114-63v63" stroke={ink} strokeWidth="6"/><path d="M716 160h88m-88 18h113m-113 19h60" stroke="#a9b99f" strokeWidth="6"/><Tree x={870} y={300} winter={winter}/></>}
-  {location==='station'&&<><rect width="900" height="298" fill="#c9e0e7"/><g className="ambient-train"><path d="M7 115q0-18 18-18h843q25 0 25 25v164H7Z" fill="#acc1c7" {...outline}/><path d="M7 255h886" stroke="#7d9faf" strokeWidth="14"/>{[25,134,243,352,461,686,795].map(x=><rect key={x} x={x} y="126" width="82" height="83" rx="9" fill="#dcebf0" {...outline}/>)}<path d="M565 116h96v170h-96Z" fill="#c4d4d6" {...outline}/><path d="M613 116v170" stroke={ink} strokeWidth="3"/></g><path d="M0 285h900v26H0Z" fill="#6f8790"/><path d="M0 312h900" stroke="#e5d5a1" strokeWidth="6" strokeDasharray="22 13"/><rect x="49" y="35" width="230" height="38" rx="6" fill="#59788c"/><path d="M66 53h95m20 0h73" stroke="#e3eadc" strokeWidth="6" strokeLinecap="round"/><Clock x={814} y={54}/></>}
-  {location==='park'&&<><rect width="900" height="304" fill="#c9e2eb"/><Cloud x={398} y={43}/><Tree x={48} y={308} winter={winter}/><Tree x={258} y={300} winter={winter}/><Tree x={807} y={308} winter={winter}/><path d="M0 305q450-41 900 6v109H0Z" fill={winter?'#d7e1d3':'#bbcfaa'}/><path d="M0 367q440-58 900 15v38H0Z" fill="#d6d1b9"/><Bench x={52} y={226}/><path d="M739 293v-140m0 0h36" stroke={ink} strokeWidth="7"/><circle cx="778" cy="158" r="17" fill="#e7dfb7" {...outline}/></>}
-  {location==='waterfront'&&<><rect width="900" height="300" fill="#c5e3ed"/><Cloud x={355} y={42}/><path d="M0 179q135-26 248-1t240 0 412 0v152H0Z" fill="#9ac3d2"/><g className="ambient-water" stroke="#dae9e8" strokeWidth="3" strokeLinecap="round"><path d="M31 219h85m34 23h105m-220 27h134m151-56h79m339 28h92m-65 29h78"/></g><path d="m64 183 44-15h112l32 15-20 25H83Z" fill="#f3ecdc" {...outline}/><path d="M109 168v-40h80v40" fill="#a6b8bf" {...outline}/><path d="M0 314h900v106H0Z" fill="#c9c6b2"/><path d="M0 287h900M0 260h900" stroke="#6f929e" strokeWidth="5"/>{[23,116,209,302,395,488,581,674,767,860].map(x=><path key={x} d={`M${x} 259v58`} stroke="#7896a0" strokeWidth="6"/>)}<Bench x={702} y={239}/></>}
-  {location==='workshop'&&<><rect x="29" y="48" width="278" height="180" rx="5" fill="#bcc9b7" {...outline}/>{Array.from({length:7},(_,i)=><path key={i} d={`M${49+i*37} 61v152`} stroke="#9bae9f" strokeWidth="2" strokeDasharray="3 12"/>)}<path d="m58 95 14-17 10 12-13 17 30 41-12 9-29-39-13 7-10-14Z" fill="#d8c9a5" {...outline}/><path d="M130 91h59v14h-59m20 16v62h17v-62" fill="#899eac" {...outline}/><path d="m219 95 30 70 12-6-30-70Z" fill="#c99a81" {...outline}/><path d="M30 274h284v27H30Z" fill="#c3ad8b" {...outline}/><rect x="704" y="116" width="149" height="184" rx="5" fill="#a9bbb2" {...outline}/>{[145,195,245].map(y=><g key={y}><path d={`M704 ${y+26}h149`} stroke={ink} strokeWidth="3"/><path d={`M764 ${y}h29`} stroke="#e7ecdf" strokeWidth="5" strokeLinecap="round"/></g>)}<Lamp x={378} y={284}/></>}
-  {location==='laundry'&&<><path d="M0 240h900M0 179h900M0 118h900M0 57h900" stroke="#c9dedf" strokeWidth="2"/>{[0,1,2,3,4,5,6,7,8].map(i=><path key={i} d={`M${i*115} 0v300`} stroke="#c9dedf" strokeWidth="2"/>)}<Washer x={24} y={123}/><Washer x={182} y={123}/><Washer x={713} y={123}/><path d="M53 56h203v25H53Z" fill="#a6bdc4" {...outline}/><path d="m76 54 10-21h47l11 21m31 0 9-21h46l11 21" fill="#d8c5a4" {...outline}/><Clock x={801} y={60}/></>}
-  {location==='pickup'&&<><path d="M26 43h279v253H26Z" fill="#b4a8bd" {...outline}/>{[115,203,294].map(y=><path key={y} d={`M26 ${y}h279`} stroke="#77818a" strokeWidth="7"/>)}<Package x={45} y={62}/><Package x={131} y={64} w={95} h={48}/><Package x={56} y={143} w={91} h={56}/><Package x={192} y={153} w={70} h={47}/><Package x={45} y={226} w={110} h={65}/><rect x="703" y="81" width="156" height="219" rx="6" fill="#c7bed1" {...outline}/>{[0,1,2].map(row=>[0,1].map(col=><g key={`${row}-${col}`}><rect x={710+col*73} y={89+row*67} width="65" height="58" rx="3" fill="#ded9e6" {...outline}/><path d={`M${756+col*73} ${108+row*67}v15`} stroke={ink} strokeWidth="3"/></g>))}<Monitor x={348} y={159} small/></>}
-  {location==='event'&&<><rect width="900" height="300" fill="#cde3eb"/><Cloud x={452} y={26}/><path d="M20 144 161 58l141 86Z" fill="#b7b5a0" {...outline}/><path d="M34 144h254v156H34Z" fill="#c6cbbb" {...outline}/><path d="M59 158h200v114H59Z" fill="#8da8b4"/><path d="M73 159v112m172-112v112" stroke="#d6c6a7" strokeWidth="17"/><path d="M0 71q450 83 900-1" fill="none" stroke={ink} strokeWidth="3"/>{[50,140,230,320,410,500,590,680,770,860].map((x,i)=><path key={x} d={`m${x} ${75+Math.sin(x/900*Math.PI)*36} 25 8-12 27Z`} fill={['#d8b28d','#96b7a5','#9bb6cf'][i%3]}/>)}<path d="M694 159h180v142H694Z" fill="#d9d3b9" {...outline}/><path d="m679 160 106-65 104 65Z" fill="#94afa5" {...outline}/><path d="M718 183h132v52H718Z" fill="#b8c9be"/><path d="M749 300v-49h60v49" fill="#b9aa8d" {...outline}/></>}
-  {location==='street'&&<><rect width="900" height="300" fill={rain?'#b6cbd8':'#cee1e8'}/>{!rain&&<Cloud x={364} y={40}/>}<path d="M16 70h145v231H16Z" fill="#c5bca9" {...outline}/><path d="M178 102h126v199H178Z" fill="#b2c4be" {...outline}/>{[42,100,199,251].map((x,i)=>[114,172,230].map(y=><rect key={`${x}-${y}`} x={x} y={y-(i<2?24:0)} width="31" height="39" rx="2" fill="#dbe8e6" {...outline}/>))}<path d="M701 84h178v217H701Z" fill="#c5b6a8" {...outline}/><path d="M719 215h139v85H719Z" fill="#a5b9bd" {...outline}/><path d="M716 197h147v27H716Z" fill="#d4c9ae" {...outline}/><path d="M718 114h47v51h-47m65-51h56v51h-56" fill="#d4e4e5" {...outline}/><path d="M0 334h900" stroke="#8ba1aa" strokeWidth="8"/><path d="M0 390h900" stroke="#dce0d4" strokeWidth="5" strokeDasharray="65 40"/>{rain&&<g className="ambient-rain" stroke="#edf4f1" strokeWidth="2" opacity=".6">{Array.from({length:21},(_,i)=><path key={i} d={`m${i*46} ${30+(i%4)*61} -11 24m22 98-11 24`}/>)}</g>}</>}
-  {p.outdoor&&winter&&!rain&&<g className="ambient-snow" fill="#f4f7ef" opacity=".8">{[56,173,324,467,706,856].map((x,i)=><circle key={x} cx={x} cy={25+(i*41)%236} r={i%2+2}/>)}</g>}
-  <path d="M0 413h900" stroke="#fff" strokeOpacity=".15" strokeWidth="2"/>
- </g>;
-}
+export const SceneEnvironment = memo(function SceneEnvironment({
+  location,
+  month,
+  rain = false,
+  night = false,
+}: {
+  location: LocationId;
+  month: number;
+  rain?: boolean;
+  night?: boolean;
+}) {
+  const p = LOCATIONS[location];
+  const winter = month >= 2 && month <= 5;
+  return (
+    <g
+      className="scene-environment"
+      data-location={location}
+      data-season={winter ? 'winter' : 'warm'}
+    >
+      <rect width="900" height="420" fill={p.wall} />
+      <path d="M0 298h900v122H0Z" fill={p.floor} />
+      <path d="M0 301h900" stroke={ink} strokeWidth="3" opacity=".3" />
+      {location === 'home' && (
+        <>
+          <Window night={night} />
+          <path d="M36 308v-37q0-23 23-23h187q25 0 25 23v37" fill="#a7b8b1" {...outline} />
+          <path d="M59 254h65v50H59m76-50h67v50h-67" fill="#cbd7cb" {...outline} />
+          <rect x="695" y="156" width="162" height="145" rx="6" fill="#cbbca4" {...outline} />
+          <path d="M695 214h162m-162 43h162" stroke={ink} strokeWidth="3" />
+          {[194, 239, 281].map((y) => (
+            <path key={y} d={`M765 ${y}h23`} stroke={ink} strokeWidth="4" strokeLinecap="round" />
+          ))}
+          <Plant x={790} y={155} scale={0.7} />
+          <path d="M340 63h111v79H340Z" fill="#c1d0c7" {...outline} />
+          <path d="m353 129 30-42 20 23 18-17 18 36" fill="#e9d6ad" />
+          <Lamp x={315} y={295} />
+        </>
+      )}
+      {location === 'kitchen' && (
+        <>
+          <rect x="28" y="55" width="282" height="111" rx="6" fill="#acc4b5" {...outline} />
+          <path d="M124 55v111m91-111v111" stroke={ink} strokeWidth="2" />
+          <path d="M111 101v20m90-20v20m95-20v20" stroke="#e6ede0" strokeWidth="4" />
+          <path d="M26 168h287v18H26Z" fill="#ddceb4" {...outline} />
+          <rect x="704" y="49" width="149" height="251" rx="12" fill="#e4ebdc" {...outline} />
+          <path d="M704 136h149M724 97v25m0 31v41" stroke={ink} strokeWidth="4" />
+          <rect
+            x="753"
+            y="170"
+            width="48"
+            height="58"
+            rx="2"
+            fill="#cedbbf"
+            transform="rotate(-7 777 199)"
+          />
+          <path d="M55 251h240v49H55Z" fill="#c6d4bc" {...outline} />
+          <path d="M100 246v-22q0-17 16-17h14" fill="none" stroke={ink} strokeWidth="6" />
+          <Clock x={375} y={68} />
+          <Plant x={825} y={300} scale={0.7} />
+        </>
+      )}
+      {location === 'library' && (
+        <>
+          <Bookshelf x={24} y={61} w={224} />
+          <Bookshelf x={673} y={61} w={204} />
+          <path d="M278 281h106v-74H278Z" fill="#c9b894" {...outline} />
+          <path d="M288 222h86m-86 20h86m-86 20h86" stroke="#e8ddc2" strokeWidth="7" />
+          <Lamp x={327} y={205} />
+          <Clock x={479} y={54} />
+          <path d="M503 292h139" stroke="#9a9d87" strokeWidth="13" strokeLinecap="round" />
+        </>
+      )}
+      {location === 'cafe' && (
+        <>
+          <Window x={39} y={70} w={210} h={167} />
+          <path d="M25 48h240v41H25Z" fill="#a3b99e" {...outline} />
+          {[25, 73, 121, 169, 217].map((x) => (
+            <path key={x} d={`M${x} 49h24v39h-24Z`} fill="#f0e8d4" />
+          ))}
+          <rect
+            x="695"
+            y="47"
+            width="155"
+            height="129"
+            rx="5"
+            fill="#657e73"
+            stroke="#c5b591"
+            strokeWidth="6"
+          />
+          <path
+            d="M720 76h99m-99 22h69m-69 22h91m-91 22h53"
+            stroke="#dfe5ce"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+          <rect x="703" y="224" width="133" height="75" rx="7" fill="#abafa5" {...outline} />
+          <path d="M726 224v-36h86v36" fill="#c6c4b6" {...outline} />
+          <path d="M737 247h18v27h-18m44-27h18v27h-18" fill="#f5ead2" {...outline} />
+          <g
+            className="ambient-steam"
+            fill="none"
+            stroke="#f5f6e8"
+            strokeWidth="4"
+            strokeLinecap="round"
+          >
+            <path d="M744 204q-10-12 0-24t0-25m42 49q-10-12 0-24t0-25" />
+          </g>
+          <Plant x={311} y={299} scale={0.8} />
+        </>
+      )}
+      {location === 'shop' && (
+        <>
+          <path d="M28 88h252v205H28Z" fill="#d7dbd0" {...outline} />
+          {[105, 171, 237].map((y, row) => (
+            <g key={y}>
+              <path d={`M28 ${y + 38}h252`} stroke="#829797" strokeWidth="6" />
+              {[49, 111, 185].map((x, i) => (
+                <g key={x}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width="43"
+                    height="29"
+                    rx="5"
+                    fill={['#9eb7ca', '#d5b68c', '#a8bd9e'][(row + i) % 3]}
+                    {...outline}
+                  />
+                  <path d={`M${x + 7} ${y + 7}h29`} stroke="#f2f2e5" strokeWidth="3" />
+                </g>
+              ))}
+            </g>
+          ))}
+          <rect x="690" y="84" width="175" height="208" rx="7" fill="#d7e3e5" {...outline} />
+          <path d="M708 107h139v113H708Z" fill="#b6ced5" />
+          <path d="m742 127 39-13 38 13-11 30-16-4v45h-24v-45l-15 4Z" fill="#7e9eba" {...outline} />
+          <path d="M719 249h115" stroke="#a7b7ba" strokeWidth="15" strokeLinecap="round" />
+          <path d="M327 64h124v66H327Z" fill="#e6cd95" {...outline} />
+          <path d="m350 87 14 19 34-29m-16 38h38" stroke="#a68f61" strokeWidth="4" fill="none" />
+        </>
+      )}
+      {location === 'bank' && (
+        <>
+          <path d="M30 48h305v110H30Z" fill="#f8fbff" stroke="#cad6e7" strokeWidth="3" />
+          <image href={bankLogo} x="47" y="87" width="270" height="57" />
+          <path d="M32 197h257v104H32Z" fill="#829fc3" {...outline} />
+          <path d="M28 195h265v17H28Z" fill="#e5ebf0" {...outline} />
+          <Monitor x={75} y={132} small />
+          <rect x="728" y="123" width="101" height="177" rx="9" fill="#8ea6c1" {...outline} />
+          <rect x="741" y="138" width="75" height="70" rx="5" fill="#d8e8f0" />
+          <path d="M755 161h46m-46 13h31m-31 12h40" stroke="#8ba9bc" strokeWidth="4" />
+          <path d="M748 227h61v8h-61Z" fill="#526a80" />
+          <rect
+            className="ambient-indicator"
+            x="797"
+            y="252"
+            width="11"
+            height="8"
+            rx="2"
+            fill="#e7e6b0"
+          />
+          <path d="M357 247v55m26-55v55m-26-55h26" stroke="#8297ae" strokeWidth="5" />
+          <Plant x={870} y={300} scale={0.85} />
+        </>
+      )}
+      {location === 'office' && (
+        <>
+          <Window x={35} y={48} w={226} h={165} />
+          <path d="M28 244h285v18H28Z" fill="#d2c6af" {...outline} />
+          <path d="M52 264v37m235-37v37" stroke={ink} strokeWidth="6" />
+          <Monitor x={71} y={139} />
+          <rect x="698" y="44" width="163" height="137" rx="5" fill="#f3f3e5" {...outline} />
+          {[0, 1, 2].map((i) => (
+            <g key={i}>
+              <rect
+                x={714 + i * 44}
+                y={63 + (i % 2) * 7}
+                width="31"
+                height="35"
+                fill={['#d9bc8e', '#a5bda4', '#a4bbce'][i]}
+              />
+              <path
+                d={`M${718 + i * 44} ${77 + (i % 2) * 7}h20`}
+                stroke="#899583"
+                strokeWidth="2"
+              />
+            </g>
+          ))}
+          <path d="M720 125h119m-119 18h72" stroke="#b1c3c5" strokeWidth="6" />
+          <Plant x={804} y={296} scale={1.2} />
+        </>
+      )}
+      {location === 'campus' && (
+        <>
+          <rect width="900" height="300" fill="#c9e0e9" />
+          <Cloud x={358} y={38} />
+          <path d="M30 132 164 50l134 82Z" fill="#b9a88b" {...outline} />
+          <path d="M42 132h245v168H42Z" fill="#d8d6c3" {...outline} />
+          <path
+            d="M67 153h33v72H67m56-72h33v72h-33m56-72h33v72h-33m42-72h20v72h-20"
+            fill="#9eb5bd"
+            {...outline}
+          />
+          <path d="M136 243h61v57h-61Z" fill="#8eabae" {...outline} />
+          <path d="M24 297h280v12H24Z" fill="#a4b3ac" {...outline} />
+          <rect x="699" y="143" width="148" height="94" rx="4" fill="#ede4c6" {...outline} />
+          <path d="M715 237v63m114-63v63" stroke={ink} strokeWidth="6" />
+          <path d="M716 160h88m-88 18h113m-113 19h60" stroke="#a9b99f" strokeWidth="6" />
+          <Tree x={870} y={300} winter={winter} />
+        </>
+      )}
+      {location === 'station' && (
+        <>
+          <rect width="900" height="298" fill="#c9e0e7" />
+          <g className="ambient-train">
+            <path d="M7 115q0-18 18-18h843q25 0 25 25v164H7Z" fill="#acc1c7" {...outline} />
+            <path d="M7 255h886" stroke="#7d9faf" strokeWidth="14" />
+            {[25, 134, 243, 352, 461, 686, 795].map((x) => (
+              <rect
+                key={x}
+                x={x}
+                y="126"
+                width="82"
+                height="83"
+                rx="9"
+                fill="#dcebf0"
+                {...outline}
+              />
+            ))}
+            <path d="M565 116h96v170h-96Z" fill="#c4d4d6" {...outline} />
+            <path d="M613 116v170" stroke={ink} strokeWidth="3" />
+          </g>
+          <path d="M0 285h900v26H0Z" fill="#6f8790" />
+          <path d="M0 312h900" stroke="#e5d5a1" strokeWidth="6" strokeDasharray="22 13" />
+          <rect x="49" y="35" width="230" height="38" rx="6" fill="#59788c" />
+          <path d="M66 53h95m20 0h73" stroke="#e3eadc" strokeWidth="6" strokeLinecap="round" />
+          <Clock x={814} y={54} />
+        </>
+      )}
+      {location === 'park' && (
+        <>
+          <rect width="900" height="304" fill="#c9e2eb" />
+          <Cloud x={398} y={43} />
+          <Tree x={48} y={308} winter={winter} />
+          <Tree x={258} y={300} winter={winter} />
+          <Tree x={807} y={308} winter={winter} />
+          <path d="M0 305q450-41 900 6v109H0Z" fill={winter ? '#d7e1d3' : '#bbcfaa'} />
+          <path d="M0 367q440-58 900 15v38H0Z" fill="#d6d1b9" />
+          <Bench x={52} y={226} />
+          <path d="M739 293v-140m0 0h36" stroke={ink} strokeWidth="7" />
+          <circle cx="778" cy="158" r="17" fill="#e7dfb7" {...outline} />
+        </>
+      )}
+      {location === 'waterfront' && (
+        <>
+          <rect width="900" height="300" fill="#c5e3ed" />
+          <Cloud x={355} y={42} />
+          <path d="M0 179q135-26 248-1t240 0 412 0v152H0Z" fill="#9ac3d2" />
+          <g className="ambient-water" stroke="#dae9e8" strokeWidth="3" strokeLinecap="round">
+            <path d="M31 219h85m34 23h105m-220 27h134m151-56h79m339 28h92m-65 29h78" />
+          </g>
+          <path d="m64 183 44-15h112l32 15-20 25H83Z" fill="#f3ecdc" {...outline} />
+          <path d="M109 168v-40h80v40" fill="#a6b8bf" {...outline} />
+          <path d="M0 314h900v106H0Z" fill="#c9c6b2" />
+          <path d="M0 287h900M0 260h900" stroke="#6f929e" strokeWidth="5" />
+          {[23, 116, 209, 302, 395, 488, 581, 674, 767, 860].map((x) => (
+            <path key={x} d={`M${x} 259v58`} stroke="#7896a0" strokeWidth="6" />
+          ))}
+          <Bench x={702} y={239} />
+        </>
+      )}
+      {location === 'workshop' && (
+        <>
+          <rect x="29" y="48" width="278" height="180" rx="5" fill="#bcc9b7" {...outline} />
+          {Array.from({ length: 7 }, (_, i) => (
+            <path
+              key={i}
+              d={`M${49 + i * 37} 61v152`}
+              stroke="#9bae9f"
+              strokeWidth="2"
+              strokeDasharray="3 12"
+            />
+          ))}
+          <path
+            d="m58 95 14-17 10 12-13 17 30 41-12 9-29-39-13 7-10-14Z"
+            fill="#d8c9a5"
+            {...outline}
+          />
+          <path d="M130 91h59v14h-59m20 16v62h17v-62" fill="#899eac" {...outline} />
+          <path d="m219 95 30 70 12-6-30-70Z" fill="#c99a81" {...outline} />
+          <path d="M30 274h284v27H30Z" fill="#c3ad8b" {...outline} />
+          <rect x="704" y="116" width="149" height="184" rx="5" fill="#a9bbb2" {...outline} />
+          {[145, 195, 245].map((y) => (
+            <g key={y}>
+              <path d={`M704 ${y + 26}h149`} stroke={ink} strokeWidth="3" />
+              <path d={`M764 ${y}h29`} stroke="#e7ecdf" strokeWidth="5" strokeLinecap="round" />
+            </g>
+          ))}
+          <Lamp x={378} y={284} />
+        </>
+      )}
+      {location === 'laundry' && (
+        <>
+          <path d="M0 240h900M0 179h900M0 118h900M0 57h900" stroke="#c9dedf" strokeWidth="2" />
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <path key={i} d={`M${i * 115} 0v300`} stroke="#c9dedf" strokeWidth="2" />
+          ))}
+          <Washer x={24} y={123} />
+          <Washer x={182} y={123} />
+          <Washer x={713} y={123} />
+          <path d="M53 56h203v25H53Z" fill="#a6bdc4" {...outline} />
+          <path d="m76 54 10-21h47l11 21m31 0 9-21h46l11 21" fill="#d8c5a4" {...outline} />
+          <Clock x={801} y={60} />
+        </>
+      )}
+      {location === 'pickup' && (
+        <>
+          <path d="M26 43h279v253H26Z" fill="#b4a8bd" {...outline} />
+          {[115, 203, 294].map((y) => (
+            <path key={y} d={`M26 ${y}h279`} stroke="#77818a" strokeWidth="7" />
+          ))}
+          <Package x={45} y={62} />
+          <Package x={131} y={64} w={95} h={48} />
+          <Package x={56} y={143} w={91} h={56} />
+          <Package x={192} y={153} w={70} h={47} />
+          <Package x={45} y={226} w={110} h={65} />
+          <rect x="703" y="81" width="156" height="219" rx="6" fill="#c7bed1" {...outline} />
+          {[0, 1, 2].map((row) =>
+            [0, 1].map((col) => (
+              <g key={`${row}-${col}`}>
+                <rect
+                  x={710 + col * 73}
+                  y={89 + row * 67}
+                  width="65"
+                  height="58"
+                  rx="3"
+                  fill="#ded9e6"
+                  {...outline}
+                />
+                <path d={`M${756 + col * 73} ${108 + row * 67}v15`} stroke={ink} strokeWidth="3" />
+              </g>
+            )),
+          )}
+          <Monitor x={348} y={159} small />
+        </>
+      )}
+      {location === 'event' && (
+        <>
+          <rect width="900" height="300" fill="#cde3eb" />
+          <Cloud x={452} y={26} />
+          <path d="M20 144 161 58l141 86Z" fill="#b7b5a0" {...outline} />
+          <path d="M34 144h254v156H34Z" fill="#c6cbbb" {...outline} />
+          <path d="M59 158h200v114H59Z" fill="#8da8b4" />
+          <path d="M73 159v112m172-112v112" stroke="#d6c6a7" strokeWidth="17" />
+          <path d="M0 71q450 83 900-1" fill="none" stroke={ink} strokeWidth="3" />
+          {[50, 140, 230, 320, 410, 500, 590, 680, 770, 860].map((x, i) => (
+            <path
+              key={x}
+              d={`m${x} ${75 + Math.sin((x / 900) * Math.PI) * 36} 25 8-12 27Z`}
+              fill={['#d8b28d', '#96b7a5', '#9bb6cf'][i % 3]}
+            />
+          ))}
+          <path d="M694 159h180v142H694Z" fill="#d9d3b9" {...outline} />
+          <path d="m679 160 106-65 104 65Z" fill="#94afa5" {...outline} />
+          <path d="M718 183h132v52H718Z" fill="#b8c9be" />
+          <path d="M749 300v-49h60v49" fill="#b9aa8d" {...outline} />
+        </>
+      )}
+      {location === 'street' && (
+        <>
+          <rect width="900" height="300" fill={rain ? '#b6cbd8' : '#cee1e8'} />
+          {!rain && <Cloud x={364} y={40} />}
+          <path d="M16 70h145v231H16Z" fill="#c5bca9" {...outline} />
+          <path d="M178 102h126v199H178Z" fill="#b2c4be" {...outline} />
+          {[42, 100, 199, 251].map((x, i) =>
+            [114, 172, 230].map((y) => (
+              <rect
+                key={`${x}-${y}`}
+                x={x}
+                y={y - (i < 2 ? 24 : 0)}
+                width="31"
+                height="39"
+                rx="2"
+                fill="#dbe8e6"
+                {...outline}
+              />
+            )),
+          )}
+          <path d="M701 84h178v217H701Z" fill="#c5b6a8" {...outline} />
+          <path d="M719 215h139v85H719Z" fill="#a5b9bd" {...outline} />
+          <path d="M716 197h147v27H716Z" fill="#d4c9ae" {...outline} />
+          <path d="M718 114h47v51h-47m65-51h56v51h-56" fill="#d4e4e5" {...outline} />
+          <path d="M0 334h900" stroke="#8ba1aa" strokeWidth="8" />
+          <path d="M0 390h900" stroke="#dce0d4" strokeWidth="5" strokeDasharray="65 40" />
+          {rain && (
+            <g className="ambient-rain" stroke="#edf4f1" strokeWidth="2" opacity=".6">
+              {Array.from({ length: 21 }, (_, i) => (
+                <path key={i} d={`m${i * 46} ${30 + (i % 4) * 61} -11 24m22 98-11 24`} />
+              ))}
+            </g>
+          )}
+        </>
+      )}
+      {p.outdoor && winter && !rain && (
+        <g className="ambient-snow" fill="#f4f7ef" opacity=".8">
+          {[56, 173, 324, 467, 706, 856].map((x, i) => (
+            <circle key={x} cx={x} cy={25 + ((i * 41) % 236)} r={(i % 2) + 2} />
+          ))}
+        </g>
+      )}
+      <path d="M0 413h900" stroke="#fff" strokeOpacity=".15" strokeWidth="2" />
+    </g>
+  );
+});
 
-export function SceneSurface({location}:{location:LocationId}){
- const color=location==='bank'?'#c7d7ed':location==='workshop'?'#baa27d':location==='pickup'?'#c4b7cd':location==='cafe'?'#cbb18b':'#ddc9a7';
- return <g className="scene-surface"><path d="M160 302h580v26H160Z" fill={color} stroke={ink} strokeWidth="3"/><path d="m183 328-15 84m551-84 15 84" stroke="#6e8386" strokeWidth="10"/><path d="M166 312h567" stroke="#fff" strokeOpacity=".2" strokeWidth="3"/></g>;
-}
+export const SceneSurface = memo(function SceneSurface({ location }: { location: LocationId }) {
+  const color =
+    location === 'bank'
+      ? '#c7d7ed'
+      : location === 'workshop'
+        ? '#baa27d'
+        : location === 'pickup'
+          ? '#c4b7cd'
+          : location === 'cafe'
+            ? '#cbb18b'
+            : '#ddc9a7';
+  return (
+    <g className="scene-surface">
+      <path d="M160 302h580v26H160Z" fill={color} stroke={ink} strokeWidth="3" />
+      <path d="m183 328-15 84m551-84 15 84" stroke="#6e8386" strokeWidth="10" />
+      <path d="M166 312h567" stroke="#fff" strokeOpacity=".2" strokeWidth="3" />
+    </g>
+  );
+});

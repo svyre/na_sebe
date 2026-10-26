@@ -1,69 +1,488 @@
-'use client';
-import { useMemo, useState, useEffect } from 'react';
-import { ArrowDownLeft, ArrowRight, ArrowUpRight, Banknote, BookOpen, BriefcaseBusiness, Check, CheckCheck, ChevronDown, ChevronRight, Clock3, FileText, Flag, GraduationCap, Heart, History, House, Info, Landmark, LockKeyhole, ShieldCheck, Newspaper, Lightbulb, TrendingUp, TriangleAlert, Users, Wallet } from 'lucide-react';
-import { MONTHS, SHORT_MONTHS, getScenario, planScenario, MACRO, macroFor, DIFFICULTIES, GOALS, HOUSING, JOBS, STUDIES, OFFERS, rub, percent, capital, debt, defaultPlan, roomGifts, roomInventory, ROOM_ITEMS, creditQuote, evaluate, planHours, settle, validatePlan, type DifficultyId, type Plan, type Solo, type GameState } from '@/lib/game';
-import { Badge, Empty, Meter, Numeric, type RoomView } from './shared';
-import { HistoryList } from './Results';
-import { StoryScene } from './StoryScene';
-import { BankIdentity, BankStoryBanner } from './BankIdentity';
 import { CHARACTERS, type CharacterId } from '@/lib/character';
+import {
+  DIFFICULTIES,
+  MONTHS,
+  ROOM_ITEMS,
+  SHORT_MONTHS,
+  defaultPlan,
+  getScenario,
+  planScenario,
+  roomGifts,
+  roomInventory,
+  rub,
+  settle,
+  validatePlan,
+  type Plan,
+  type Solo,
+} from '@/lib/game';
+import { extraStory } from '@/lib/story-presentation';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BookOpen,
+  Check,
+  ChevronDown,
+  Flag,
+  History,
+  House,
+  Landmark,
+} from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import { BankStoryBanner } from './BankIdentity';
+import { BankPanel } from './BankPanel';
+import { BudgetSidebar } from './BudgetSidebar';
 import { CharacterArt } from './Character';
-import { extraStory } from './ExtraStories';
+import { HistoryList } from './History';
+import { PlanPanel } from './PlanPanel';
 import { PlayerRoom, RoomShop, type RoomAction } from './PlayerRoom';
-export function Countdown({deadline,paused}:{deadline:number;paused:boolean}){const [now,setNow]=useState(Date.now());useEffect(()=>{if(paused)return;const t=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(t);},[paused]);const left=Math.max(0,Math.ceil((deadline-now)/1000));return <Badge tone={paused?'orange':left===0?'orange':''}><Clock3 size={14}/>{paused?'Пауза':left?`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`:'Время на обсуждение'}</Badge>;}
-export function Game({data,situationIds,character='boy',onCharacter,room,pending,onCommit,busy,online,onHistory}:{data:Solo;situationIds?:string[];character?:CharacterId;onCharacter?:()=>void;room:RoomView|null;pending:Plan|null;onCommit:(p:Plan)=>void;busy:boolean;online:boolean;onHistory:()=>void}){
- const m=data.month,s=data.state,macro=macroFor(m,data.difficulty),level=DIFFICULTIES[data.difficulty];
- const [plan,setPlan]=useState<Plan>(()=>{const last=data.plans.at(-1);return pending||{...defaultPlan(m),roomVersion:1,choice:'',...(situationIds?.length?{scenario:situationIds[0],extras:situationIds.slice(1).map(scenario=>({scenario,choice:''}))}:{}),...(last?{housing:last.housing,job:last.job,study:last.study,leisure:last.leisure}:{})};}),[tab,setTab]=useState<'room'|'decisions'|'plan'|'bank'|'history'>('room'),[activeEvent,setActiveEvent]=useState(0),[details,setDetails]=useState(false),[shop,setShop]=useState(false);
- const change=<K extends keyof Plan,>(key:K,value:Plan[K])=>setPlan(p=>({...p,[key]:value}));
- const scenario=planScenario(plan,m),eventCount=1+(plan.extras?.length||0);
- const remaining=(plan.choice?0:1)+(plan.extras||[]).filter(x=>!x.choice).length;
- const currentExtra=activeEvent>0?plan.extras?.[activeEvent-1]:undefined;
- const sceneId=currentExtra?.scenario||plan.scenario||`main-${m}`;
- const sceneScenario=currentExtra?getScenario(currentExtra.scenario)!:scenario;
- const sceneStory=extraStory(sceneId,m);
- const replaceDesk=sceneId==='desk'&&roomInventory(s).includes('desk');
- const contextualScenario=replaceDesk?{...sceneScenario,document:{...sceneScenario.document,text:sceneScenario.document.text+' Удобный стол уже есть в твоей комнате. Эти варианты означают его замену или доработку. Повторный стол не увеличивает постоянную помощь комнаты.'}}:sceneScenario;
- if(replaceDesk)sceneStory.line='У тебя уже есть удобный стол. Появились варианты замены или доработки рабочего места. Стоит ли тратиться ещё раз?';
- const selectEvent=(value:string)=>activeEvent===0?change('choice',value):change('extras',(plan.extras||[]).map((event,i)=>i===activeEvent-1?{...event,choice:value}:event));
- const error=validatePlan(plan,s,m,false,data.difficulty);const projected=useMemo(()=>{try{return {report:settle(s,plan,m,data.goal,false,data.difficulty),error:''};}catch(e){return {report:null,error:e instanceof Error?e.message:'Проверь план.'};}},[s,plan,m,data.goal,data.difficulty]);
- const report=projected.report,stats=evaluate(s,data.goal,plan,m,data.difficulty),hours=planHours(plan,m),locked=!!pending||!!room?.paused||busy;
- const canCommit=!locked&&!error&&!projected.error&&(!room||online);
- const focusSection=(selector:string)=>document.querySelector(selector)?.scrollIntoView({behavior:'smooth',block:'start'});
- const focusRoomPanel=(selector:string)=>requestAnimationFrame(()=>{const target=document.querySelector<HTMLElement>(selector);if(!target)return;target.scrollIntoView({behavior:'smooth',block:'start'});const control=target.matches('button,input,select')?target:target.querySelector<HTMLElement>('button:not(:disabled),input,select')||target;if(control===target&&!control.matches('button,input,select'))control.tabIndex=-1;control.focus({preventScroll:true});});
- const openRoomAction=(action:RoomAction)=>{
-  if(action==='furniture'){setTab('room');setShop(true);focusRoomPanel('.room-shop');return;}
-  if(action==='events'){setTab('decisions');setActiveEvent(!plan.choice?0:Math.max(0,(plan.extras||[]).findIndex(x=>!x.choice)+1));focusRoomPanel('.situations-nav');return;}
-  if(action==='bank'){setTab('bank');focusRoomPanel('.bank-identity');return;}
-  setTab('plan');const target=action==='study'?'.study-row':action==='rest'?'.leisure-control':action==='work'?'select[aria-label=Подработка]':'select[aria-label=Жильё]';focusRoomPanel(target);
- };
- const mobileAction=()=>{if(remaining){setActiveEvent(!plan.choice?0:(plan.extras||[]).findIndex(x=>!x.choice)+1);setTab('decisions');requestAnimationFrame(()=>focusSection('.event-panel'));return;}if(!canCommit){focusSection('.budget-card');return;}onCommit(plan);};
- const income=report?.ledger.filter(x=>x.kind==='income').reduce((a,x)=>a+x.amount,0)||0,expenses=report?.ledger.filter(x=>x.kind==='expense').reduce((a,x)=>a-x.amount,0)||0;
- return <div className="game-experience"><div className="game-title-row"><div><span className="eyebrow">{room?`${room.title} / КОМАНДА ${data.name}`:`ТВОЙ ГОД / ${data.name}`}</span><h1>{MONTHS[m]}<span className="lime-dot">.</span> <span className="heading-light">{m===0?'Первый месяц самостоятельности':m===11?'Последние решения года':'План на месяц'}</span></h1></div><div className="game-title-right">{onCharacter&&<button type="button" className="game-character-button" onClick={onCharacter} aria-label="Сменить персонажа"><CharacterArt character={character} portrait emotion={s.energy<35?'thinking':'neutral'}/><span><small>Твой персонаж</small><b>{CHARACTERS[character].label}</b></span><span className="character-edit-label">Изменить</span></button>}<Badge tone="difficulty">{level.name}</Badge>{room?<><span className={'connection '+(!online?'offline':'')}><span/>{online?'Комната '+room.code:'Связь прервана'}</span><Countdown deadline={room.deadline} paused={room.paused}/></>:<Badge><span className="status-dot"/>Прогресс сохранён</Badge>}</div></div>
- <div className="round-heading"><span>Раунд <b>{m+1}</b> из 12</span><span>{tab==='room'?'Твоя комната и планы':scenario.topic}</span></div>
- <div className="month-track" aria-label={`Месяц ${m+1} из 12`}>{SHORT_MONTHS.map((month,i)=><div className={(i===m?'current':i<m?'complete':'')} key={month}><span>{i<m?<Check size={12}/>:String(i+1).padStart(2,'0')}</span><b>{month}</b>{i<11&&<i/>}</div>)}</div>
+import { Badge } from './shared';
+import { StoryScene } from './StoryScene';
+export function Game({
+  data,
+  situationIds,
+  character = 'boy',
+  onCharacter,
+  onCommit,
+  onHistory,
+}: {
+  data: Solo;
+  situationIds?: string[];
+  character?: CharacterId;
+  onCharacter?: () => void;
+  onCommit: (p: Plan) => void;
+  onHistory: () => void;
+}) {
+  const monthIndex = data.month;
+  const state = data.state;
+  const difficultySettings = DIFFICULTIES[data.difficulty];
+  const [plan, setPlan] = useState<Plan>(() => {
+    const previousPlan = data.plans.at(-1);
+    return {
+      ...defaultPlan(monthIndex),
+      roomVersion: 1,
+      choice: '',
+      ...(situationIds?.length
+        ? {
+            scenario: situationIds[0],
+            extras: situationIds.slice(1).map((scenario) => ({ scenario, choice: '' })),
+          }
+        : {}),
+      ...(previousPlan
+        ? {
+            housing: previousPlan.housing,
+            job: previousPlan.job,
+            study: previousPlan.study,
+            leisure: previousPlan.leisure,
+          }
+        : {}),
+    };
+  });
+  const [tab, setTab] = useState<'room' | 'decisions' | 'plan' | 'bank' | 'history'>('room');
+  const [activeSituation, setActiveSituation] = useState(0);
+  const [isShopOpen, setShopOpen] = useState(false);
+  const updatePlan = useCallback(<K extends keyof Plan>(key: K, value: Plan[K]) => {
+    setPlan((current) => (Object.is(current[key], value) ? current : { ...current, [key]: value }));
+  }, []);
+  const scenario = planScenario(plan, monthIndex);
+  const eventCount = 1 + (plan.extras?.length || 0);
+  const remainingDecisions =
+    (plan.choice ? 0 : 1) + (plan.extras || []).filter((event) => !event.choice).length;
+  const nextUnansweredSituation = !plan.choice
+    ? 0
+    : (plan.extras || []).findIndex((event) => !event.choice) + 1;
+  const currentExtra = activeSituation > 0 ? plan.extras?.[activeSituation - 1] : undefined;
+  const situationId = currentExtra?.scenario || plan.scenario || `main-${monthIndex}`;
+  const sceneScenario = currentExtra ? getScenario(currentExtra.scenario)! : scenario;
+  const replaceDesk = situationId === 'desk' && roomInventory(state).includes('desk');
+  const sceneStory = useMemo(() => {
+    const story = extraStory(situationId, monthIndex);
+    if (replaceDesk) {
+      story.line =
+        'У тебя уже есть удобный стол. Появились варианты замены или доработки рабочего места. Стоит ли тратиться ещё раз?';
+    }
+    return story;
+  }, [situationId, monthIndex, replaceDesk]);
+  const contextualScenario = useMemo(
+    () =>
+      replaceDesk
+        ? {
+            ...sceneScenario,
+            document: {
+              ...sceneScenario.document,
+              text:
+                sceneScenario.document.text +
+                ' Удобный стол уже есть в твоей комнате. Эти варианты означают его замену или доработку. Повторный стол не увеличивает постоянную помощь комнаты.',
+            },
+          }
+        : sceneScenario,
+    [sceneScenario, replaceDesk],
+  );
+  const selectDecision = (value: string) => {
+    if (activeSituation === 0) {
+      updatePlan('choice', value);
+      return;
+    }
+    updatePlan(
+      'extras',
+      (plan.extras || []).map((event, index) =>
+        index === activeSituation - 1 ? { ...event, choice: value } : event,
+      ),
+    );
+  };
+  const validationError = useMemo(
+    () => validatePlan(plan, state, monthIndex, false, data.difficulty),
+    [plan, state, monthIndex, data.difficulty],
+  );
+  const forecast = useMemo(() => {
+    try {
+      return {
+        report: settle(state, plan, monthIndex, data.goal, false, data.difficulty),
+        error: '',
+      };
+    } catch (e) {
+      return { report: null, error: e instanceof Error ? e.message : 'Проверь план.' };
+    }
+  }, [state, plan, monthIndex, data.goal, data.difficulty]);
+  const report = forecast.report;
+  const canCommit = !validationError && !forecast.error;
+  const focusSection = (selector: string) =>
+    document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const focusRoomPanel = (selector: string) =>
+    requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(selector);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const control = target.matches('button,input,select')
+        ? target
+        : target.querySelector<HTMLElement>('button:not(:disabled),input,select') || target;
+      if (control === target && !control.matches('button,input,select')) control.tabIndex = -1;
+      control.focus({ preventScroll: true });
+    });
+  const openRoomAction = (action: RoomAction) => {
+    if (action === 'furniture') {
+      setTab('room');
+      setShopOpen(true);
+      focusRoomPanel('.room-shop');
+      return;
+    }
+    if (action === 'events') {
+      setTab('decisions');
+      setActiveSituation(nextUnansweredSituation);
+      focusRoomPanel('.situations-nav');
+      return;
+    }
+    if (action === 'bank') {
+      setTab('bank');
+      focusRoomPanel('.bank-identity');
+      return;
+    }
+    setTab('plan');
+    const planSections = {
+      study: '.study-row',
+      rest: '.leisure-control',
+      work: 'select[aria-label=Подработка]',
+      housing: 'select[aria-label=Жильё]',
+    };
+    focusRoomPanel(planSections[action]);
+  };
+  const handleMobileAction = () => {
+    if (remainingDecisions) {
+      setActiveSituation(nextUnansweredSituation);
+      setTab('decisions');
+      requestAnimationFrame(() => focusSection('.event-panel'));
+      return;
+    }
+    if (!canCommit) {
+      focusSection('.budget-card');
+      return;
+    }
+    onCommit(plan);
+  };
+  return (
+    <div className="game-experience">
+      <div className="game-title-row">
+        <div>
+          <span className="eyebrow">{`ТВОЙ ГОД / ${data.name}`}</span>
+          <h1>
+            {MONTHS[monthIndex]}
+            <span className="lime-dot">.</span>{' '}
+            <span className="heading-light">
+              {monthIndex === 0
+                ? 'Первый месяц самостоятельности'
+                : monthIndex === 11
+                  ? 'Последние решения года'
+                  : 'План на месяц'}
+            </span>
+          </h1>
+        </div>
+        <div className="game-title-right">
+          {onCharacter && (
+            <button
+              type="button"
+              className="game-character-button"
+              onClick={onCharacter}
+              aria-label="Сменить персонажа"
+            >
+              <CharacterArt
+                character={character}
+                portrait
+                emotion={state.energy < 35 ? 'thinking' : 'neutral'}
+              />
+              <span>
+                <small>Твой персонаж</small>
+                <b>{CHARACTERS[character].label}</b>
+              </span>
+              <span className="character-edit-label">Изменить</span>
+            </button>
+          )}
+          <Badge tone="difficulty">{difficultySettings.name}</Badge>
+          <Badge>
+            <span className="status-dot" />
+            Прогресс сохранён
+          </Badge>
+        </div>
+      </div>
+      <div className="round-heading">
+        <span>
+          Раунд <b>{monthIndex + 1}</b> из 12
+        </span>
+        <span>{tab === 'room' ? 'Твоя комната и планы' : scenario.topic}</span>
+      </div>
+      <div className="month-track" aria-label={`Месяц ${monthIndex + 1} из 12`}>
+        {SHORT_MONTHS.map((month, i) => (
+          <div
+            className={i === monthIndex ? 'current' : i < monthIndex ? 'complete' : ''}
+            key={month}
+          >
+            <span>{i < monthIndex ? <Check size={12} /> : String(i + 1).padStart(2, '0')}</span>
+            <b>{month}</b>
+            {i < 11 && <i />}
+          </div>
+        ))}
+      </div>
 
-
- {pending&&<div className="submitted-banner" role="status"><CheckCheck size={25}/><div><b>Твой план принят</b><p>Решение зафиксировано. Когда все команды будут готовы, ведущий откроет следующий месяц.</p></div><Badge tone="green">{room?.teams.filter(t=>t.ready).length} / {room?.teams.length} готовы</Badge></div>}
- {tab!=='room'&&<BankStoryBanner onOpen={()=>{setTab('bank');requestAnimationFrame(()=>focusSection('.bank-identity'));}}/>}<div className="game-layout room-game-layout"><section className="game-main"><div className="tab-bar" role="tablist" aria-label="Разделы игры">{[{id:'room' as const,name:'Комната',icon:House},{id:'decisions' as const,name:'Ситуации',icon:Flag},{id:'plan' as const,name:'План',icon:BookOpen},{id:'bank' as const,name:'Мой банк',icon:Landmark},{id:'history' as const,name:'История',icon:History}].map(({id,name,icon:Icon})=><button role="tab" aria-selected={tab===id} key={id} className={tab===id?'selected':''} onClick={()=>setTab(id)}><Icon size={17}/>{name}{id==='history'&&data.reports.length>0&&<span>{data.reports.length}</span>}</button>)}</div>
- {tab!=='room'&&<button type="button" className="room-return" onClick={()=>{setTab('room');requestAnimationFrame(()=>focusSection('.player-room'));}}><House size={15}/>Вернуться в комнату<ArrowRight size={15}/></button>}
- {tab==='room'&&<><PlayerRoom state={s} plan={plan} month={m} difficulty={data.difficulty} character={character} remaining={remaining} total={eventCount} onAction={openRoomAction} onClear={()=>{if(!locked)change('roomBuy',[]);}}/>{shop&&<RoomShop state={s} plan={plan} month={m} disabled={locked} onChange={items=>change('roomBuy',items)} onClose={()=>setShop(false)}/>}</>}
- {tab==='decisions'&&<><fieldset disabled={locked} className="form-reset">{<div className="situations-nav" aria-label="Ситуации этого месяца"><div><b>{eventCount-remaining} из {eventCount} решений</b><span>Один бюджет на весь месяц</span></div><div className="situation-tabs" style={{gridTemplateColumns:`repeat(${eventCount},minmax(0,1fr))`}}>{[{title:scenario.title,choice:plan.choice},...(plan.extras||[]).map(x=>({title:getScenario(x.scenario)!.title,choice:x.choice}))].map((event,i)=><button type="button" key={i} aria-pressed={activeEvent===i} className={activeEvent===i?'active':''} onClick={()=>setActiveEvent(i)}><span>{event.choice?<Check size={14}/>:i+1}</span><b>{event.title}</b></button>)}</div></div>}<StoryScene key={activeEvent} character={character} month={m} chapter={activeEvent+1} scenarioId={currentExtra?.scenario||plan.scenario} scenarioOverride={contextualScenario} story={sceneStory} selected={currentExtra?currentExtra.choice:plan.choice} onSelect={selectEvent} energy={s.energy} disabled={locked}/>{roomGifts(plan,m).length>0&&<div className="room-story-note"><House size={17}/><span>Из выбранных ситуаций в комнате появится: {roomGifts(plan,m).map(id=>ROOM_ITEMS[id].name.toLowerCase()).join(', ')}. Помощь начнётся со следующего месяца.</span><button type="button" onClick={()=>setTab('room')}>В комнату</button></div>}{plan.extras?.length&&activeEvent<plan.extras.length?<button type="button" className="next-situation button secondary full" onClick={()=>{setActiveEvent(activeEvent+1);requestAnimationFrame(()=>focusSection('.situations-nav'));}}>Следующая ситуация<ArrowRight size={17}/></button>:null}
-</fieldset><button className="bank-prompt" onClick={()=>setTab('bank')}><Landmark size={20}/><div><b>А что с накоплениями?</b><span>Переводы, фонд и сравнение кредитов — в твоём банке.</span></div><ArrowUpRight size={22}/></button></>}
- {tab==='plan'&&<fieldset disabled={locked} className="form-reset"> <article className="panel rhythm-panel"><div className="section-label"><div><span className="eyebrow"><span className="section-step">02</span>ПЛАН НА МЕСЯЦ</span><h2>Твой ритм</h2></div><Badge tone={hours>level.hours?'orange':''}><Clock3 size={13}/>{hours} / {level.hours} ч</Badge></div><div className="planning-row"><span className="planning-icon"><House size={20}/></span><div><b>Где жить</b><small>Стоимость и время на дорогу</small></div><select aria-label="Жильё" value={plan.housing} onChange={e=>change('housing',e.target.value)}>{HOUSING.map(h=><option key={h.id} value={h.id}>{h.name} · {rub(Math.round(h.cost*macro.inflation))}</option>)}</select></div><div className="planning-row"><span className="planning-icon"><BriefcaseBusiness size={20}/></span><div><b>Как работать</b><small>Каждый навык добавляет 700 ₽ к оплате</small></div><select aria-label="Подработка" value={plan.job} onChange={e=>change('job',e.target.value)}>{JOBS.map(j=><option key={j.id} value={j.id}>{j.name} · {rub(Math.round((j.income+(j.income?s.skills*700:0))*(s.energy<25?.7:1)))} · {j.hours} ч</option>)}</select></div><div className="planning-row study-row"><span className="planning-icon"><BookOpen size={20}/></span><div><b>Время на учёбу</b><small>Самостоятельная подготовка</small></div><div className="segment-control" role="group" aria-label="Время на самостоятельную учёбу">{STUDIES.map(t=><button key={t.hours} aria-pressed={plan.study===t.hours} className={plan.study===t.hours?'active':''} onClick={()=>change('study',t.hours)} title={t.name}>{t.hours} ч</button>)}</div></div><div className="leisure-control"><div><span className="planning-icon"><Heart size={20}/></span><div><b>Отдых и личные траты</b><small>Восстанавливают ресурс</small></div><label className="inline-number"><input aria-label="Расходы на отдых" type="number" inputMode="numeric" value={plan.leisure} min={0} max={15000} step={500} onChange={e=>change('leisure',Math.max(0,Math.min(15000,Math.floor(Number(e.target.value)||0))))}/><span>₽</span></label></div><input aria-label="Ползунок расходов на отдых" type="range" min={0} max={15000} step={500} value={plan.leisure} onChange={e=>change('leisure',Number(e.target.value))}/><div className="range-labels"><span>0 ₽</span><span>15 000 ₽</span></div></div><div className="time-budget"><div><b>Свободное время</b><span className={hours>level.hours?'red-text':''}>{hours>level.hours?'Не хватает '+(hours-level.hours)+' ч':'Остаётся '+(level.hours-hours)+' ч'}</span></div><Meter value={hours/level.hours*100} tone={hours>level.hours?'orange':'purple'}/><p>{level.hours} часов после обязательных занятий и сна. Сюда входят дорога, работа, самостоятельная учёба, ситуации и установка покупок для комнаты.</p></div></article></fieldset>}
- {tab==='bank'&&<fieldset disabled={locked} className="form-reset"><Bank s={s} plan={plan} change={change} month={m} difficulty={data.difficulty}/></fieldset>}
- {tab==='history'&&<><HistoryList reports={data.reports}/>{data.reports.length>0&&<button className="button secondary full" onClick={onHistory}>Посмотреть свой путь и попробовать другой выбор<ArrowUpRight size={18}/></button>}</>}
- </section><aside className="budget-sidebar"><section className="budget-card"><div className="budget-heading"><span className="budget-icon"><Wallet size={19}/></span><div><h3>Бюджет месяца</h3><span>Прогноз до принятия решения</span></div></div><div className="budget-lines"><div><span>В начале месяца</span><b>{rub(s.cash)}</b></div><div><span><i className="ledger-dot income"/>Доходы</span><b className="green-text">+{rub(income)}</b></div><div><span><i className="ledger-dot expense"/>Расходы</span><b>−{rub(expenses)}</b></div>{report?.ledger.filter(x=>x.kind==='transfer').map((x,i)=><div className="transfer-line" key={x.label+i}><span>{x.label}</span><b>{x.amount>0?'+':'−'}{rub(Math.abs(x.amount))}</b></div>)}</div><button className="budget-details" onClick={()=>setDetails(!details)}>Все операции<ChevronDown size={15} className={details?'rotated':''}/></button>{details&&report&&<div className="forecast-ledger">{report.ledger.map((l,i)=><div key={l.label+i}><span>{l.label}</span><b>{l.amount>0?'+':''}{rub(l.amount)}</b></div>)}</div>}<div className="budget-total"><span>Останется на руках</span><strong className={report&&report.after.cash<0?'red-text':''}>{report?rub(report.after.cash):'—'}</strong><small>Скрытые последствия ситуаций не включены.</small></div>{(error||projected.error)&&<div className={/^Выбери решение/.test(error||'')?'budget-hint':'budget-error'} role="status">{/^Выбери решение/.test(error||'')?<Info size={17}/>:<TriangleAlert size={17}/>}{error||projected.error}</div>}{report&&report.after.cash<0&&<div className="budget-error"><TriangleAlert size={17}/>Появится дефицит. Можно пересмотреть расходы или использовать резерв.</div>}<button className="button primary full" disabled={!canCommit} onClick={()=>onCommit(plan)}>{pending?<><CheckCheck size={18}/>План отправлен</>:busy?'Сохраняем…':room?.paused?'Ведущий поставил паузу':<>{room?'Отправить решение':'Завершить месяц'}<ArrowRight size={18}/></>}</button><div className="budget-foot"><LockKeyhole size={12}/>{room?'Результаты откроются одновременно':'Решение сохранится в истории'}</div></section> <div className="stats-grid"><div className="stat-card"><div><span>На руках</span><Wallet size={18}/></div><strong className={s.cash<0?'red-text':''}>{rub(s.cash)}</strong><small>Деньги для текущих расходов</small></div><div className="stat-card"><div><span>Накопления и фонд</span><Landmark size={18}/></div><strong>{rub(s.savings+s.fund)}</strong><small>{s.fund>0?`${rub(s.fund)} — в фонде`:'Резерв на следующие шаги'}</small></div><div className="stat-card"><div><span>Учёба</span><GraduationCap size={19}/></div><strong>{s.education}<span> / 100</span></strong><div className="stat-bottom"><Meter value={s.education} tone="purple"/><small>{s.skills} навыков</small></div></div><div className="stat-card"><div><span>Личный ресурс</span><Heart size={18}/></div><strong>{s.energy}<span> / 100</span></strong><div className="stat-bottom"><Meter value={s.energy} tone={s.energy<35?'orange':'green'}/><small>{s.energy<35?'Нужен отдых':'Есть силы'}</small></div></div></div>
- <section className="panel goal-card"><div className="section-label"><span className="eyebrow">ТВОЯ ЦЕЛЬ</span><Flag size={17}/></div><h3>{GOALS[data.goal].name}</h3><div className="goal-amount"><b>{rub(capital(s))}</b><span>/ {rub(GOALS[data.goal].target)}</span></div><Meter value={stats.goalProgress}/><div className="goal-footer"><span>{data.goal==='career'?`${s.skills} из 4 навыков`:'Капитал с учётом долгов'}</span><b>{stats.goalProgress}%</b></div><small>Для финала: учёба ≥ 60, ресурс ≥ 35 и отсутствие дефицита.</small></section>
- {room&&<section className="panel room-mini"><div className="section-label"><h3><Users size={16}/>В классе</h3><span>{room.teams.filter(t=>t.ready).length}/{room.teams.length}</span></div>{room.teams.slice(0,8).map(t=><div key={t.id}><span>{t.name}</span>{t.ready?<CheckCheck size={16} className="green-text"/>:<Clock3 size={14}/>}</div>)}</section>}
- <div className="news-strip"><span className="news-icon"><Newspaper size={18}/></span><div><b>{macro.title}</b><span>{macro.text}</span></div><Badge>Цены: +{percent((macro.inflation-1)*100)} к старту</Badge></div>
- <div className="sidebar-tip"><span><Lightbulb size={17}/>На что обратить внимание</span><p>{m<4?'Небольшой платёж может скрывать большую общую стоимость. Сравни все условия.':m<8?'Деньги, время и силы связаны. Проверь, какой ресурс ограничивает твою стратегию.':'Важен не только итоговый капитал, но и то, с каким запасом сил ты к нему придёшь.'}</p></div>
- </aside></div><div className="mobile-action-bar"><button className="mobile-balance" onClick={()=>focusSection('.budget-card')} aria-label="Посмотреть бюджет месяца"><span>Останется на руках</span><b className={report&&report.after.cash<0?'red-text':''}>{report?rub(report.after.cash):'Проверь план'}<ChevronDown size={15}/></b></button><button className="button primary" disabled={locked||!!room&&!online} onClick={mobileAction}>{pending?<><CheckCheck size={17}/>Принято</>:busy?'Сохраняем…':room?.paused?'Пауза':<>{remaining?'Выбрать решение':!canCommit?'Проверить план':room?'Отправить план':'Завершить месяц'}<ArrowRight size={17}/></>}</button></div></div>;
+      {tab !== 'room' && (
+        <BankStoryBanner
+          onOpen={() => {
+            setTab('bank');
+            requestAnimationFrame(() => focusSection('.bank-identity'));
+          }}
+        />
+      )}
+      <div className="game-layout room-game-layout">
+        <section className="game-main">
+          <div className="tab-bar" role="tablist" aria-label="Разделы игры">
+            {[
+              { id: 'room' as const, name: 'Комната', icon: House },
+              { id: 'decisions' as const, name: 'Ситуации', icon: Flag },
+              { id: 'plan' as const, name: 'План', icon: BookOpen },
+              { id: 'bank' as const, name: 'Мой банк', icon: Landmark },
+              { id: 'history' as const, name: 'История', icon: History },
+            ].map(({ id, name, icon: Icon }) => (
+              <button
+                role="tab"
+                aria-selected={tab === id}
+                key={id}
+                className={tab === id ? 'selected' : ''}
+                onClick={() => setTab(id)}
+              >
+                <Icon size={17} />
+                {name}
+                {id === 'history' && data.reports.length > 0 && <span>{data.reports.length}</span>}
+              </button>
+            ))}
+          </div>
+          {tab !== 'room' && (
+            <button
+              type="button"
+              className="room-return"
+              onClick={() => {
+                setTab('room');
+                requestAnimationFrame(() => focusSection('.player-room'));
+              }}
+            >
+              <House size={15} />
+              Вернуться в комнату
+              <ArrowRight size={15} />
+            </button>
+          )}
+          {tab === 'room' && (
+            <>
+              <PlayerRoom
+                state={state}
+                plan={plan}
+                month={monthIndex}
+                difficulty={data.difficulty}
+                character={character}
+                remaining={remainingDecisions}
+                total={eventCount}
+                onAction={openRoomAction}
+                onClear={() => {
+                  updatePlan('roomBuy', []);
+                }}
+              />
+              {isShopOpen && (
+                <RoomShop
+                  state={state}
+                  plan={plan}
+                  month={monthIndex}
+                  onChange={(items) => updatePlan('roomBuy', items)}
+                  onClose={() => setShopOpen(false)}
+                />
+              )}
+            </>
+          )}
+          {tab === 'decisions' && (
+            <>
+              <fieldset className="form-reset">
+                <div className="situations-nav" aria-label="Ситуации этого месяца">
+                  <div>
+                    <b>
+                      {eventCount - remainingDecisions} из {eventCount} решений
+                    </b>
+                    <span>Один бюджет на весь месяц</span>
+                  </div>
+                  <div
+                    className="situation-tabs"
+                    style={{ gridTemplateColumns: `repeat(${eventCount},minmax(0,1fr))` }}
+                  >
+                    {[
+                      { title: scenario.title, choice: plan.choice },
+                      ...(plan.extras || []).map((x) => ({
+                        title: getScenario(x.scenario)!.title,
+                        choice: x.choice,
+                      })),
+                    ].map((event, i) => (
+                      <button
+                        type="button"
+                        key={i}
+                        aria-pressed={activeSituation === i}
+                        className={activeSituation === i ? 'active' : ''}
+                        onClick={() => setActiveSituation(i)}
+                      >
+                        <span>{event.choice ? <Check size={14} /> : i + 1}</span>
+                        <b>{event.title}</b>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <StoryScene
+                  key={activeSituation}
+                  character={character}
+                  month={monthIndex}
+                  chapter={activeSituation + 1}
+                  scenarioId={currentExtra?.scenario || plan.scenario}
+                  scenarioOverride={contextualScenario}
+                  story={sceneStory}
+                  selected={currentExtra ? currentExtra.choice : plan.choice}
+                  onSelect={selectDecision}
+                  energy={state.energy}
+                />
+                {roomGifts(plan, monthIndex).length > 0 && (
+                  <div className="room-story-note">
+                    <House size={17} />
+                    <span>
+                      Из выбранных ситуаций в комнате появится:{' '}
+                      {roomGifts(plan, monthIndex)
+                        .map((id) => ROOM_ITEMS[id].name.toLowerCase())
+                        .join(', ')}
+                      . Помощь начнётся со следующего месяца.
+                    </span>
+                    <button type="button" onClick={() => setTab('room')}>
+                      В комнату
+                    </button>
+                  </div>
+                )}
+                {plan.extras?.length && activeSituation < plan.extras.length ? (
+                  <button
+                    type="button"
+                    className="next-situation button secondary full"
+                    onClick={() => {
+                      setActiveSituation(activeSituation + 1);
+                      requestAnimationFrame(() => focusSection('.situations-nav'));
+                    }}
+                  >
+                    Следующая ситуация
+                    <ArrowRight size={17} />
+                  </button>
+                ) : null}
+              </fieldset>
+              <button className="bank-prompt" onClick={() => setTab('bank')}>
+                <Landmark size={20} />
+                <div>
+                  <b>А что с накоплениями?</b>
+                  <span>Переводы, фонд и сравнение кредитов — в твоём банке.</span>
+                </div>
+                <ArrowUpRight size={22} />
+              </button>
+            </>
+          )}
+          {tab === 'plan' && (
+            <fieldset className="form-reset">
+              {' '}
+              <PlanPanel
+                state={state}
+                plan={plan}
+                month={monthIndex}
+                difficulty={data.difficulty}
+                onChange={updatePlan}
+              />
+            </fieldset>
+          )}
+          {tab === 'bank' && (
+            <fieldset className="form-reset">
+              <BankPanel
+                state={state}
+                plan={plan}
+                onChange={updatePlan}
+                month={monthIndex}
+                difficulty={data.difficulty}
+              />
+            </fieldset>
+          )}
+          {tab === 'history' && (
+            <>
+              <HistoryList reports={data.reports} />
+              {data.reports.length > 0 && (
+                <button className="button secondary full" onClick={onHistory}>
+                  Посмотреть свой путь и попробовать другой выбор
+                  <ArrowUpRight size={18} />
+                </button>
+              )}
+            </>
+          )}
+        </section>
+        <BudgetSidebar
+          data={data}
+          plan={plan}
+          report={report}
+          error={validationError}
+          forecastError={forecast.error}
+          canCommit={canCommit}
+          onCommit={onCommit}
+        />
+      </div>
+      <div className="mobile-action-bar">
+        <button
+          className="mobile-balance"
+          onClick={() => focusSection('.budget-card')}
+          aria-label="Посмотреть бюджет месяца"
+        >
+          <span>Останется на руках</span>
+          <b className={report && report.after.cash < 0 ? 'red-text' : ''}>
+            {report ? rub(report.after.cash) : 'Проверь план'}
+            <ChevronDown size={15} />
+          </b>
+        </button>
+        <button className="button primary" onClick={handleMobileAction}>
+          {remainingDecisions
+            ? 'Выбрать решение'
+            : !canCommit
+              ? 'Проверить план'
+              : 'Завершить месяц'}
+          <ArrowRight size={17} />
+        </button>
+      </div>
+    </div>
+  );
 }
-function Bank({s,plan,change,month,difficulty}:{s:GameState;plan:Plan;change:<K extends keyof Plan>(k:K,v:Plan[K])=>void;month:number;difficulty:DifficultyId}){
- const sample=plan.borrow||20000;return <><BankIdentity cash={s.cash} savings={s.savings}/><section className="panel bank-account"><div className="section-label"><span className="account-symbol green-bg"><Landmark size={22}/></span><Badge tone="green">{MACRO[month].savingsRate}% годовых · учебная ставка</Badge></div><span className="eyebrow">НАКОПИТЕЛЬНЫЙ СЧЁТ</span><h2>{rub(s.savings)}</h2><p>Резерв с доступом к деньгам. Процент начисляется ежемесячно на входящий остаток. Новое пополнение работает со следующего месяца.</p><div className="bank-input-grid"><Numeric label="Пополнить в этом месяце" value={plan.save} onChange={v=>change('save',v)} max={500000}/><Numeric label="Снять со счёта" value={plan.withdraw} onChange={v=>change('withdraw',v)} max={Math.floor(s.savings)}/></div></section>
- <section className="panel bank-account"><div className="section-label"><span className="account-symbol purple-bg"><TrendingUp size={22}/></span><Badge tone="purple">Стоимость может снизиться</Badge></div><span className="eyebrow">УЧЕБНЫЙ ИНДЕКСНЫЙ ФОНД</span><h2>{rub(s.fund)}</h2><p>Вложение с изменяющейся стоимостью. Доход не гарантирован. Новые покупки начинают участвовать в изменении цены со следующего месяца.</p><div className="market-history"><span>Известная история изменения цены</span><div>{month===0?<small>Первый месяц. Истории пока нет.</small>:MACRO.slice(0,month).map((_,i)=>{const x=macroFor(i,difficulty);return <span key={i} className={x.market<0?'negative':'positive'}>{SHORT_MONTHS[i]}<b>{x.market>0?'+':''}{percent(x.market)}</b></span>;})}</div></div><div className="bank-input-grid"><Numeric label="Купить долю фонда" value={plan.invest} onChange={v=>change('invest',v)} max={500000}/><Numeric label="Продать по известной цене" value={plan.sell} onChange={v=>change('sell',v)} max={Math.floor(s.fund)}/></div><div className="soft-note"><Info size={15}/><span>Продажа идёт по цене начала месяца. События рынка для оставшейся доли раскроются после хода.</span></div></section>
- <section className="panel credit-panel"><div className="section-label"><div><span className="eyebrow">СРАВНИ, ПРЕЖДЕ ЧЕМ ВЫБРАТЬ</span><h2>Кредит под лупой</h2></div><Banknote size={24}/></div><p className="muted">Сравни платежи и комиссии: рекламная ставка — только часть стоимости. Все условия в игре вымышлены и не относятся к продуктам банка.</p><Numeric label="Сколько планируешь получить" value={plan.borrow} max={Math.min(40000,Math.max(0,Math.floor(90000-debt(s))))} step={1000} onChange={v=>change('borrow',v)} hint="0 ₽ — новый кредит не оформляется. Первый платёж со следующего месяца."/><div className="comparison-label">Сравнение на {rub(sample)} {plan.borrow===0&&<button className="text-button" onClick={()=>change('borrow',20000)}>Добавить в план<PlusIcon/></button>}</div><div className="credit-offers">{OFFERS.map(o=>{const q=creditQuote(sample,o.id);return <label key={o.id} className={'credit-offer '+(plan.offer===o.id?'chosen':'')}><input type="radio" name="credit-offer" checked={plan.offer===o.id} onChange={()=>change('offer',o.id)}/><div><b>{o.name}</b><span className="radio-visual">{plan.offer===o.id&&<Check size={11}/>}</span></div><strong>{o.rate}<span>%</span></strong><small>годовых · {o.term} мес.</small><dl><div><dt>В месяц</dt><dd>{rub(q.payment)}</dd></div><div><dt>Разовая комиссия</dt><dd>{rub(o.fee)}</dd></div><div><dt>Сервис в месяц</dt><dd>{rub(o.monthlyFee)}</dd></div></dl><div className="credit-total"><span>Всего вернёшь</span><b>{rub(q.total)}</b><small>Сверх суммы кредита: {rub(q.overpay)}</small></div></label>;})}</div><div className="soft-note"><ShieldCheck size={15}/><span>Платёж рассчитан по аннуитетной формуле. Копеечное округление корректируется последним платежом. После августа оставшийся долг сохраняется в итогах.</span></div></section>
- {s.loans.length>0&&<section className="panel"><div className="section-label"><h2>Твои обязательства</h2><Badge tone="orange">{rub(debt(s))}</Badge></div>{s.loans.map(l=><div className="loan-row" key={l.id}><div><b>{l.name}</b><small>Ещё {l.remaining} платежей · {l.rate}% годовых</small></div><div><b>{rub(l.payment+l.monthlyFee)} / мес.</b><small>Остаток: {rub(l.balance)}</small></div></div>)}</section>}
- {s.pending.length>0&&<section className="panel"><h3>Уже запланировано</h3>{s.pending.map((p,i)=><div className="loan-row" key={i}><div><b>{p.title}</b><small>{MONTHS[p.due]||'После конца игры'}</small></div><b>{p.cash?rub(p.cash):`+${p.skills} навык`}</b></div>)}</section>}</>;
-}
-function PlusIcon(){return <span aria-hidden="true">+</span>;}
