@@ -136,7 +136,8 @@ check(
       for (let m = 0; m < 12; m++) {
         const p = {
           ...base(m),
-          job: 'flex',
+          job: difficulty === 'hardcore' ? 'none' : 'flex',
+          study: difficulty === 'hardcore' ? 16 : 32,
           housing: m > 5 ? 'shared' : 'dorm',
           ...(m === 0
             ? { roomBuy: ['lamp', 'plant'] }

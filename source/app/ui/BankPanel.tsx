@@ -38,7 +38,7 @@ export function BankPanel({
           <span className="account-symbol green-bg">
             <Landmark size={22} />
           </span>
-          <Badge tone="green">{MACRO[month].savingsRate}% годовых · учебная ставка</Badge>
+          <Badge tone="green">{MACRO[month].savingsRate}% годовых</Badge>
         </div>
         <span className="eyebrow">НАКОПИТЕЛЬНЫЙ СЧЁТ</span>
         <h2>{rub(state.savings)}</h2>
@@ -68,7 +68,7 @@ export function BankPanel({
           </span>
           <Badge tone="purple">Стоимость может снизиться</Badge>
         </div>
-        <span className="eyebrow">УЧЕБНЫЙ ИНДЕКСНЫЙ ФОНД</span>
+        <span className="eyebrow">ИНДЕКСНЫЙ ФОНД</span>
         <h2>{rub(state.fund)}</h2>
         <p>
           Вложение с изменяющейся стоимостью. Доход не гарантирован. Новые покупки начинают
@@ -126,8 +126,7 @@ export function BankPanel({
           <Banknote size={24} />
         </div>
         <p className="muted">
-          Сравни платежи и комиссии: рекламная ставка — только часть стоимости. Все условия в игре
-          вымышлены и не относятся к продуктам банка.
+          Сравни платежи и комиссии: рекламная ставка — только часть стоимости.
         </p>
         <Numeric
           label="Сколько планируешь получить"

@@ -170,7 +170,7 @@ check(
   'Difficulty changes support, time, prices and market risk without leaking future returns',
   () => {
     const totals = [];
-    for (const id of Object.keys(g.DIFFICULTIES)) {
+    for (const id of ['first', 'balance', 'challenge']) {
       const level = g.DIFFICULTIES[id],
         state = g.initialState(id),
         plan = { ...g.defaultPlan(2), job: 'part', study: 48, choice: 'repair' };
@@ -201,56 +201,62 @@ check(
     assert.ok(totals[0] < totals[1] && totals[1] < totals[2]);
   },
 );
-check('Every level completes 12 months and replays its own initial resources exactly', () => {
-  const ends = [];
-  for (const id of Object.keys(g.DIFFICULTIES)) {
-    let state = g.initialState(id);
-    const history = [];
-    for (let m = 0; m < 12; m++) {
-      const r = g.settle(state, g.defaultPlan(m), m, 'capital', true, id);
-      near(state.cash + r.ledger.reduce((sum, x) => sum + x.amount, 0), r.after.cash);
-      assert.equal(r.score, g.evaluate(r.after, 'capital', r.plan, m, id).total);
-      history.push(r);
-      state = r.after;
-    }
-    assert.deepEqual(g.replay(history, 0, history[0].plan.choice, 'capital', id).state, state);
-    const snapshot = JSON.stringify(history);
-    const alt = g.replay(history, 0, 'new', 'capital', id);
-    assert.equal(JSON.stringify(history), snapshot);
-    assert.equal(alt.reports.length, 12);
-    ends.push(g.capital(state));
-  }
-  assert.ok(ends[0] > ends[1] && ends[1] > ends[2]);
-});
-check('All goals are reachable on every level while preserving study and energy', () => {
-  const route = [
-    ['part', 32, 'service'],
-    ['flex', 48, 'university'],
-    ['part', 32, 'repair'],
-    ['part', 32, 'handmade'],
-    ['flex', 48, 'group'],
-    ['part', 32, 'official'],
-    ['flex', 48, 'organize'],
-    ['part', 16, 'paid'],
-    ['part', 32, 'research'],
-    ['flex', 32, 'bonus'],
-    ['flex', 32, 'project'],
-    ['part', 32, 'keep'],
-  ];
-  for (const id of Object.keys(g.DIFFICULTIES))
-    for (const goal of Object.keys(g.GOALS)) {
-      let state = g.initialState(id),
-        last;
+check(
+  'The three original levels complete 12 months and replays its own initial resources exactly',
+  () => {
+    const ends = [];
+    for (const id of ['first', 'balance', 'challenge']) {
+      let state = g.initialState(id);
+      const history = [];
       for (let m = 0; m < 12; m++) {
-        const [job, study, choice] =
-          goal === 'career' && m === 4 ? ['flex', 32, 'course'] : route[m];
-        last = { ...g.defaultPlan(m), job, study, choice, leisure: 0 };
-        state = g.settle(state, last, m, goal, true, id).after;
-        assert.ok(state.cash >= 0 && state.education >= 50 && state.energy >= 25);
+        const r = g.settle(state, g.defaultPlan(m), m, 'capital', true, id);
+        near(state.cash + r.ledger.reduce((sum, x) => sum + x.amount, 0), r.after.cash);
+        assert.equal(r.score, g.evaluate(r.after, 'capital', r.plan, m, id).total);
+        history.push(r);
+        state = r.after;
       }
-      assert.equal(g.evaluate(state, goal, last, 11, id).achieved, true, `${id}: ${goal}`);
+      assert.deepEqual(g.replay(history, 0, history[0].plan.choice, 'capital', id).state, state);
+      const snapshot = JSON.stringify(history);
+      const alt = g.replay(history, 0, 'new', 'capital', id);
+      assert.equal(JSON.stringify(history), snapshot);
+      assert.equal(alt.reports.length, 12);
+      ends.push(g.capital(state));
     }
-});
+    assert.ok(ends[0] > ends[1] && ends[1] > ends[2]);
+  },
+);
+check(
+  'All goals are reachable on the three original levels while preserving study and energy',
+  () => {
+    const route = [
+      ['part', 32, 'service'],
+      ['flex', 48, 'university'],
+      ['part', 32, 'repair'],
+      ['part', 32, 'handmade'],
+      ['flex', 48, 'group'],
+      ['part', 32, 'official'],
+      ['flex', 48, 'organize'],
+      ['part', 16, 'paid'],
+      ['part', 32, 'research'],
+      ['flex', 32, 'bonus'],
+      ['flex', 32, 'project'],
+      ['part', 32, 'keep'],
+    ];
+    for (const id of ['first', 'balance', 'challenge'])
+      for (const goal of Object.keys(g.GOALS)) {
+        let state = g.initialState(id),
+          last;
+        for (let m = 0; m < 12; m++) {
+          const [job, study, choice] =
+            goal === 'career' && m === 4 ? ['flex', 32, 'course'] : route[m];
+          last = { ...g.defaultPlan(m), job, study, choice, leisure: 0 };
+          state = g.settle(state, last, m, goal, true, id).after;
+          assert.ok(state.cash >= 0 && state.education >= 50 && state.energy >= 25);
+        }
+        assert.equal(g.evaluate(state, goal, last, 11, id).achieved, true, `${id}: ${goal}`);
+      }
+  },
+);
 console.log(
   JSON.stringify({
     checks,

@@ -114,7 +114,11 @@ check(
       const reports = [],
         seen = new Set();
       for (let m = 0; m < 12; m++) {
-        const p = { ...g.defaultPlan(m), extras: extras(m) };
+        const p = {
+          ...g.defaultPlan(m),
+          extras: extras(m),
+          ...(level === 'hardcore' ? { job: 'none', study: 16 } : {}),
+        };
         const snapshot = JSON.stringify(p);
         assert.equal(g.validatePlan(p, state, m, false, level), null);
         const r = g.settle(state, p, m, 'capital', true, level);

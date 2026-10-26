@@ -1,6 +1,7 @@
 import type { CharacterId } from '@/lib/character';
 import { downloadCsv } from '@/lib/csv';
 import {
+  DEVELOPMENT,
   DIFFICULTIES,
   GOALS,
   HOUSING,
@@ -29,6 +30,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { CapitalChart } from './CapitalChart';
+import { HardcoreRules } from './HardcoreRules';
 import { HistoryList } from './History';
 import { FinalRoom } from './PlayerRoom';
 import { Badge, Meter } from './shared';
@@ -88,6 +90,8 @@ export function Results({
         'Вещи из ситуаций',
         'Помощь комнаты: учёба',
         'Помощь комнаты: ресурс',
+        'Развитие',
+        'Навыки от развития',
       ],
       ...data.reports.map((report) => [
         MONTHS[report.month],
@@ -115,6 +119,8 @@ export function Results({
         (report.room?.gifted || []).map((id) => ROOM_ITEMS[id].name).join(' / '),
         report.room?.education || 0,
         report.room?.energy || 0,
+        report.development ? DEVELOPMENT[report.development.action].name : '',
+        report.development?.skillsGained || 0,
       ]),
     ]);
   return (
@@ -231,10 +237,6 @@ export function Results({
                   <Meter value={(p.value / p.max) * 100} />
                 </div>
               ))}
-              <p className="soft-note">
-                Баллы описывают твою игровую стратегию. Это ориентир для обсуждения, а не школьная
-                оценка.
-              </p>
             </section>
             <section className="panel results-goal">
               <Flag size={26} />
@@ -249,9 +251,31 @@ export function Results({
                     ok: capital(data.state) >= GOALS[data.goal].target,
                     text: `Капитал от ${rub(GOALS[data.goal].target)}`,
                   },
-                  { ok: data.state.education >= 60, text: 'Учёба от 60 баллов' },
-                  { ok: data.state.energy >= 35, text: 'Ресурс от 35 баллов' },
+                  {
+                    ok: data.state.education >= (data.difficulty === 'hardcore' ? 65 : 60),
+                    text: `Учёба от ${data.difficulty === 'hardcore' ? 65 : 60} баллов`,
+                  },
+                  {
+                    ok: data.state.energy >= (data.difficulty === 'hardcore' ? 45 : 35),
+                    text: `Ресурс от ${data.difficulty === 'hardcore' ? 45 : 35} баллов`,
+                  },
                   { ok: data.state.cash >= 0, text: 'Без дефицита на финише' },
+                  ...(data.difficulty === 'hardcore'
+                    ? [
+                        {
+                          ok: !data.state.hardcoreFailures?.length && data.state.deficits === 0,
+                          text: 'Ни одного критического месяца',
+                        },
+                        {
+                          ok:
+                            debt(data.state) < 0.01 &&
+                            !data.state.pending.some((event) => (event.cash || 0) < 0),
+                          text: 'Без долгов и будущих платежей',
+                        },
+                        { ok: stats.reserveMonths >= 1, text: 'Резерв от одного месяца' },
+                        { ok: data.state.safety >= 8, text: 'Безопасность от 8' },
+                      ]
+                    : []),
                   ...(data.goal === 'career'
                     ? [{ ok: data.state.skills >= 4, text: 'Не меньше 4 навыков' }]
                     : []),
@@ -264,6 +288,9 @@ export function Results({
               </div>
             </section>
           </div>
+          {data.difficulty === 'hardcore' && (
+            <HardcoreRules state={data.state} month={Math.min(11, data.month)} />
+          )}
           <section className="panel">
             <div className="section-label">
               <h2>Твоя финансовая траектория</h2>

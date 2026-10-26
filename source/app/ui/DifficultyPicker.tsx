@@ -2,10 +2,10 @@ import { DIFFICULTIES, percent, rub, type DifficultyId } from '@/lib/game';
 import { Check, Clock3, Wallet } from 'lucide-react';
 
 export function DifficultyBars({ level }: { level: DifficultyId }) {
-  const count = level === 'first' ? 1 : level === 'balance' ? 2 : 3;
+  const count = level === 'first' ? 1 : level === 'balance' ? 2 : level === 'challenge' ? 3 : 4;
   return (
     <span className="difficulty-bars" aria-hidden="true">
-      {[1, 2, 3].map((n) => (
+      {[1, 2, 3, 4].map((n) => (
         <i className={n <= count ? 'filled' : ''} key={n} />
       ))}
     </span>
@@ -46,6 +46,19 @@ export function DifficultyPicker({
           ))}
         </div>
       </fieldset>
+      {value === 'hardcore' && (
+        <div className="hardcore-rules">
+          <b>Один тяжёлый год</b>
+          <p>
+            Ни одного месяца с дефицитом, учёбой ниже 35 или ресурсом ниже 15. В финале: учёба ≥ 65,
+            ресурс ≥ 45, безопасность ≥ 8, без долгов и с резервом на месяц.
+          </p>
+          <p>
+            Сессии в январе и июне забирают 12 часов и усиливают нагрузку на учёбу. Ошибки останутся
+            в истории прохождения.
+          </p>
+        </div>
+      )}
       <div className="starting-pack difficulty-details" aria-live="polite">
         <div className="difficulty-description">
           <b>{selected.name}</b>
@@ -83,7 +96,9 @@ export function DifficultyPicker({
             ? 'Колебания фонда мягче на 25%.'
             : value === 'challenge'
               ? 'Колебания фонда сильнее на 50%.'
-              : 'Базовые колебания фонда.'}
+              : value === 'hardcore'
+                ? 'Колебания фонда вдвое сильнее. Летом поддержка снижается до 10 000 ₽.'
+                : 'Базовые колебания фонда.'}
         </p>
       </div>
     </>

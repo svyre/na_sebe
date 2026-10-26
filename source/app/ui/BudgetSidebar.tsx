@@ -128,6 +128,20 @@ export function BudgetSidebar({
             Появится дефицит. Можно пересмотреть расходы или использовать резерв.
           </div>
         )}
+        {data.difficulty === 'hardcore' && report && (
+          <p className="budget-hint">
+            После месяца: учёба {report.after.education}, ресурс {report.after.energy}.
+          </p>
+        )}
+        {data.difficulty === 'hardcore' &&
+          report &&
+          (report.after.hardcoreFailures?.length || 0) > (state.hardcoreFailures?.length || 0) && (
+            <div className="budget-error" role="alert">
+              <TriangleAlert size={17} />
+              Этот план нарушит условия хардкора: {report.after.hardcoreFailures?.at(-1)}.
+              Пересмотри нагрузку, отдых и бюджет до завершения месяца.
+            </div>
+          )}
         <button
           className="button primary full"
           disabled={!canCommit}
@@ -171,7 +185,9 @@ export function BudgetSidebar({
           </strong>
           <div className="stat-bottom">
             <Meter value={state.education} tone="purple" />
-            <small>{state.skills} навыков</small>
+            <small>
+              Навыки: {state.skills} → +{rub(state.skills * 700)} при подработке
+            </small>
           </div>
         </div>
         <div className="stat-card">
@@ -206,7 +222,11 @@ export function BudgetSidebar({
           </span>
           <b>{score.goalProgress}%</b>
         </div>
-        <small>Для финала: учёба ≥ 60, ресурс ≥ 35 и отсутствие дефицита.</small>
+        <small>
+          {data.difficulty === 'hardcore'
+            ? 'Для финала: учёба ≥ 65, ресурс ≥ 45, безопасность ≥ 8, без долгов и нарушений хардкора.'
+            : 'Для финала: учёба ≥ 60, ресурс ≥ 35 и отсутствие дефицита.'}
+        </small>
       </section>
       <div className="news-strip">
         <span className="news-icon">

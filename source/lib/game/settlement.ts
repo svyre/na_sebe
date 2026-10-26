@@ -1,6 +1,7 @@
 // Закрытие месяца. Порядок операций важен для процентов и отложенных последствий.
 
-import { DIFFICULTIES, HOUSING, JOBS, STUDIES, difficultyId, macroFor } from './config';
+import { HOUSING, JOBS, MONTHS, STUDIES, macroFor, monthRules } from './config';
+import { developmentFor } from './development';
 import { evaluate } from './evaluation';
 import { annuity, capital, creditQuote } from './finance';
 import { ROOM_ITEMS, roomEffects, roomGifts, roomInventory } from './furniture';
@@ -33,7 +34,11 @@ export function settle(
     ledger.push({ label, amount: roundMoney(amount), kind });
   };
   const monthlyConditions = macroFor(month, difficulty);
-  const difficultySettings = DIFFICULTIES[difficultyId(difficulty)];
+  const rules = monthRules(difficulty, month);
+  const development = developmentFor(selectedPlan);
+  const completedCourses = input.pending.filter(
+    (event) => event.development === 'course' && event.due <= month,
+  ).length;
   const housing = HOUSING.find((x) => x.id === selectedPlan.housing)!;
   const job = JOBS.find((x) => x.id === selectedPlan.job)!;
   const study = STUDIES.find((x) => x.hours === selectedPlan.study)!;
@@ -101,7 +106,7 @@ export function settle(
   }
 
   // Поддержка, стипендия и работа оплачивают текущие обязательные расходы.
-  recordTransaction('Поддержка семьи', difficultySettings.support);
+  recordTransaction('Поддержка семьи', rules.support);
   if (input.education >= 50) recordTransaction('Стипендия', 3000);
   else warnings.push('Стипендии нет: учёба в начале месяца ниже 50.');
   const income = Math.round(
@@ -115,6 +120,8 @@ export function settle(
   recordTransaction('Транспорт', -Math.round(housing.transport * monthlyConditions.inflation));
   recordTransaction('Связь и бытовые расходы', -Math.round(900 * monthlyConditions.inflation));
   recordTransaction('Отдых и личные траты', -selectedPlan.leisure);
+  if (development.cost) recordTransaction('Развитие: ' + development.name, -development.cost);
+  if (development.income) recordTransaction('Развитие: ' + development.name, development.income);
   for (const [index, option] of selectedOptions.entries()) {
     if (option.cost) recordTransaction('Событие: ' + option.title, -option.cost);
     if (option.income) recordTransaction('Событие: ' + option.title, option.income);
@@ -160,7 +167,7 @@ export function settle(
       if (option.hiddenLoss) recordTransaction('Потеря: ' + option.title, -option.hiddenLoss);
   state.education = clamp(
     state.education -
-      1 +
+      rules.educationDecay +
       study.gain +
       job.education +
       sumOptionEffects('education') -
@@ -171,7 +178,7 @@ export function settle(
   state.energy = clamp(
     Math.round(
       state.energy +
-        22 +
+        rules.recovery +
         selectedPlan.leisure / 800 -
         job.fatigue -
         selectedPlan.study / 10 -
@@ -179,10 +186,30 @@ export function settle(
         sumOptionEffects('hours') / 6 -
         installation / 6 +
         sumOptionEffects('energy') +
-        effects.energy,
+        effects.energy -
+        development.energy,
     ),
   );
   state.skills += sumOptionEffects('skills');
+  let developmentSkills = completedCourses;
+  if (selectedPlan.development === 'self') {
+    const sessions = (input.developmentProgress === 1 ? 1 : 0) + 1;
+    state.developmentProgress = sessions === 2 ? 0 : 1;
+    if (sessions === 2) {
+      state.skills++;
+      developmentSkills++;
+    }
+  } else if (selectedPlan.development === 'course') {
+    state.pending.push({
+      due: month + 1,
+      skills: 1,
+      title: 'Практический курс: завершение',
+      development: 'course',
+    });
+  } else if (selectedPlan.development === 'internship') {
+    state.skills++;
+    developmentSkills++;
+  }
   state.safety = clamp(state.safety + sumOptionEffects('safety'), 0, 10);
   if (state.cash < 0) {
     state.deficits++;
@@ -192,6 +219,22 @@ export function settle(
   }
   if (state.education < 50) warnings.push('Под угрозой стипендия следующего месяца.');
   if (state.energy < 35) warnings.push('Ресурс заканчивается: пересмотри нагрузку и отдых.');
+  if (difficulty === 'hardcore') {
+    const failures = [
+      state.cash < 0 ? 'дефицит' : '',
+      state.education < 35 ? 'провал учёбы ниже 35' : '',
+      state.energy < 15 ? 'истощение ниже 15' : '',
+    ].filter(Boolean);
+    if (failures.length)
+      state.hardcoreFailures = [
+        ...(input.hardcoreFailures || []),
+        `${MONTHS[month]}: ${failures.join(', ')}`,
+      ];
+    if (state.hardcoreFailures?.length)
+      warnings.push(
+        'Условия хардкора нарушены. Историю можно закончить, но победа в этом прохождении уже недоступна.',
+      );
+  }
   return {
     month,
     before,
@@ -205,6 +248,16 @@ export function settle(
     interest,
     market,
     score: evaluate(state, goal, selectedPlan, month, difficulty).total,
+    ...((selectedPlan.development && selectedPlan.development !== 'none') || completedCourses
+      ? {
+          development: {
+            action: selectedPlan.development || 'none',
+            skillsGained: developmentSkills,
+            selfProgress: state.developmentProgress || 0,
+            completedCourses,
+          },
+        }
+      : {}),
     ...(selectedPlan.extras
       ? {
           extras: extraDecisions.map((x) => ({

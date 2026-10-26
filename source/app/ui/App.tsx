@@ -362,7 +362,6 @@ export default function App() {
           )}
           <footer className="app-footer">
             <PartnerMark compact />
-            <span>Все суммы, ставки и договоры — игровые.</span>
           </footer>
         </main>
       </div>

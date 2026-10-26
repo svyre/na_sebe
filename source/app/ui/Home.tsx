@@ -29,6 +29,7 @@ const levelNames: Record<DifficultyId, string> = {
   first: 'Спокойный старт',
   balance: 'Золотая середина',
   challenge: 'Больше самостоятельности',
+  hardcore: 'Ни одного лёгкого решения',
 };
 
 export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomeProps) {
@@ -64,7 +65,7 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
           </h1>
           <p className="intro-description">
             Начни самостоятельный год со своей комнаты: обустраивай её, учись, работай и решай
-            жизненные ситуации — пока в игре.
+            жизненные ситуации.
           </p>
           <div className="intro-actions">
             <button className="button primary" onClick={begin}>
@@ -359,9 +360,7 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
       </section>
       <div className="home-footnote">
         <ShieldCheck size={15} />
-        <span>
-          Прогресс сохраняется в этом браузере. Все суммы и предложения — условия игровой модели.
-        </span>
+        <span>Прогресс сохраняется в этом браузере.</span>
       </div>
     </div>
   );

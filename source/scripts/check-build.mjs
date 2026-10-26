@@ -48,19 +48,30 @@ const output = await fs.mkdtemp(path.join(os.tmpdir(), 'na-sebe-build-'));
 try {
   const stats = await buildPage(esbuild, output);
   const html = await fs.readFile(path.join(output, 'index.html'), 'utf8');
-  const styles = html.match(/<style>([\s\S]*?)<\/style>/)[1];
-
-  await check('The offline build embeds its font and images without network dependencies', () => {
-    assert(html.includes('data:font/woff2;base64,'));
-    assert(html.includes('data:image/webp;base64,'));
-    assert(!/<script[^>]+src=/.test(html));
-    assert(!/<link[^>]+rel=["']stylesheet["']/.test(html));
-    assert(!/url\(["']?https?:/.test(html));
-    assert(!html.includes('/api/room'));
-  });
+  const styles = await fs.readFile(path.join(output, 'styles.css'), 'utf8');
+  const script = await fs.readFile(path.join(output, 'app.js'), 'utf8');
 
   await check(
-    'The standalone page stays within its size budget and keeps room state styling',
+    'The web build keeps executable code and assets in separate local files',
+    async () => {
+      assert(/<script src="\.\/app\.js" defer><\/script>/.test(html));
+      assert(html.includes('href="./styles.css"'));
+      const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)];
+      assert.equal(scripts.length, 1);
+      assert(scripts.every((match) => match[1].trim() === ''));
+      assert(!/data:[^;]+;base64,/.test(html + script + styles));
+      assert(!/url\(["']?https?:/.test(styles));
+      assert(!script.includes('/api/room'));
+      assert(html.includes("connect-src 'none'"));
+      assert(html.includes("script-src 'self'"));
+      for (const file of stats.files) assert((await fs.stat(path.join(output, file))).isFile());
+      assert(stats.files.some((file) => file.startsWith('assets/') && file.endsWith('.webp')));
+      assert(stats.files.includes('assets/Onest.woff2'));
+    },
+  );
+
+  await check(
+    'The complete web build stays within its size budget and keeps room state styling',
     async () => {
       assert(stats.bytes < 2_500_000, `${stats.bytes} exceeds the 2.5 MB budget`);
       assert(stats.removedSelectors > 0);

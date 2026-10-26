@@ -1,6 +1,7 @@
 export type GoalId = 'capital' | 'career' | 'freedom';
 
-export type DifficultyId = 'first' | 'balance' | 'challenge';
+export type DifficultyId = 'first' | 'balance' | 'challenge' | 'hardcore';
+export type DevelopmentId = 'none' | 'self' | 'course' | 'internship';
 
 export type RoomItemId = 'lamp' | 'desk' | 'chair' | 'mattress' | 'shelf' | 'plant';
 
@@ -40,7 +41,13 @@ export type Loan = {
   monthlyFee: number;
 };
 
-export type Pending = { due: number; cash?: number; skills?: number; title: string };
+export type Pending = {
+  due: number;
+  cash?: number;
+  skills?: number;
+  title: string;
+  development?: 'course';
+};
 
 export type GameState = {
   cash: number;
@@ -54,6 +61,8 @@ export type GameState = {
   pending: Pending[];
   deficits: number;
   roomItems?: RoomItemId[];
+  developmentProgress?: 0 | 1;
+  hardcoreFailures?: string[];
 };
 
 export type Plan = {
@@ -72,6 +81,7 @@ export type Plan = {
   extras?: { scenario: string; choice: string }[];
   roomVersion?: 1;
   roomBuy?: RoomItemId[];
+  development?: DevelopmentId;
 };
 
 export type Ledger = { label: string; amount: number; kind: 'income' | 'expense' | 'transfer' };
@@ -91,6 +101,12 @@ export type Report = {
   score: number;
   extras?: { scenario: string; choice: string; explanation: string }[];
   room?: { purchased: RoomItemId[]; gifted: RoomItemId[]; education: number; energy: number };
+  development?: {
+    action: DevelopmentId;
+    skillsGained: number;
+    selfProgress: number;
+    completedCourses: number;
+  };
 };
 
 export type Solo = {

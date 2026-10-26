@@ -1,11 +1,12 @@
 import {
-  DIFFICULTIES,
   HOUSING,
   JOBS,
   STUDIES,
   macroFor,
+  monthRules,
   planHours,
   rub,
+  skillsForWork,
   type DifficultyId,
   type GameState,
   type Plan,
@@ -25,7 +26,7 @@ export function PlanPanel({
   difficulty: DifficultyId;
   onChange: <K extends keyof Plan>(key: K, value: Plan[K]) => void;
 }) {
-  const difficultySettings = DIFFICULTIES[difficulty];
+  const rules = monthRules(difficulty, monthIndex);
   const monthlyConditions = macroFor(monthIndex, difficulty);
   const hours = planHours(plan, monthIndex);
   return (
@@ -37,9 +38,9 @@ export function PlanPanel({
           </span>
           <h2>Твой ритм</h2>
         </div>
-        <Badge tone={hours > difficultySettings.hours ? 'orange' : ''}>
+        <Badge tone={hours > rules.hours ? 'orange' : ''}>
           <Clock3 size={13} />
-          {hours} / {difficultySettings.hours} ч
+          {hours} / {rules.hours} ч
         </Badge>
       </div>
       <div className="planning-row">
@@ -80,7 +81,7 @@ export function PlanPanel({
               {job.name} ·{' '}
               {rub(
                 Math.round(
-                  (job.income + (job.income ? state.skills * 700 : 0)) *
+                  (job.income + (job.income ? skillsForWork(state, monthIndex) * 700 : 0)) *
                     (state.energy < 25 ? 0.7 : 1),
                 ),
               )}{' '}
@@ -156,19 +157,19 @@ export function PlanPanel({
       <div className="time-budget">
         <div>
           <b>Свободное время</b>
-          <span className={hours > difficultySettings.hours ? 'red-text' : ''}>
-            {hours > difficultySettings.hours
-              ? 'Не хватает ' + (hours - difficultySettings.hours) + ' ч'
-              : 'Остаётся ' + (difficultySettings.hours - hours) + ' ч'}
+          <span className={hours > rules.hours ? 'red-text' : ''}>
+            {hours > rules.hours
+              ? 'Не хватает ' + (hours - rules.hours) + ' ч'
+              : 'Остаётся ' + (rules.hours - hours) + ' ч'}
           </span>
         </div>
         <Meter
-          value={(hours / difficultySettings.hours) * 100}
-          tone={hours > difficultySettings.hours ? 'orange' : 'purple'}
+          value={(hours / rules.hours) * 100}
+          tone={hours > rules.hours ? 'orange' : 'purple'}
         />
         <p>
-          {difficultySettings.hours} часов после обязательных занятий и сна. Сюда входят дорога,
-          работа, самостоятельная учёба, ситуации и установка покупок для комнаты.
+          {rules.hours} часов после обязательных занятий и сна. Сюда входят дорога, работа,
+          самостоятельная учёба, ситуации, развитие и установка покупок для комнаты.
         </p>
       </div>
     </article>

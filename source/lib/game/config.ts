@@ -78,7 +78,32 @@ export const DIFFICULTIES: Record<
     marketFactor: 1.5,
     inflationFactor: 1.5,
   },
+  hardcore: {
+    name: 'Хардкор',
+    label: 'На пределе',
+    description:
+      'Малый резерв, сессии и дорогой отдых. Ни одного месяца с дефицитом или критическим истощением.',
+    cash: 12000,
+    savings: 4000,
+    support: 14000,
+    hours: 108,
+    marketFactor: 2,
+    inflationFactor: 2,
+  },
 };
+
+export function monthRules(difficulty: DifficultyId, month: number) {
+  const settings = DIFFICULTIES[difficultyId(difficulty)];
+  const hardcore = difficulty === 'hardcore';
+  const exam = hardcore && (month === 4 || month === 9);
+  return {
+    support: settings.support - (hardcore && month >= 9 ? 4000 : 0),
+    hours: settings.hours - (exam ? 12 : 0),
+    recovery: hardcore ? 14 : 22,
+    educationDecay: hardcore ? (exam ? 4 : 2) : 1,
+    exam,
+  };
+}
 
 export const difficultyId = (value: unknown): DifficultyId =>
   typeof value === 'string' && Object.hasOwn(DIFFICULTIES, value)

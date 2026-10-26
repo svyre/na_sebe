@@ -2,6 +2,7 @@ import { MONTHS, ROOM_ITEMS, rub, type Report } from '@/lib/game';
 import { reviewMonth } from '@/lib/month-review';
 import { Check, Compass, Lightbulb, TriangleAlert } from 'lucide-react';
 import { bankLogo } from './bank-brand';
+import { DevelopmentSummary } from './DevelopmentPanel';
 
 export function MonthlyReview({ report: r }: { report: Report }) {
   const review = reviewMonth(r);
@@ -45,6 +46,7 @@ export function MonthlyReview({ report: r }: { report: Report }) {
           </p>
         </div>
       )}
+      <DevelopmentSummary report={r} />
       <div className="review-columns">
         <section className="review-good">
           <h4>
@@ -103,7 +105,7 @@ export function MonthlyReview({ report: r }: { report: Report }) {
       <footer className="review-footer">
         <img src={bankLogo} alt="Газпромбанк" />
         <span>
-          Финансовый разбор игровой стратегии.
+          Финансовый разбор.
           <br />
           Последствия зависят от всего плана, а не только от цены покупки.
         </span>

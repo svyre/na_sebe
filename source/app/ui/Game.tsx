@@ -32,6 +32,8 @@ import { BankStoryBanner } from './BankIdentity';
 import { BankPanel } from './BankPanel';
 import { BudgetSidebar } from './BudgetSidebar';
 import { CharacterArt } from './Character';
+import { DevelopmentPanel } from './DevelopmentPanel';
+import { HardcoreRules } from './HardcoreRules';
 import { HistoryList } from './History';
 import { PlanPanel } from './PlanPanel';
 import { PlayerRoom, RoomShop, type RoomAction } from './PlayerRoom';
@@ -77,7 +79,9 @@ export function Game({
         : {}),
     };
   });
-  const [tab, setTab] = useState<'room' | 'decisions' | 'plan' | 'bank' | 'history'>('room');
+  const [tab, setTab] = useState<
+    'room' | 'decisions' | 'plan' | 'development' | 'bank' | 'history'
+  >('room');
   const [activeSituation, setActiveSituation] = useState(0);
   const [isShopOpen, setShopOpen] = useState(false);
   const updatePlan = useCallback(<K extends keyof Plan>(key: K, value: Plan[K]) => {
@@ -159,6 +163,11 @@ export function Game({
       control.focus({ preventScroll: true });
     });
   const openRoomAction = (action: RoomAction) => {
+    if (action === 'development') {
+      setTab('development');
+      focusRoomPanel('.development-panel');
+      return;
+    }
     if (action === 'furniture') {
       setTab('room');
       setShopOpen(true);
@@ -248,6 +257,7 @@ export function Game({
         </span>
         <span>{tab === 'room' ? 'Твоя комната и планы' : scenario.topic}</span>
       </div>
+      {data.difficulty === 'hardcore' && <HardcoreRules state={state} month={monthIndex} />}
       <div className="month-track" aria-label={`Месяц ${monthIndex + 1} из 12`}>
         {SHORT_MONTHS.map((month, i) => (
           <div
@@ -276,6 +286,7 @@ export function Game({
               { id: 'room' as const, name: 'Комната', icon: House },
               { id: 'decisions' as const, name: 'Ситуации', icon: Flag },
               { id: 'plan' as const, name: 'План', icon: BookOpen },
+              { id: 'development' as const, name: 'Развитие', icon: BookOpen },
               { id: 'bank' as const, name: 'Мой банк', icon: Landmark },
               { id: 'history' as const, name: 'История', icon: History },
             ].map(({ id, name, icon: Icon }) => (
@@ -284,7 +295,11 @@ export function Game({
                 aria-selected={tab === id}
                 key={id}
                 className={tab === id ? 'selected' : ''}
-                onClick={() => setTab(id)}
+                onClick={() => {
+                  setTab(id);
+                  if (id === 'development')
+                    requestAnimationFrame(() => focusSection('.development-panel'));
+                }}
               >
                 <Icon size={17} />
                 {name}
@@ -439,6 +454,15 @@ export function Game({
                 difficulty={data.difficulty}
               />
             </fieldset>
+          )}
+          {tab === 'development' && (
+            <DevelopmentPanel
+              state={state}
+              plan={plan}
+              month={monthIndex}
+              difficulty={data.difficulty}
+              onChange={(id) => updatePlan('development', id)}
+            />
           )}
           {tab === 'history' && (
             <>

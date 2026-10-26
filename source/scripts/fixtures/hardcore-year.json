@@ -1,0 +1,1415 @@
+{
+  "seed": 42,
+  "plans": [
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 32,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 4000,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "a",
+      "development": "internship",
+      "scenario": "lost-card",
+      "extras": [],
+      "roomVersion": 1,
+      "roomBuy": ["desk"]
+    },
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 16,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 26,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "a",
+      "development": "internship",
+      "scenario": "grant",
+      "extras": [],
+      "roomVersion": 1,
+      "roomBuy": ["mattress"]
+    },
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 32,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "b",
+      "development": "internship",
+      "scenario": "qr",
+      "extras": [],
+      "roomVersion": 1,
+      "roomBuy": ["chair"]
+    },
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 16,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "intern",
+      "development": "none",
+      "scenario": "main-10",
+      "extras": [
+        {
+          "scenario": "volunteer",
+          "choice": "a"
+        }
+      ],
+      "roomVersion": 1,
+      "roomBuy": ["lamp"]
+    },
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 32,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "lead",
+      "development": "none",
+      "scenario": "7-1",
+      "extras": [
+        {
+          "scenario": "loan-friend",
+          "choice": "b"
+        }
+      ],
+      "roomVersion": 1,
+      "roomBuy": ["shelf"]
+    },
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 32,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "self",
+      "development": "none",
+      "scenario": "10-0",
+      "extras": [
+        {
+          "scenario": "9-1",
+          "choice": "practice"
+        }
+      ],
+      "roomVersion": 1,
+      "roomBuy": ["plant"]
+    },
+    {
+      "housing": "dorm",
+      "job": "part",
+      "study": 16,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "offline",
+      "development": "none",
+      "scenario": "5-1",
+      "extras": [
+        {
+          "scenario": "1-1",
+          "choice": "cancel"
+        },
+        {
+          "scenario": "2-1",
+          "choice": "recover"
+        }
+      ],
+      "roomVersion": 1,
+      "roomBuy": []
+    },
+    {
+      "housing": "dorm",
+      "job": "part",
+      "study": 32,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "pause",
+      "development": "none",
+      "scenario": "11-0",
+      "extras": [],
+      "roomVersion": 1,
+      "roomBuy": []
+    },
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 32,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "paid",
+      "development": "none",
+      "scenario": "main-7",
+      "extras": [
+        {
+          "scenario": "3-0",
+          "choice": "later"
+        },
+        {
+          "scenario": "platform-fee",
+          "choice": "a"
+        }
+      ],
+      "roomVersion": 1,
+      "roomBuy": []
+    },
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 32,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "sources",
+      "development": "none",
+      "scenario": "8-1",
+      "extras": [
+        {
+          "scenario": "main-3",
+          "choice": "handmade"
+        },
+        {
+          "scenario": "4-0",
+          "choice": "library"
+        }
+      ],
+      "roomVersion": 1,
+      "roomBuy": []
+    },
+    {
+      "housing": "dorm",
+      "job": "part",
+      "study": 16,
+      "leisure": 0,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "shifts",
+      "development": "none",
+      "scenario": "main-4",
+      "extras": [],
+      "roomVersion": 1,
+      "roomBuy": []
+    },
+    {
+      "housing": "dorm",
+      "job": "flex",
+      "study": 16,
+      "leisure": 7500,
+      "save": 0,
+      "withdraw": 0,
+      "invest": 0,
+      "sell": 0,
+      "borrow": 0,
+      "offer": "clear",
+      "choice": "c",
+      "development": "none",
+      "scenario": "desk",
+      "extras": [
+        {
+          "scenario": "collection",
+          "choice": "c"
+        },
+        {
+          "scenario": "meal-course",
+          "choice": "c"
+        }
+      ],
+      "roomVersion": 1,
+      "roomBuy": []
+    }
+  ],
+  "additionalRoutes": [
+    {
+      "seed": 0,
+      "plans": [
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 4000,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "practice",
+          "development": "internship",
+          "scenario": "4-1",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["desk"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 26,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "intern",
+          "development": "internship",
+          "scenario": "main-10",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["mattress"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "route",
+          "development": "none",
+          "scenario": "0-1",
+          "extras": [
+            {
+              "scenario": "main-1",
+              "choice": "university"
+            },
+            {
+              "scenario": "volunteer",
+              "choice": "a"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["chair"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "recover",
+          "development": "internship",
+          "scenario": "2-1",
+          "extras": [
+            {
+              "scenario": "lost-card",
+              "choice": "a"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["lamp"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "a",
+          "development": "internship",
+          "scenario": "weather",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["shelf"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "lead",
+          "development": "none",
+          "scenario": "7-1",
+          "extras": [
+            {
+              "scenario": "main-2",
+              "choice": "repair"
+            },
+            {
+              "scenario": "ticket",
+              "choice": "c"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["plant"]
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "c",
+          "development": "none",
+          "scenario": "loan-friend",
+          "extras": [
+            {
+              "scenario": "team-budget",
+              "choice": "c"
+            },
+            {
+              "scenario": "4-0",
+              "choice": "library"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "pass",
+          "development": "none",
+          "scenario": "1-0",
+          "extras": [
+            {
+              "scenario": "grant",
+              "choice": "a"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 48,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "none",
+          "scenario": "qr",
+          "extras": [
+            {
+              "scenario": "internship-road",
+              "choice": "a"
+            },
+            {
+              "scenario": "pass",
+              "choice": "c"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "together",
+          "development": "none",
+          "scenario": "2-0",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "paid",
+          "development": "none",
+          "scenario": "main-7",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 5000,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "c",
+          "development": "none",
+          "scenario": "desk",
+          "extras": [
+            {
+              "scenario": "6-0",
+              "choice": "details"
+            },
+            {
+              "scenario": "6-1",
+              "choice": "split"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "plans": [
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 4000,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "c",
+          "development": "internship",
+          "scenario": "collection",
+          "extras": [
+            {
+              "scenario": "lost-card",
+              "choice": "a"
+            },
+            {
+              "scenario": "6-1",
+              "choice": "home"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["desk"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 26,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "a",
+          "development": "internship",
+          "scenario": "grant",
+          "extras": [
+            {
+              "scenario": "0-1",
+              "choice": "route"
+            },
+            {
+              "scenario": "1-0",
+              "choice": "pass"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["mattress"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "internship",
+          "scenario": "card-courier",
+          "extras": [
+            {
+              "scenario": "printer",
+              "choice": "c"
+            },
+            {
+              "scenario": "3-1",
+              "choice": "pause"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["chair"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "sources",
+          "development": "internship",
+          "scenario": "8-1",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["lamp"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "internship",
+          "scenario": "parcel",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["plant"]
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "c",
+          "development": "none",
+          "scenario": "ticket",
+          "extras": [
+            {
+              "scenario": "weather",
+              "choice": "c"
+            },
+            {
+              "scenario": "loan-friend",
+              "choice": "b"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["shelf"]
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "none",
+          "scenario": "meal-course",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "balance",
+          "development": "none",
+          "scenario": "main-9",
+          "extras": [
+            {
+              "scenario": "7-0",
+              "choice": "stage"
+            },
+            {
+              "scenario": "desk",
+              "choice": "c"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "shifts",
+          "development": "none",
+          "scenario": "main-4",
+          "extras": [
+            {
+              "scenario": "main-8",
+              "choice": "research"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "self",
+          "development": "none",
+          "scenario": "10-0",
+          "extras": [
+            {
+              "scenario": "main-3",
+              "choice": "handmade"
+            },
+            {
+              "scenario": "2-1",
+              "choice": "recover"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 48,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "skip",
+          "development": "none",
+          "scenario": "8-0",
+          "extras": [
+            {
+              "scenario": "6-0",
+              "choice": "check"
+            },
+            {
+              "scenario": "11-0",
+              "choice": "pause"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 7500,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "dorm",
+          "development": "none",
+          "scenario": "0-0",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": []
+        }
+      ]
+    },
+    {
+      "seed": 7,
+      "plans": [
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 4000,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "practice",
+          "development": "internship",
+          "scenario": "9-1",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["desk"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 26,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "keep",
+          "development": "internship",
+          "scenario": "main-11",
+          "extras": [
+            {
+              "scenario": "main-4",
+              "choice": "shifts"
+            },
+            {
+              "scenario": "10-0",
+              "choice": "helper"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["mattress"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "c",
+          "development": "internship",
+          "scenario": "cashback",
+          "extras": [
+            {
+              "scenario": "1-1",
+              "choice": "student"
+            },
+            {
+              "scenario": "9-0",
+              "choice": "rest"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["chair"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "recover",
+          "development": "internship",
+          "scenario": "2-1",
+          "extras": [
+            {
+              "scenario": "collection",
+              "choice": "c"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["lamp"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "practice",
+          "development": "none",
+          "scenario": "4-1",
+          "extras": [
+            {
+              "scenario": "4-0",
+              "choice": "library"
+            },
+            {
+              "scenario": "grant",
+              "choice": "a"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["shelf"]
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "c",
+          "development": "none",
+          "scenario": "pass",
+          "extras": [
+            {
+              "scenario": "1-0",
+              "choice": "pass"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["plant"]
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "organize",
+          "development": "none",
+          "scenario": "main-6",
+          "extras": [
+            {
+              "scenario": "11-1",
+              "choice": "sell"
+            },
+            {
+              "scenario": "0-1",
+              "choice": "route"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "university",
+          "development": "none",
+          "scenario": "main-1",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 48,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "c",
+          "development": "none",
+          "scenario": "desk",
+          "extras": [
+            {
+              "scenario": "main-8",
+              "choice": "research"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "none",
+          "scenario": "backup",
+          "extras": [
+            {
+              "scenario": "weather",
+              "choice": "a"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "none",
+          "scenario": "meal-course",
+          "extras": [
+            {
+              "scenario": "7-1",
+              "choice": "lead"
+            },
+            {
+              "scenario": "5-1",
+              "choice": "offline"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "none",
+          "study": 48,
+          "leisure": 5000,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "none",
+          "scenario": "wallet",
+          "extras": [
+            {
+              "scenario": "7-0",
+              "choice": "stage"
+            },
+            {
+              "scenario": "3-1",
+              "choice": "pause"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        }
+      ]
+    },
+    {
+      "seed": 280,
+      "plans": [
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 4000,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "official",
+          "development": "internship",
+          "scenario": "main-5",
+          "extras": [
+            {
+              "scenario": "cashback",
+              "choice": "b"
+            },
+            {
+              "scenario": "7-1",
+              "choice": "lead"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["mattress"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 26,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "cancel",
+          "development": "internship",
+          "scenario": "1-1",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["desk"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "internship",
+          "scenario": "team-budget",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["chair"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 32,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "route",
+          "development": "internship",
+          "scenario": "0-1",
+          "extras": [
+            {
+              "scenario": "0-0",
+              "choice": "dorm"
+            },
+            {
+              "scenario": "3-1",
+              "choice": "pause"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["shelf"]
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "recover",
+          "development": "internship",
+          "scenario": "2-1",
+          "extras": [
+            {
+              "scenario": "5-0",
+              "choice": "platform"
+            },
+            {
+              "scenario": "platform-fee",
+              "choice": "c"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": ["lamp"]
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "none",
+          "scenario": "card-courier",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": ["plant"]
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 32,
+          "leisure": 2500,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "c",
+          "development": "none",
+          "scenario": "collection",
+          "extras": [
+            {
+              "scenario": "6-1",
+              "choice": "split"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 48,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "none",
+          "scenario": "pet-job",
+          "extras": [],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "offline",
+          "development": "none",
+          "scenario": "5-1",
+          "extras": [
+            {
+              "scenario": "weather",
+              "choice": "a"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "flex",
+          "study": 16,
+          "leisure": 0,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "intern",
+          "development": "none",
+          "scenario": "main-10",
+          "extras": [
+            {
+              "scenario": "main-3",
+              "choice": "list"
+            },
+            {
+              "scenario": "mobile-plan",
+              "choice": "b"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 32,
+          "leisure": 9000,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "b",
+          "development": "none",
+          "scenario": "qr",
+          "extras": [
+            {
+              "scenario": "main-2",
+              "choice": "repair"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        },
+        {
+          "housing": "dorm",
+          "job": "part",
+          "study": 16,
+          "leisure": 9000,
+          "save": 0,
+          "withdraw": 0,
+          "invest": 0,
+          "sell": 0,
+          "borrow": 0,
+          "offer": "clear",
+          "choice": "practice",
+          "development": "none",
+          "scenario": "9-1",
+          "extras": [
+            {
+              "scenario": "2-0",
+              "choice": "delivery"
+            },
+            {
+              "scenario": "main-1",
+              "choice": "university"
+            }
+          ],
+          "roomVersion": 1,
+          "roomBuy": []
+        }
+      ]
+    }
+  ]
+}

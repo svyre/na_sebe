@@ -12,7 +12,9 @@ export {
   difficultyId,
   initialState,
   macroFor,
+  monthRules,
 } from './game/config';
+export { DEVELOPMENT, developmentFor, skillsForWork } from './game/development';
 export { evaluate } from './game/evaluation';
 export { annuity, capital, creditQuote, debt, essential } from './game/finance';
 export { ROOM_ITEMS, roomEffects, roomGifts, roomInventory } from './game/furniture';
@@ -32,6 +34,7 @@ export { SCENARIOS } from './game/situations/core';
 export { NEW_SITUATIONS } from './game/situations/extended';
 export { EXTRA_SITUATIONS } from './game/situations/legacy';
 export type {
+  DevelopmentId,
   DifficultyId,
   GameState,
   GoalId,

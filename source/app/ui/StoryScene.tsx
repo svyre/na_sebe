@@ -240,7 +240,6 @@ export function StoryScene({
         </div>
         <div className="story-stage-foot">
           <img src={bankLogo} alt="Газпромбанк" />
-          <span>Учебная игровая сцена</span>
         </div>
       </div>
       <div className="story-decision-head">

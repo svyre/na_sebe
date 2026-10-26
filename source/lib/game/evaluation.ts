@@ -24,8 +24,22 @@ export function evaluate(
       state.pending.reduce((total, pending) => total + Math.min(0, pending.cash || 0), 0),
   );
   const reserveRatio = liquidReserve / (monthlyExpenses * 2);
+  const hardcoreFinish =
+    difficulty !== 'hardcore' ||
+    (!state.hardcoreFailures?.length &&
+      state.deficits === 0 &&
+      state.education >= 65 &&
+      state.energy >= 45 &&
+      state.safety >= 8 &&
+      debt(state) < 0.01 &&
+      liquidReserve >= monthlyExpenses &&
+      !state.pending.some((event) => (event.cash || 0) < 0));
   const parts = [
-    { name: 'Достижение цели', value: Math.round(goalProgress * 35), max: 35 },
+    {
+      name: 'Достижение цели',
+      value: Math.round(goalProgress * 35) * (hardcoreFinish ? 1 : 0),
+      max: 35,
+    },
     {
       name: 'Запас и обязательства',
       value: Math.round(clamp(reserveRatio, 0, 1) * 25 * Math.max(0, 1 - state.deficits * 0.12)),
@@ -40,6 +54,11 @@ export function evaluate(
     parts,
     goalProgress: Math.round(goalProgress * 100),
     reserveMonths: roundMoney(liquidReserve / monthlyExpenses),
-    achieved: goalProgress >= 1 && state.education >= 60 && state.energy >= 35 && state.cash >= 0,
+    achieved:
+      goalProgress >= 1 &&
+      state.education >= 60 &&
+      state.energy >= 35 &&
+      state.cash >= 0 &&
+      hardcoreFinish,
   };
 }

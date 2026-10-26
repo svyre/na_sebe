@@ -5,6 +5,16 @@ export type ReviewItem = { title: string; text: string };
 export function reviewMonth(report: Report) {
   const good: ReviewItem[] = [];
   const improve: ReviewItem[] = [];
+  if (report.development?.skillsGained)
+    good.push({
+      title: 'Профессиональный рост',
+      text: `Развитие принесло навыков: ${report.development.skillsGained}. Эти навыки помогают получать более высокую оплату подработки.`,
+    });
+  if (report.month === 11 && report.plan.development === 'course')
+    improve.push({
+      title: 'Курс за пределами года',
+      text: 'Курс завершится после августа. На доход и итог этого года новый навык уже не повлияет.',
+    });
   const option = planScenario(report.plan, report.month).options.find(
     (o) => o.id === report.plan.choice,
   );

@@ -21,6 +21,7 @@ import {
   BriefcaseBusiness,
   Check,
   Flower2,
+  GraduationCap,
   House,
   LampDesk,
   Landmark,
@@ -39,7 +40,15 @@ import { useMemo, useState } from 'react';
 import { RoomInterior } from './PlayerRoomArt';
 import { useSceneMotion } from './useSceneMotion';
 
-export type RoomAction = 'study' | 'work' | 'rest' | 'events' | 'bank' | 'housing' | 'furniture';
+export type RoomAction =
+  | 'study'
+  | 'work'
+  | 'rest'
+  | 'events'
+  | 'bank'
+  | 'housing'
+  | 'furniture'
+  | 'development';
 const actions = [
   { id: 'events', name: 'Ситуации месяца', place: 'Доска планов', icon: ListChecks, x: 66, y: 27 },
   { id: 'study', name: 'Учёба', place: 'Рабочий стол', icon: BookOpen, x: 25, y: 53 },
@@ -208,6 +217,14 @@ export function PlayerRoom({
         </button>
       </div>
       <div className="room-actions" aria-label="Действия из комнаты">
+        <button type="button" onClick={() => onAction('development')}>
+          <GraduationCap size={20} />
+          <span>
+            <b>Развитие</b>
+            <small>Обучение, курс или стажировка</small>
+          </span>
+          <ArrowRight size={14} />
+        </button>
         {actions
           .filter((a) => a.id !== 'events')
           .map(({ id, name, icon: Icon }) => (

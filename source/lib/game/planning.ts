@@ -1,4 +1,5 @@
-import { DIFFICULTIES, HOUSING, JOBS, OFFERS, STUDIES, difficultyId } from './config';
+import { HOUSING, JOBS, OFFERS, STUDIES, monthRules } from './config';
+import { DEVELOPMENT, developmentFor } from './development';
 import { debt } from './finance';
 import { ROOM_ITEMS, roomGifts, roomInventory } from './furniture';
 import { getScenario, planScenario, selectedExtraOptions } from './situations';
@@ -29,7 +30,8 @@ export function planHours(plan: Plan, month: number) {
     plan.study +
     (planScenario(plan, month).options.find((x) => x.id === plan.choice)?.hours || 0) +
     selectedExtraOptions(plan, month).reduce((sum, x) => sum + (x.option?.hours || 0), 0) +
-    (plan.roomBuy || []).reduce((sum, id) => sum + (ROOM_ITEMS[id]?.hours || 0), 0)
+    (plan.roomBuy || []).reduce((sum, id) => sum + (ROOM_ITEMS[id]?.hours || 0), 0) +
+    (developmentFor(plan)?.hours || 0)
   );
 }
 
@@ -77,6 +79,11 @@ export function validatePlan(
   }
   if (plan.roomVersion !== undefined && plan.roomVersion !== 1)
     return 'Неизвестная версия комнаты.';
+  if (
+    plan.development !== undefined &&
+    (typeof plan.development !== 'string' || !Object.hasOwn(DEVELOPMENT, plan.development))
+  )
+    return 'Выбери одно действие в разделе «Развитие».';
   if (plan.roomBuy !== undefined) {
     if (
       !Array.isArray(plan.roomBuy) ||
@@ -104,7 +111,7 @@ export function validatePlan(
   if (plan.sell > Math.floor(state.fund)) return 'Нельзя продать больше текущей стоимости фонда.';
   if (plan.borrow > 40000 || debt(state) + plan.borrow > 90000)
     return 'Лимит нового кредита — 40 000 ₽, всех кредитов — 90 000 ₽.';
-  const availableHours = DIFFICULTIES[difficultyId(difficulty)].hours;
+  const availableHours = monthRules(difficulty, month).hours;
   if (planHours(plan, month) > availableHours)
     return `Плану не хватает времени. Уменьши нагрузку: доступно ${availableHours} часов.`;
   return null;

@@ -1,24 +1,18 @@
 import { rub } from '@/lib/game';
-import { ArrowUpRight, CreditCard, Landmark, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, CreditCard, Landmark } from 'lucide-react';
 import { bankLogo } from './bank-brand';
 
 export function BankIdentity({ cash, savings }: { cash: number; savings: number }) {
   return (
-    <section className="bank-identity" aria-label="Газпромбанк: учебный игровой банк">
+    <section className="bank-identity" aria-label="Газпромбанк">
       <div className="bank-identity-intro">
         <img src={bankLogo} alt="Газпромбанк" />
-        <span className="bank-demo-label">Твой учебный банк</span>
+        <span className="bank-demo-label">Твой банк</span>
         <h2>Деньги под твоим управлением.</h2>
         <p>
-          Здесь твоя игровая карта, резерв и будущие платежи. Попробуй пополнение, снятие и
-          сравнение полной стоимости кредита.
+          Здесь твоя карта, резерв и будущие платежи. Попробуй пополнение, снятие и сравнение полной
+          стоимости кредита.
         </p>
-        <div className="bank-balance-note">
-          <ShieldCheck size={18} />
-          <span>
-            Учебная модель. Все ставки и условия вымышлены; реальные счета и переводы не подключены.
-          </span>
-        </div>
       </div>
       <div className="gpb-game-card">
         <img src={bankLogo} alt="Газпромбанк" />
@@ -31,11 +25,11 @@ export function BankIdentity({ cash, savings }: { cash: number; savings: number 
           <i />
           <i />
         </span>
-        <span className="card-funds-label">Игровые деньги на руках</span>
+        <span className="card-funds-label">Деньги на карте</span>
         <b className="gpb-card-balance">{rub(cash)}</b>
         <div className="card-bottom">
           <span>на себе</span>
-          <span>Учебная карта</span>
+          <span>Моя карта</span>
           <CreditCard size={20} />
         </div>
       </div>
@@ -55,7 +49,7 @@ export function BankStoryBanner({ onOpen }: { onOpen: () => void }) {
     <button type="button" className="bank-story-banner" onClick={onOpen}>
       <img src={bankLogo} alt="Газпромбанк" />
       <span>
-        <b>Мой учебный банк</b>
+        <b>Мой банк</b>
         <small>Карта, накопления и финансовые решения</small>
       </span>
       <ArrowUpRight size={19} />
