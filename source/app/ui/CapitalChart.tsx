@@ -1,5 +1,6 @@
 import {
-  MONTHS,
+  monthLabel,
+  campaignMonths,
   SHORT_MONTHS,
   capital,
   initialState,
@@ -27,7 +28,8 @@ export function CapitalChart({
   const minimum = Math.min(0, ...capitalValues, ...alternativeValues);
   const maximum = Math.max(50000, ...capitalValues, ...alternativeValues);
   const valueRange = maximum - minimum || 1;
-  const xForMonth = (i: number) => 44 + (i / Math.max(12, reports.length)) * 660;
+  const xForMonth = (i: number) =>
+    44 + (i / Math.max(campaignMonths(reports[0]?.before), reports.length)) * 660;
   const yForValue = (v: number) => 178 - ((v - minimum) / valueRange) * 142;
   const linePath = (values: number[]) =>
     values.map((v, i) => `${i ? 'L' : 'M'} ${xForMonth(i)} ${yForValue(v)}`).join(' ');
@@ -52,6 +54,30 @@ export function CapitalChart({
             <stop offset="100%" stopColor="#83a7eb" stopOpacity="0" />
           </linearGradient>
         </defs>
+        {campaignMonths(reports[0]?.before) > 12 &&
+          Array.from({ length: campaignMonths(reports[0]?.before) / 12 }, (_, year) => (
+            <g key={year}>
+              {year > 0 && (
+                <line
+                  x1={xForMonth(year * 12)}
+                  x2={xForMonth(year * 12)}
+                  y1="22"
+                  y2="182"
+                  stroke="#cbd6e4"
+                  strokeDasharray="3 4"
+                />
+              )}
+              <text
+                x={xForMonth(year * 12 + 6)}
+                y="14"
+                textAnchor="middle"
+                fontSize="10"
+                fill="#6b7d94"
+              >
+                Год {year + 1}
+              </text>
+            </g>
+          ))}
         {[0, 0.5, 1].map((v) => (
           <g key={v}>
             <line
@@ -81,7 +107,7 @@ export function CapitalChart({
         {capitalValues.map((v, i) => (
           <circle key={i} cx={xForMonth(i)} cy={yForValue(v)} r="3" fill="#275fce">
             <title>
-              {i ? MONTHS[i - 1] : 'Старт'}: {rub(v)}
+              {i ? monthLabel(i - 1, campaignMonths(reports[0]?.before) > 12) : 'Старт'}: {rub(v)}
             </title>
           </circle>
         ))}
@@ -94,18 +120,20 @@ export function CapitalChart({
             strokeDasharray="7 5"
           />
         )}
-        {SHORT_MONTHS.map((m, i) => (
-          <text
-            key={m}
-            x={xForMonth(i + 1)}
-            y="208"
-            textAnchor="middle"
-            fontSize="10"
-            fill="#7b847e"
-          >
-            {m}
-          </text>
-        ))}
+        {Array.from({ length: campaignMonths(reports[0]?.before) }, (_, i) => i)
+          .filter((i) => campaignMonths(reports[0]?.before) === 12 || i % 3 === 2)
+          .map((i) => (
+            <text
+              key={i}
+              x={xForMonth(i + 1)}
+              y="208"
+              textAnchor="middle"
+              fontSize="10"
+              fill="#7b847e"
+            >
+              {SHORT_MONTHS[i % 12]}
+            </text>
+          ))}
       </svg>
     </div>
   );

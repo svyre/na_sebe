@@ -1,3 +1,10 @@
+export type CampaignYears = 1 | 2 | 3;
+export type ProjectAction = 'none' | 'pilot' | 'launch' | 'expand' | 'pause' | 'resume' | 'close';
+export type CarAction = 'keep' | 'compact' | 'family' | 'sell';
+export type Car = { model: 'compact' | 'family'; value: number; bought: number };
+export type Business = { level: 1 | 2; paused: boolean; opened: number };
+export type TermDeposit = { principal: number; value: number; due: number; rate: number };
+
 export type GoalId = 'capital' | 'career' | 'freedom';
 
 export type DifficultyId = 'first' | 'balance' | 'challenge' | 'hardcore';
@@ -17,6 +24,7 @@ export type Option = {
   skills?: number;
   safety?: number;
   hiddenLoss?: number;
+  uncertainOutcome?: boolean;
   loan?: number;
   explanation: string;
   delayed?: { after: number; cash?: number; skills?: number; title: string };
@@ -50,6 +58,11 @@ export type Pending = {
 };
 
 export type GameState = {
+  years?: CampaignYears;
+  car?: Car;
+  business?: Business;
+  pilotDone?: boolean;
+  deposits?: TermDeposit[];
   cash: number;
   savings: number;
   fund: number;
@@ -82,6 +95,9 @@ export type Plan = {
   roomVersion?: 1;
   roomBuy?: RoomItemId[];
   development?: DevelopmentId;
+  project?: ProjectAction;
+  carAction?: CarAction;
+  termDeposit?: number;
 };
 
 export type Ledger = { label: string; amount: number; kind: 'income' | 'expense' | 'transfer' };
@@ -99,6 +115,13 @@ export type Report = {
   interest: number;
   market: number;
   score: number;
+  assets?: {
+    businessNet: number;
+    businessHours: number;
+    carCost: number;
+    depreciation: number;
+    depositInterest: number;
+  };
   extras?: { scenario: string; choice: string; explanation: string }[];
   room?: { purchased: RoomItemId[]; gifted: RoomItemId[]; education: number; energy: number };
   development?: {

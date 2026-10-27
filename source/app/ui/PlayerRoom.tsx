@@ -1,7 +1,8 @@
 import type { CharacterId } from '@/lib/character';
 import {
   HOUSING,
-  JOBS,
+  jobSettings,
+  campaignMonths,
   ROOM_ITEMS,
   macroFor,
   roomEffects,
@@ -48,7 +49,8 @@ export type RoomAction =
   | 'bank'
   | 'housing'
   | 'furniture'
-  | 'development';
+  | 'development'
+  | 'projects';
 const actions = [
   { id: 'events', name: 'Ситуации месяца', place: 'Доска планов', icon: ListChecks, x: 66, y: 27 },
   { id: 'study', name: 'Учёба', place: 'Рабочий стол', icon: BookOpen, x: 25, y: 53 },
@@ -122,7 +124,7 @@ export function PlayerRoom({
       : id === 'study'
         ? `${plan.study} ч в плане`
         : id === 'work'
-          ? JOBS.find((j) => j.id === plan.job)!.name
+          ? jobSettings(plan.job).name
           : id === 'rest'
             ? `${rub(plan.leisure)} в плане`
             : id === 'bank'
@@ -138,7 +140,8 @@ export function PlayerRoom({
           <h2 id="player-room-title">Твоя комната</h2>
           {movingTo && (
             <p role="status">
-              После завершения {month === 11 ? 'года' : 'месяца'}: {movingTo.name.toLowerCase()}.
+              После завершения {month === campaignMonths(state) - 1 ? 'игры' : 'месяца'}:{' '}
+              {movingTo.name.toLowerCase()}.
             </p>
           )}
         </div>
@@ -225,6 +228,19 @@ export function PlayerRoom({
         </button>
       </div>
       <div className="room-actions" aria-label="Действия из комнаты">
+        {month >= 12 && (
+          <button type="button" onClick={() => onAction('projects')}>
+            <BriefcaseBusiness size={20} />
+            <span>
+              <b>Проекты</b>
+              <small>
+                {state.business ? 'Своё дело' : 'Запуск своего дела'}
+                {state.car ? ' и твоя машина' : ' и покупка машины'}
+              </small>
+            </span>
+            <ArrowRight size={14} />
+          </button>
+        )}
         <button type="button" onClick={() => onAction('development')}>
           <GraduationCap size={20} />
           <span>
@@ -411,14 +427,17 @@ export function FinalRoom({
   const owned = roomInventory(state);
   const motion = useSceneMotion();
   return (
-    <section className="player-room final-player-room" aria-label="Твоя комната в конце года">
+    <section
+      className="player-room final-player-room"
+      aria-label="Твоя комната в конце прохождения"
+    >
       <header className="player-room-heading">
         <div>
           <span>{HOUSING.find((h) => h.id === housing)?.name}</span>
-          <h2>Твоя комната к концу года</h2>
+          <h2>Комната в конце прохождения</h2>
           <p>
             {owned.length
-              ? `${owned.length} из 6 улучшений за первый самостоятельный год.`
+              ? `${owned.length} из 6 улучшений за время прохождения.`
               : 'Дополнительную мебель не покупали.'}
           </p>
         </div>

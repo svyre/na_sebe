@@ -1,8 +1,7 @@
 import {
-  MACRO,
-  MONTHS,
+  monthLabel,
+  campaignMonths,
   OFFERS,
-  SHORT_MONTHS,
   creditQuote,
   debt,
   macroFor,
@@ -13,6 +12,7 @@ import {
   type Plan,
 } from '@/lib/game';
 import { Banknote, Check, Info, Landmark, ShieldCheck, TrendingUp } from 'lucide-react';
+import { TermDeposits } from './ProjectsPanel';
 import { BankIdentity } from './BankIdentity';
 import { Badge, Numeric } from './shared';
 
@@ -38,7 +38,7 @@ export function BankPanel({
           <span className="account-symbol green-bg">
             <Landmark size={22} />
           </span>
-          <Badge tone="green">{MACRO[month].savingsRate}% годовых</Badge>
+          <Badge tone="green">{macroFor(month, difficulty).savingsRate}% годовых</Badge>
         </div>
         <span className="eyebrow">НАКОПИТЕЛЬНЫЙ СЧЁТ</span>
         <h2>{rub(state.savings)}</h2>
@@ -80,18 +80,20 @@ export function BankPanel({
             {month === 0 ? (
               <small>Первый месяц. Истории пока нет.</small>
             ) : (
-              MACRO.slice(0, month).map((_, i) => {
-                const x = macroFor(i, difficulty);
-                return (
-                  <span key={i} className={x.market < 0 ? 'negative' : 'positive'}>
-                    {SHORT_MONTHS[i]}
-                    <b>
-                      {x.market > 0 ? '+' : ''}
-                      {percent(x.market)}
-                    </b>
-                  </span>
-                );
-              })
+              Array.from({ length: month }, (_, i) => i)
+                .slice(-12)
+                .map((i) => {
+                  const x = macroFor(i, difficulty);
+                  return (
+                    <span key={i} className={x.market < 0 ? 'negative' : 'positive'}>
+                      {monthLabel(i)}
+                      <b>
+                        {x.market > 0 ? '+' : ''}
+                        {percent(x.market)}
+                      </b>
+                    </span>
+                  );
+                })
             )}
           </div>
         </div>
@@ -197,10 +199,18 @@ export function BankPanel({
           <ShieldCheck size={15} />
           <span>
             Платёж рассчитан по аннуитетной формуле. Копеечное округление корректируется последним
-            платежом. После августа оставшийся долг сохраняется в итогах.
+            платежом. После завершения прохождения оставшийся долг сохраняется в итогах.
           </span>
         </div>
       </section>
+      {month >= 12 && (
+        <TermDeposits
+          state={state}
+          plan={plan}
+          month={month}
+          onChange={(amount) => updatePlan('termDeposit', amount)}
+        />
+      )}
       {state.loans.length > 0 && (
         <section className="panel">
           <div className="section-label">
@@ -230,7 +240,9 @@ export function BankPanel({
             <div className="loan-row" key={i}>
               <div>
                 <b>{p.title}</b>
-                <small>{MONTHS[p.due] || 'После конца игры'}</small>
+                <small>
+                  {p.due < campaignMonths(state) ? monthLabel(p.due) : 'После конца игры'}
+                </small>
               </div>
               <b>{p.cash ? rub(p.cash) : `+${p.skills} навык`}</b>
             </div>

@@ -2,12 +2,17 @@ import gameLogo from '@/assets/game-logo.svg';
 import { type CharacterId, type PlayerSolo } from '@/lib/character';
 import {
   GOALS,
-  MONTHS,
+  campaignMonths,
+  campaignYears,
+  campaignGoal,
+  monthLabel,
+  rub,
   createStorySchedule,
   ensureStorySchedule,
   initialState,
   planSituationIds,
   settle,
+  type CampaignYears,
   type DifficultyId,
   type GoalId,
   type Plan,
@@ -28,6 +33,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { PartnerMark } from './Brand';
 import { CharacterPicker } from './Character';
+import { CampaignPicker } from './CampaignPicker';
 import { DifficultyPicker } from './DifficultyPicker';
 import { Game } from './Game';
 import { ReportView } from './History';
@@ -48,6 +54,7 @@ export default function App() {
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
   const [strategyName, setStrategyName] = useState('');
+  const [years, setYears] = useState<CampaignYears>(1);
   const [goal, setGoal] = useState<GoalId>('capital');
   const [difficulty, setDifficulty] = useState<DifficultyId>('balance');
   const [character, setCharacter] = useState<CharacterId>('boy');
@@ -110,14 +117,17 @@ export default function App() {
   };
   const openSetup = (level?: DifficultyId) => {
     if (level) setDifficulty(level);
-    if (game) setCharacter(game.character);
+    if (game) {
+      setCharacter(game.character);
+      setYears(campaignYears(game.state));
+    }
     setStrategyName('');
     setError('');
     setMobileMenuOpen(false);
     setModal('setup');
   };
   const resumeGame = () => {
-    if (game) navigate(game.month >= 12 ? 'results' : 'play');
+    if (game) navigate(game.month >= campaignMonths(game.state) ? 'results' : 'play');
     else openSetup();
   };
   const startGame = (e: React.FormEvent) => {
@@ -131,10 +141,11 @@ export default function App() {
       goal,
       difficulty,
       month: 0,
-      state: initialState(difficulty),
+      state: initialState(difficulty, years),
       reports: [],
       plans: [],
     };
+    data.storySchedule = ensureStorySchedule(data);
     setGame(data);
     setGameVersion((value) => value + 1);
     if (!saveGame(data)) setToast('Браузер не разрешил сохранение. Оставь эту вкладку открытой.');
@@ -156,11 +167,12 @@ export default function App() {
         reports: [...game.reports, result],
         plans: [...game.plans, plan],
       };
+      data.storySchedule = ensureStorySchedule(data);
       setGame(data);
       setError('');
       if (!saveGame(data)) setToast('Не удалось сохранить прогресс на устройстве.');
       setReport(result);
-      if (data.month === 12) navigate('results');
+      if (data.month === campaignMonths(data.state)) navigate('results');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Проверь план.');
     }
@@ -219,7 +231,9 @@ export default function App() {
               <Icon size={19} />
               <span>{label}</span>
               {id === 'play' && game && (
-                <span className="nav-count">{Math.min(game.month + 1, 12)}</span>
+                <span className="nav-count">
+                  {Math.min(game.month + 1, campaignMonths(game.state))}
+                </span>
               )}
             </button>
           ))}
@@ -228,8 +242,8 @@ export default function App() {
           <div className="sidebar-class-icon">
             <Flag size={22} />
           </div>
-          <b>Год самостоятельной жизни</b>
-          <p>Учёба, работа и расходы с сентября по август.</p>
+          <b>Самостоятельная жизнь</b>
+          <p>Учёба, работа и собственные планы.</p>
           <button onClick={resumeGame}>
             {game ? 'Продолжить игру' : 'Начать игру'}
             <ArrowRight size={16} />
@@ -324,7 +338,7 @@ export default function App() {
           )}
           {page === 'glossary' && <Glossary />}
           {page === 'guide' && <Guide />}
-          {page === 'play' && game && game.month < 12 && (
+          {page === 'play' && game && game.month < campaignMonths(game.state) && (
             <Game
               key={'solo-' + gameVersion + '-' + game.month + '-' + game.difficulty}
               data={game}
@@ -335,13 +349,15 @@ export default function App() {
               onHistory={() => navigate('results')}
             />
           )}
-          {(page === 'results' || (page === 'play' && game?.month === 12)) && game && (
-            <Results
-              data={game}
-              onBack={() => navigate('play')}
-              onRestart={() => setModal('restart')}
-            />
-          )}
+          {(page === 'results' ||
+            (page === 'play' && game && game.month === campaignMonths(game.state))) &&
+            game && (
+              <Results
+                data={game}
+                onBack={() => navigate('play')}
+                onRestart={() => setModal('restart')}
+              />
+            )}
           {page === 'results' && !game && (
             <div className="empty-state">
               <Flag size={40} />
@@ -399,9 +415,10 @@ export default function App() {
             </>
           ) : (
             <form onSubmit={startGame}>
-              <p className="modal-intro">Выбери персонажа, цель и сложность.</p>
+              <p className="modal-intro">Выбери персонажа, длительность, цель и сложность.</p>
               {game && <div className="alert">Новая игра заменит текущее сохранение.</div>}
               <CharacterPicker value={character} onChange={setCharacter} />
+              <CampaignPicker value={years} onChange={setYears} />
               <label className="field">
                 Название игры
                 <input
@@ -412,7 +429,7 @@ export default function App() {
                 />
               </label>
               <label className="field">
-                Цель года
+                Цель прохождения
                 <select value={goal} onChange={(e) => setGoal(e.target.value as GoalId)}>
                   {Object.entries(GOALS).map(([id, g]) => (
                     <option key={id} value={id}>
@@ -421,7 +438,9 @@ export default function App() {
                   ))}
                 </select>
                 <small>
-                  {GOALS[goal].description}{' '}
+                  {rub(campaignGoal(goal, years).target)} капитала
+                  {goal === 'career' ? ` и ${campaignGoal(goal, years).skills} навыков` : ''} к
+                  концу прохождения.{' '}
                   {difficulty === 'hardcore'
                     ? 'Дополнительные условия победы указаны ниже.'
                     : 'В финале нужны учёба от 60, ресурс от 35 и отсутствие дефицита.'}
@@ -437,7 +456,11 @@ export default function App() {
         </Modal>
       )}
       {report && (
-        <Modal title={MONTHS[report.month] + ': месяц закрыт'} wide onClose={() => setReport(null)}>
+        <Modal
+          title={monthLabel(report.month, campaignYears(report.before) > 1) + ': месяц закрыт'}
+          wide
+          onClose={() => setReport(null)}
+        >
           <ReportView report={report} />
           <button
             className="button primary full"
@@ -446,7 +469,9 @@ export default function App() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
-            {report.month === 11 ? 'Посмотреть итог года' : 'К следующему месяцу'}
+            {report.month === campaignMonths(report.before) - 1
+              ? 'Посмотреть итоги'
+              : 'К следующему месяцу'}
             <ArrowRight size={18} />
           </button>
         </Modal>

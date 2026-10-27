@@ -1,4 +1,4 @@
-import { GOALS } from './config';
+import { campaignGoal, campaignYears } from './campaign';
 import { capital, debt, essential } from './finance';
 import { defaultPlan } from './planning';
 import type { DifficultyId, GameState, GoalId, Plan } from './types';
@@ -11,8 +11,8 @@ export function evaluate(
   month = 11,
   difficulty: DifficultyId = 'balance',
 ) {
-  const goalSettings = GOALS[goal];
-  const monthlyExpenses = essential(plan || defaultPlan(), month, difficulty);
+  const goalSettings = campaignGoal(goal, campaignYears(state));
+  const monthlyExpenses = essential(plan || defaultPlan(), month, difficulty, state);
   const goalProgress =
     clamp(capital(state) / goalSettings.target, 0, 1) *
     (goalSettings.skills ? Math.min(1, state.skills / goalSettings.skills) : 1);

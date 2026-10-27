@@ -1,4 +1,4 @@
-import type { DifficultyId, GameState, GoalId } from './types';
+import type { CampaignYears, DifficultyId, GameState, GoalId } from './types';
 import { clone, percent } from './utils';
 
 export const MONTHS = [
@@ -95,9 +95,15 @@ export const DIFFICULTIES: Record<
 export function monthRules(difficulty: DifficultyId, month: number) {
   const settings = DIFFICULTIES[difficultyId(difficulty)];
   const hardcore = difficulty === 'hardcore';
-  const exam = hardcore && (month === 4 || month === 9);
+  const season = month % 12;
+  const year = Math.floor(month / 12);
+  const exam = hardcore && (season === 4 || season === 9);
   return {
-    support: settings.support - (hardcore && month >= 9 ? 4000 : 0),
+    support: Math.max(
+      0,
+      Math.round(settings.support * Math.max(0.5, 1 - year * 0.25)) -
+        (hardcore && season >= 9 ? 4000 : 0),
+    ),
     hours: settings.hours - (exam ? 12 : 0),
     recovery: hardcore ? 14 : 22,
     educationDecay: hardcore ? (exam ? 4 : 2) : 1,
@@ -310,20 +316,34 @@ export const INITIAL: GameState = {
   deficits: 0,
 };
 
-export function initialState(difficulty: DifficultyId = 'balance'): GameState {
+export function initialState(
+  difficulty: DifficultyId = 'balance',
+  years: CampaignYears = 1,
+): GameState {
   const settings = DIFFICULTIES[difficultyId(difficulty)];
-  return { ...clone(INITIAL), cash: settings.cash, savings: settings.savings };
+  return {
+    ...clone(INITIAL),
+    cash: settings.cash,
+    savings: settings.savings,
+    ...(years === 2 || years === 3 ? { years } : {}),
+  };
 }
 
 export function macroFor(month: number, difficulty: DifficultyId = 'balance') {
-  const baseMonth = MACRO[Math.min(11, Math.max(0, month))];
+  const year = Math.floor(Math.max(0, month) / 12);
+  const season = Math.max(0, month) % 12;
+  const baseMonth = MACRO[season];
   const settings = DIFFICULTIES[difficultyId(difficulty)];
   const inflation =
-    1 + Math.round((baseMonth.inflation - 1) * settings.inflationFactor * 10000) / 10000;
+    (1 + Math.round((baseMonth.inflation - 1) * settings.inflationFactor * 10000) / 10000) *
+    (1 + 0.06 * settings.inflationFactor) ** year;
   return {
     ...baseMonth,
     inflation,
-    market: Math.round(baseMonth.market * settings.marketFactor * 100) / 100,
+    market:
+      Math.round(
+        baseMonth.market * settings.marketFactor * (year === 1 ? 0.9 : year === 2 ? 1.1 : 1) * 100,
+      ) / 100,
     title: baseMonth.title.startsWith('Расходы выросли')
       ? `Расходы выросли на ${percent((inflation - 1) * 100)}`
       : baseMonth.title,

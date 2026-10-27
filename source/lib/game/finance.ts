@@ -1,3 +1,4 @@
+import { CARS, assetValue } from './assets';
 import { HOUSING, OFFERS, macroFor } from './config';
 import type { DifficultyId, GameState, Plan } from './types';
 import { roundMoney } from './utils';
@@ -9,15 +10,22 @@ export const capital = (state: GameState) =>
   roundMoney(
     state.cash +
       state.savings +
-      state.fund -
+      state.fund +
+      assetValue(state) -
       debt(state) +
       state.pending.reduce((total, pending) => total + Math.min(0, pending.cash || 0), 0),
   );
 
-export const essential = (plan: Plan, month: number, difficulty: DifficultyId = 'balance') => {
+export const essential = (
+  plan: Plan,
+  month: number,
+  difficulty: DifficultyId = 'balance',
+  state?: GameState,
+) => {
   const housing = HOUSING.find((x) => x.id === plan.housing) || HOUSING[0];
+  const transport = state?.car ? CARS[state.car.model].monthly : housing.transport;
   return Math.round(
-    (housing.cost + housing.transport + 8500 + 900) * macroFor(month, difficulty).inflation,
+    (housing.cost + transport + 8500 + 900) * macroFor(month, difficulty).inflation,
   );
 };
 

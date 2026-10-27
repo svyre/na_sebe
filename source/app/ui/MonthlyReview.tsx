@@ -1,22 +1,35 @@
-import { MONTHS, ROOM_ITEMS, rub, type Report } from '@/lib/game';
+import {
+  monthLabel,
+  campaignMonths,
+  campaignYears,
+  ROOM_ITEMS,
+  rub,
+  type Report,
+} from '@/lib/game';
 import { reviewMonth } from '@/lib/month-review';
 import { Check, Compass, Lightbulb, TriangleAlert } from 'lucide-react';
 import { bankLogo } from './bank-brand';
+import { AnnualReview, ProjectSummary } from './ProjectsPanel';
 import { DevelopmentSummary } from './DevelopmentPanel';
 
 export function MonthlyReview({ report: r }: { report: Report }) {
   const review = reviewMonth(r);
   return (
-    <section className="monthly-review" aria-label={`Разбор решений: ${MONTHS[r.month]}`}>
+    <section
+      className="monthly-review"
+      aria-label={`Разбор решений: ${monthLabel(r.month, campaignYears(r.before) > 1)}`}
+    >
       <header className="review-header">
         <span className="review-badge">
           <Compass size={22} />
         </span>
         <div>
-          <span>{MONTHS[r.month]} позади</span>
+          <span>{monthLabel(r.month, campaignYears(r.before) > 1)} позади</span>
           <h3>Что получилось за этот месяц?</h3>
         </div>
-        <span className="review-completed">Глава {r.month + 1} / 12</span>
+        <span className="review-completed">
+          Месяц {r.month + 1} / {campaignMonths(r.before)}
+        </span>
       </header>
       {r.room && (
         <div className="room-month-review">
@@ -47,6 +60,8 @@ export function MonthlyReview({ report: r }: { report: Report }) {
         </div>
       )}
       <DevelopmentSummary report={r} />
+      <ProjectSummary report={r} />
+      {(r.month + 1) % 12 === 0 && <AnnualReview report={r} />}
       <div className="review-columns">
         <section className="review-good">
           <h4>
@@ -92,7 +107,11 @@ export function MonthlyReview({ report: r }: { report: Report }) {
       <div className="review-next">
         <Lightbulb size={20} />
         <div>
-          <b>{r.month === 11 ? 'После завершения года' : 'Идея на следующий месяц'}</b>
+          <b>
+            {r.month === campaignMonths(r.before) - 1
+              ? 'После завершения игры'
+              : 'Идея на следующий месяц'}
+          </b>
           <p>{review.next}</p>
         </div>
       </div>

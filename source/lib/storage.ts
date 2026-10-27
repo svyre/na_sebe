@@ -1,5 +1,5 @@
 import { characterId, type PlayerSolo } from './character';
-import { difficultyId, ensureStorySchedule, GOALS } from './game';
+import { campaignMonths, difficultyId, ensureStorySchedule, GOALS } from './game';
 
 // Keep this key stable so an updated HTML page can resume an existing game.
 export const SAVE_KEY = 'na-svoih-solo-v1';
@@ -17,7 +17,9 @@ function isSavedGame(value: unknown): value is PlayerSolo {
     Array.isArray(data.plans) &&
     Number.isInteger(data.month) &&
     Number(data.month) >= 0 &&
-    Number(data.month) <= 12
+    Number(data.month) <= campaignMonths(data.state as PlayerSolo['state']) &&
+    (!Object.hasOwn(data.state, 'years') ||
+      [1, 2, 3].includes((data.state as PlayerSolo['state']).years!))
   );
 }
 

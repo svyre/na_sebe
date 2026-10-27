@@ -1,4 +1,12 @@
-import { MONTHS, debt, getScenario, planScenario, rub, type Report } from '@/lib/game';
+import {
+  monthLabel,
+  campaignYears,
+  debt,
+  getScenario,
+  planScenario,
+  rub,
+  type Report,
+} from '@/lib/game';
 import { ChevronDown, History, Lightbulb, TriangleAlert } from 'lucide-react';
 import { MonthlyReview } from './MonthlyReview';
 import { Empty } from './shared';
@@ -96,7 +104,7 @@ export function HistoryList({ reports }: { reports: Report[] }) {
           <summary>
             <span className="history-month">{String(r.month + 1).padStart(2, '0')}</span>
             <div>
-              <b>{MONTHS[r.month]}</b>
+              <b>{monthLabel(r.month, campaignYears(r.before) > 1)}</b>
               <small>{planScenario(r.plan, r.month).title}</small>
             </div>
             <span className={r.net >= 0 ? 'green-text' : 'red-text'}>

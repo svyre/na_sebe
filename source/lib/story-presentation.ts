@@ -1,3 +1,5 @@
+import { CAMPAIGN_STORIES } from './game/situations/campaign';
+import { LOCATIONS } from './locations';
 import { getScenario } from './game';
 import { STORY_SCENES, type Story } from './story-scenes';
 type SceneSetting = Pick<Story, 'place' | 'props' | 'outdoor'>;
@@ -84,9 +86,16 @@ const extraScenes: Record<string, SceneSetting> = {
 export function extraStory(id: string, month = 0): Story {
   const scenario = getScenario(id)!;
   if (id.startsWith('main-')) return { ...STORY_SCENES[Number(id.slice(5))], line: scenario.lead };
-  const scene = extraScenes[id];
+  const campaign = CAMPAIGN_STORIES[id];
+  const scene = campaign
+    ? {
+        place: LOCATIONS[campaign.location].name,
+        props: campaign.props,
+        outdoor: LOCATIONS[campaign.location].outdoor,
+      }
+    : extraScenes[id];
   return {
-    ...STORY_SCENES[month],
+    ...STORY_SCENES[month % 12],
     ...scene,
     line: scenario.lead,
     response: scenario.options.map((option) => `${option.title}. Решение добавлено в план.`),

@@ -1,4 +1,4 @@
-import { debt, planScenario, rub, selectedExtraOptions, type Report } from './game';
+import { campaignMonths, debt, planScenario, rub, selectedExtraOptions, type Report } from './game';
 export type ReviewItem = { title: string; text: string };
 
 /** Explain completed, revealed reports only; never classify a purchase by price alone. */
@@ -10,10 +10,10 @@ export function reviewMonth(report: Report) {
       title: 'Профессиональный рост',
       text: `Получено навыков: ${report.development.skillsGained}. Эти навыки помогают получать более высокую оплату подработки.`,
     });
-  if (report.month === 11 && report.plan.development === 'course')
+  if (report.month === campaignMonths(report.before) - 1 && report.plan.development === 'course')
     improve.push({
-      title: 'Курс за пределами года',
-      text: 'Курс завершится после августа. На доход и итог этого года новый навык уже не повлияет.',
+      title: 'Курс после завершения игры',
+      text: 'Курс завершится после окончания прохождения. На итоговый доход новый навык уже не повлияет.',
     });
   const option = planScenario(report.plan, report.month).options.find(
     (o) => o.id === report.plan.choice,

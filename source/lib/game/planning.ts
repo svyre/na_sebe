@@ -1,9 +1,12 @@
-import { HOUSING, JOBS, OFFERS, STUDIES, monthRules } from './config';
+import { OFFERS, HOUSING, STUDIES, monthRules } from './config';
+import { campaignMonths, jobSettings, jobsForMonth } from './campaign';
+import { PROJECTS, carPlanHours, businessMonth, projectError, transportHours } from './assets';
 import { DEVELOPMENT, developmentFor } from './development';
 import { debt } from './finance';
 import { ROOM_ITEMS, roomGifts, roomInventory } from './furniture';
 import { getScenario, planScenario, selectedExtraOptions } from './situations';
 import { SCENARIOS } from './situations/core';
+import { campaignStoryAvailable } from './situations/campaign';
 import { EXTRA_SITUATIONS } from './situations/legacy';
 import type { DifficultyId, GameState, Plan } from './types';
 
@@ -19,19 +22,22 @@ export function defaultPlan(month = 0): Plan {
     sell: 0,
     borrow: 0,
     offer: 'clear',
-    choice: SCENARIOS[month]?.options[SCENARIOS[month].options.length - 1].id || 'keep',
+    choice: SCENARIOS[month % 12]?.options[SCENARIOS[month % 12].options.length - 1].id || 'keep',
   };
 }
 
-export function planHours(plan: Plan, month: number) {
+export function planHours(plan: Plan, month: number, state?: GameState) {
   return (
-    (HOUSING.find((x) => x.id === plan.housing)?.hours || 0) +
-    (JOBS.find((x) => x.id === plan.job)?.hours || 0) +
+    transportHours(plan, state) +
+    (jobSettings(plan.job)?.hours || 0) +
     plan.study +
     (planScenario(plan, month).options.find((x) => x.id === plan.choice)?.hours || 0) +
     selectedExtraOptions(plan, month).reduce((sum, x) => sum + (x.option?.hours || 0), 0) +
     (plan.roomBuy || []).reduce((sum, id) => sum + (ROOM_ITEMS[id]?.hours || 0), 0) +
-    (developmentFor(plan)?.hours || 0)
+    (developmentFor(plan)?.hours || 0) +
+    (PROJECTS[plan.project || 'none']?.hours || 0) +
+    carPlanHours(plan) +
+    (state ? businessMonth(state, month, 'balance').hours : 0)
   );
 }
 
@@ -42,11 +48,11 @@ export function validatePlan(
   allowEmptyChoice = false,
   difficulty: DifficultyId = 'balance',
 ): string | null {
-  if (!plan || !Number.isInteger(month) || month < 0 || month > 11)
+  if (!plan || !Number.isInteger(month) || month < 0 || month >= campaignMonths(state))
     return 'Этот раунд уже завершён.';
   if (
     !HOUSING.some((x) => x.id === plan.housing) ||
-    !JOBS.some((x) => x.id === plan.job) ||
+    !jobsForMonth(state, month).some((x) => x.id === plan.job) ||
     !STUDIES.some((x) => x.hours === plan.study) ||
     !OFFERS.some((x) => x.id === plan.offer)
   )
@@ -77,6 +83,12 @@ export function validatePlan(
         return 'Выбери решение для каждой ситуации месяца.';
     }
   }
+  if (
+    [plan.scenario, ...(plan.extras || []).map((event) => event.scenario)].some(
+      (id) => id && !campaignStoryAvailable(id, state, month),
+    )
+  )
+    return 'Эта ситуация недоступна без нужного года, машины или работающего дела.';
   if (plan.roomVersion !== undefined && plan.roomVersion !== 1)
     return 'Неизвестная версия комнаты.';
   if (
@@ -111,8 +123,10 @@ export function validatePlan(
   if (plan.sell > Math.floor(state.fund)) return 'Нельзя продать больше текущей стоимости фонда.';
   if (plan.borrow > 40000 || debt(state) + plan.borrow > 90000)
     return 'Лимит нового кредита — 40 000 ₽, всех кредитов — 90 000 ₽.';
+  const invalidProject = projectError(plan, state, month);
+  if (invalidProject) return invalidProject;
   const availableHours = monthRules(difficulty, month).hours;
-  if (planHours(plan, month) > availableHours)
+  if (planHours(plan, month, state) > availableHours)
     return `Плану не хватает времени. Уменьши нагрузку: доступно ${availableHours} часов.`;
   return null;
 }

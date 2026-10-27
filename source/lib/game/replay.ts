@@ -1,4 +1,5 @@
-import { MONTHS, initialState } from './config';
+import { initialState } from './config';
+import { campaignYears, monthLabel } from './campaign';
 import { validatePlan } from './planning';
 import { settle } from './settlement';
 import type { DifficultyId, GoalId, Report } from './types';
@@ -11,7 +12,7 @@ export function replay(
   goal: GoalId,
   difficulty: DifficultyId = 'balance',
 ) {
-  let state = initialState(difficulty);
+  let state = initialState(difficulty, campaignYears(reports[0]?.before));
   const result: Report[] = [];
   let trimmedTransfers = 0;
   for (let monthIndex = 0; monthIndex < reports.length; monthIndex++) {
@@ -23,7 +24,7 @@ export function replay(
     plan.sell = Math.min(plan.sell, Math.floor(state.fund));
     trimmedTransfers += oldWithdraw - plan.withdraw + oldSell - plan.sell;
     const validationError = validatePlan(plan, state, monthIndex, false, difficulty);
-    if (validationError) throw new Error(MONTHS[monthIndex] + ': ' + validationError);
+    if (validationError) throw new Error(monthLabel(monthIndex) + ': ' + validationError);
     try {
       const report = settle(state, plan, monthIndex, goal, true, difficulty);
       state = report.after;

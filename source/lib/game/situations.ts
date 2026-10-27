@@ -1,3 +1,4 @@
+import { CAMPAIGN_STORIES } from './situations/campaign';
 import { SCENARIOS } from './situations/core';
 import { NEW_SITUATIONS } from './situations/extended';
 import { EXTRA_SITUATIONS } from './situations/legacy';
@@ -11,6 +12,7 @@ export const SITUATION_IDS = [
 ];
 
 export function getScenario(id: string): Scenario | undefined {
+  if (Object.hasOwn(CAMPAIGN_STORIES, id)) return CAMPAIGN_STORIES[id].scenario;
   if (/^main-(?:[0-9]|1[01])$/.test(id)) return SCENARIOS[Number(id.slice(5))];
   if (Object.hasOwn(EXTRA_SITUATIONS, id)) return EXTRA_SITUATIONS[id].scenario;
   if (Object.hasOwn(NEW_SITUATIONS, id)) return NEW_SITUATIONS[id];
@@ -18,11 +20,14 @@ export function getScenario(id: string): Scenario | undefined {
 }
 
 export function planScenario(plan: Pick<Plan, 'scenario'>, month: number): Scenario {
-  return (plan.scenario && getScenario(plan.scenario)) || SCENARIOS[month];
+  return (plan.scenario && getScenario(plan.scenario)) || SCENARIOS[month % 12];
 }
 
 export function planSituationIds(plan: Plan, month: number): string[] {
-  return [plan.scenario || `main-${month}`, ...(plan.extras || []).map((event) => event.scenario)];
+  return [
+    plan.scenario || `main-${month % 12}`,
+    ...(plan.extras || []).map((event) => event.scenario),
+  ];
 }
 
 export function extraSituationIds(month: number, seed: number, count: number = 1): string[] {

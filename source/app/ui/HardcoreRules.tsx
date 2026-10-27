@@ -26,7 +26,7 @@ export function HardcoreRules({ state, month }: { state: GameState; month: numbe
         <ul>
           <li>
             Ни одного месяца с дефицитом, учёбой ниже 35 или ресурсом ниже 15. Нарушение сохраняется
-            до конца года.
+            до конца прохождения.
           </li>
           <li>В финале: цель по капиталу и навыкам, учёба ≥ 65, ресурс ≥ 45, безопасность ≥ 8.</li>
           <li>
@@ -36,7 +36,10 @@ export function HardcoreRules({ state, month }: { state: GameState; month: numbe
             Сессии: {MONTHS[4]} и {MONTHS[9]} — на 12 часов меньше и дополнительная нагрузка на
             учёбу.
           </li>
-          <li>С июня поддержка снижается с 14 000 до 10 000 ₽ в месяц.</li>
+          <li>
+            С июня поддержка уменьшается ещё на 4 000 ₽. На втором году базовая поддержка составляет
+            75% начальной, на третьем — 50%.
+          </li>
         </ul>
         {state.hardcoreFailures?.length ? (
           <div className="hardcore-failures">
@@ -44,7 +47,7 @@ export function HardcoreRules({ state, month }: { state: GameState; month: numbe
             {state.hardcoreFailures.map((failure, index) => (
               <p key={index}>{failure}</p>
             ))}
-            <p>Можно закончить год и разобрать решения или начать новую историю.</p>
+            <p>Можно закончить прохождение и разобрать решения или начать новую игру.</p>
           </div>
         ) : null}
       </details>

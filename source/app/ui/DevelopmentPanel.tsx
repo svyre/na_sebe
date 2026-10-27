@@ -1,6 +1,7 @@
 import {
   DEVELOPMENT,
-  MONTHS,
+  monthLabel,
+  campaignMonths,
   monthRules,
   planHours,
   rub,
@@ -29,7 +30,7 @@ export function DevelopmentPanel({
   onChange: (id: DevelopmentId) => void;
 }) {
   const availableSkills = skillsForWork(state, month);
-  const remainingHours = monthRules(difficulty, month).hours - planHours(plan, month);
+  const remainingHours = monthRules(difficulty, month).hours - planHours(plan, month, state);
   const progress = state.developmentProgress === 1 ? 1 : 0;
   return (
     <section className="panel development-panel" aria-labelledby="development-title">
@@ -110,8 +111,9 @@ export function DevelopmentPanel({
         plan.development === 'internship' ||
         (plan.development === 'self' && progress === 1)) && (
         <p className="development-timing">
-          Новый навык поможет с оплатой: {MONTHS[month + 1] || 'после завершения этого года'}. Доход
-          текущего месяца за счёт нового навыка не увеличится.
+          Новый навык поможет с оплатой:{' '}
+          {month + 1 < campaignMonths(state) ? monthLabel(month + 1) : 'после завершения игры'}.
+          Доход текущего месяца за счёт нового навыка не увеличится.
         </p>
       )}
       {state.pending.some((event) => event.development === 'course') && (
@@ -124,7 +126,9 @@ export function DevelopmentPanel({
                 Практический курс · +1 навык · завершение:{' '}
                 {event.due <= month
                   ? 'в этом месяце'
-                  : MONTHS[event.due] || 'после завершения года'}
+                  : event.due < campaignMonths(state)
+                    ? monthLabel(event.due)
+                    : 'после завершения игры'}
               </p>
             ))}
         </div>
@@ -151,7 +155,13 @@ export function DevelopmentSummary({ report }: { report: Report }) {
         </p>
       )}
       {development.action === 'course' && (
-        <p>Курс оплачен. Завершение: {MONTHS[report.month + 1] || 'после завершения года'}.</p>
+        <p>
+          Курс оплачен. Завершение:{' '}
+          {report.month + 1 < campaignMonths(report.before)
+            ? monthLabel(report.month + 1)
+            : 'после завершения игры'}
+          .
+        </p>
       )}
       {development.completedCourses > 0 && (
         <p>

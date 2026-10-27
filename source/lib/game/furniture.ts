@@ -81,7 +81,7 @@ export function roomEffects(state: Pick<GameState, 'roomItems'>) {
 export function roomGifts(plan: Plan, month: number): RoomItemId[] {
   if (plan.roomVersion !== 1) return [];
   const decisions = [
-    { scenario: plan.scenario || `main-${month}`, choice: plan.choice },
+    { scenario: plan.scenario || `main-${month % 12}`, choice: plan.choice },
     ...(plan.extras || []),
   ];
   const gifts: RoomItemId[] = [];

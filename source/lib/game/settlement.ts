@@ -1,7 +1,16 @@
 // Закрытие месяца. Порядок операций важен для процентов и отложенных последствий.
 
-import { HOUSING, JOBS, MONTHS, STUDIES, macroFor, monthRules } from './config';
+import { HOUSING, STUDIES, macroFor, monthRules } from './config';
 import { developmentFor } from './development';
+import { campaignYears, jobSettings, monthLabel } from './campaign';
+import {
+  PROJECTS,
+  accrueAssets,
+  applyProjects,
+  businessMonth,
+  transportCost,
+  transportHours,
+} from './assets';
 import { evaluate } from './evaluation';
 import { annuity, capital, creditQuote } from './finance';
 import { ROOM_ITEMS, roomEffects, roomGifts, roomInventory } from './furniture';
@@ -40,7 +49,8 @@ export function settle(
     (event) => event.development === 'course' && event.due <= month,
   ).length;
   const housing = HOUSING.find((x) => x.id === selectedPlan.housing)!;
-  const job = JOBS.find((x) => x.id === selectedPlan.job)!;
+  const job = jobSettings(selectedPlan.job);
+  const business = businessMonth(input, month, difficulty);
   const study = STUDIES.find((x) => x.hours === selectedPlan.study)!;
   const mainOption: Option = planScenario(selectedPlan, month).options.find(
     (x) => x.id === selectedPlan.choice,
@@ -105,6 +115,8 @@ export function settle(
     });
   }
 
+  const assetChanges = accrueAssets(input, state, month, recordTransaction);
+
   // Поддержка, стипендия и работа оплачивают текущие обязательные расходы.
   recordTransaction('Поддержка семьи', rules.support);
   if (input.education >= 50) recordTransaction('Стипендия', 3000);
@@ -117,7 +129,13 @@ export function settle(
     warnings.push('Из-за истощения доход от подработки снижен на 30%.');
   recordTransaction(housing.name, -Math.round(housing.cost * monthlyConditions.inflation));
   recordTransaction('Продукты', -Math.round(8500 * monthlyConditions.inflation));
-  recordTransaction('Транспорт', -Math.round(housing.transport * monthlyConditions.inflation));
+  const carCost = input.car ? transportCost(input, selectedPlan, month, difficulty) : 0;
+  recordTransaction(
+    input.car ? 'Машина: топливо, страховка и обслуживание' : 'Транспорт',
+    -transportCost(input, selectedPlan, month, difficulty),
+  );
+  if (business.revenue) recordTransaction('Своё дело: выручка', business.revenue);
+  if (business.cost) recordTransaction('Своё дело: расходы', -business.cost);
   recordTransaction('Связь и бытовые расходы', -Math.round(900 * monthlyConditions.inflation));
   recordTransaction('Отдых и личные траты', -selectedPlan.leisure);
   if (development.cost) recordTransaction('Развитие: ' + development.name, -development.cost);
@@ -135,7 +153,7 @@ export function settle(
         payment: option.loan / 5,
         monthlyFee: 0,
       });
-    if (option.delayed)
+    if (option.delayed && (reveal || !option.uncertainOutcome))
       state.pending.push({ due: month + option.delayed.after, ...option.delayed });
   }
 
@@ -148,6 +166,8 @@ export function settle(
     recordTransaction('Комната: ' + ROOM_ITEMS[id].name, -ROOM_ITEMS[id].cost);
   if (purchased.length || gifted.length)
     state.roomItems = [...new Set([...owned, ...purchased, ...gifted])];
+
+  applyProjects(input, state, selectedPlan, month, recordTransaction);
 
   // Переводы в активы разрешены только после покрытия расходов месяца.
   if (selectedPlan.save + selectedPlan.invest > Math.max(0, state.cash) + 0.01)
@@ -182,12 +202,14 @@ export function settle(
         selectedPlan.leisure / 800 -
         job.fatigue -
         selectedPlan.study / 10 -
-        housing.hours / 8 -
+        transportHours(selectedPlan, input) / 8 -
         sumOptionEffects('hours') / 6 -
         installation / 6 +
         sumOptionEffects('energy') +
         effects.energy -
-        development.energy,
+        development.energy -
+        business.energy -
+        PROJECTS[selectedPlan.project || 'none'].energy,
     ),
   );
   state.skills += sumOptionEffects('skills');
@@ -228,7 +250,7 @@ export function settle(
     if (failures.length)
       state.hardcoreFailures = [
         ...(input.hardcoreFailures || []),
-        `${MONTHS[month]}: ${failures.join(', ')}`,
+        `${monthLabel(month, campaignYears(input) > 1)}: ${failures.join(', ')}`,
       ];
     if (state.hardcoreFailures?.length)
       warnings.push(
@@ -243,11 +265,21 @@ export function settle(
     ledger: ledger.filter((x) => x.amount !== 0),
     explanation: mainOption.explanation,
     warnings,
-    hours: planHours(selectedPlan, month),
+    hours: planHours(selectedPlan, month, input),
     net: roundMoney(capital(state) - capital(before)),
     interest,
     market,
     score: evaluate(state, goal, selectedPlan, month, difficulty).total,
+    ...(month >= 12
+      ? {
+          assets: {
+            businessNet: business.revenue - business.cost,
+            businessHours: business.hours,
+            carCost,
+            ...assetChanges,
+          },
+        }
+      : {}),
     ...((selectedPlan.development && selectedPlan.development !== 'none') || completedCourses
       ? {
           development: {

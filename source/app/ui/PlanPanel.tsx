@@ -1,6 +1,7 @@
 import {
   HOUSING,
-  JOBS,
+  jobsForMonth,
+  campaignMonths,
   STUDIES,
   macroFor,
   monthRules,
@@ -30,7 +31,7 @@ export function PlanPanel({
 }) {
   const rules = monthRules(difficulty, monthIndex);
   const monthlyConditions = macroFor(monthIndex, difficulty);
-  const hours = planHours(plan, monthIndex);
+  const hours = planHours(plan, monthIndex, state);
   return (
     <article className="panel rhythm-panel">
       <div className="section-label">
@@ -54,7 +55,7 @@ export function PlanPanel({
           <small>
             {plan.housing === currentHousing
               ? 'Аренда и время на дорогу'
-              : `Переезд после завершения ${monthIndex === 11 ? 'года' : 'месяца'}. Расходы учтены сейчас.`}
+              : `Переезд после завершения ${monthIndex === campaignMonths(state) - 1 ? 'игры' : 'месяца'}. Расходы учтены сейчас.`}
           </small>
         </div>
         <select
@@ -75,14 +76,17 @@ export function PlanPanel({
         </span>
         <div>
           <b>Как работать</b>
-          <small>Каждый навык добавляет 700 ₽ к оплате</small>
+          <small>
+            Каждый навык добавляет 700 ₽. Со второго года 4 навыка открывают работу по
+            специальности.
+          </small>
         </div>
         <select
           aria-label="Подработка"
           value={plan.job}
           onChange={(e) => updatePlan('job', e.target.value)}
         >
-          {JOBS.map((job) => (
+          {jobsForMonth(state, monthIndex).map((job) => (
             <option key={job.id} value={job.id}>
               {job.name} ·{' '}
               {rub(

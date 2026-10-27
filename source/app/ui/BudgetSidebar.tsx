@@ -1,5 +1,17 @@
 import type { Report } from '@/lib/game';
-import { GOALS, capital, evaluate, macroFor, percent, rub, type Plan, type Solo } from '@/lib/game';
+import {
+  campaignGoal,
+  campaignYears,
+  assetValue,
+  depositValue,
+  capital,
+  evaluate,
+  macroFor,
+  percent,
+  rub,
+  type Plan,
+  type Solo,
+} from '@/lib/game';
 import {
   ArrowRight,
   ChevronDown,
@@ -35,6 +47,7 @@ export function BudgetSidebar({
 }) {
   const state = data.state;
   const monthIndex = data.month;
+  const goal = campaignGoal(data.goal, campaignYears(state));
   const monthlyConditions = macroFor(monthIndex, data.difficulty);
   const score = evaluate(state, data.goal, plan, monthIndex, data.difficulty);
   const [showDetails, setShowDetails] = useState(false);
@@ -166,12 +179,12 @@ export function BudgetSidebar({
         </div>
         <div className="stat-card">
           <div>
-            <span>Накопления и фонд</span>
+            <span>Накопления и вложения</span>
             <Landmark size={18} />
           </div>
-          <strong>{rub(state.savings + state.fund)}</strong>
+          <strong>{rub(state.savings + state.fund + depositValue(state))}</strong>
           <small>
-            {state.fund > 0 ? `${rub(state.fund)} — в фонде` : 'Резерв на следующие шаги'}
+            {state.fund > 0 ? `${rub(state.fund)} — в фонде` : 'Резерв и срочные вложения'}
           </small>
         </div>
         <div className="stat-card">
@@ -205,20 +218,29 @@ export function BudgetSidebar({
           </div>
         </div>
       </div>
+      {assetValue(state) > 0 && (
+        <div className="asset-capital-note">
+          В капитале также учтены машина, оборудование дела и срочные вклады:{' '}
+          {rub(assetValue(state))}. Эти деньги нельзя целиком потратить без продажи или ожидания
+          срока.
+        </div>
+      )}
       <section className="panel goal-card">
         <div className="section-label">
           <span className="eyebrow">ТВОЯ ЦЕЛЬ</span>
           <Flag size={17} />
         </div>
-        <h3>{GOALS[data.goal].name}</h3>
+        <h3>{goal.name}</h3>
         <div className="goal-amount">
           <b>{rub(capital(state))}</b>
-          <span>/ {rub(GOALS[data.goal].target)}</span>
+          <span>/ {rub(goal.target)}</span>
         </div>
         <Meter value={score.goalProgress} />
         <div className="goal-footer">
           <span>
-            {data.goal === 'career' ? `${state.skills} из 4 навыков` : 'Капитал с учётом долгов'}
+            {data.goal === 'career'
+              ? `${state.skills} из ${goal.skills} навыков`
+              : 'Капитал с учётом долгов'}
           </span>
           <b>{score.goalProgress}%</b>
         </div>

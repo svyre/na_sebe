@@ -1,5 +1,5 @@
 import { CHARACTERS, type CharacterId } from '@/lib/character';
-import { MONTHS, SCENARIOS, type Scenario } from '@/lib/game';
+import { monthLabel, SCENARIOS, type Scenario } from '@/lib/game';
 import { storyLocation, type LocationId } from '@/lib/locations';
 import { STORY_SCENES, type Story } from '@/lib/story-scenes';
 import {
@@ -49,7 +49,7 @@ const World = memo(function World({
       role="img"
       aria-label={`Иллюстрированная сцена: ${scene.place}. Персонаж: ${CHARACTERS[character].label.toLowerCase()}`}
     >
-      <SceneEnvironment location={location} month={month} rain={rain} night={night} />
+      <SceneEnvironment location={location} month={month % 12} rain={rain} night={night} />
       <SceneSurface location={location} />
       <g className="scene-actor" transform="translate(507 110) scale(.76)">
         <ellipse cx="110" cy="318" rx="67" ry="8" fill="#4c6372" opacity=".12" />
@@ -119,24 +119,24 @@ export function StoryScene({
   const [documentOpen, setDocumentOpen] = useState(false);
   const [reaction, setReaction] = useState(0);
   const motion = useSceneMotion();
-  const location = storyLocation(scenarioId || `main-${month}`);
+  const location = storyLocation(scenarioId || `main-${month % 12}`);
   const select = (choice: string) => {
     setReaction((n) => n + 1);
     onSelect(choice);
   };
-  const scenario = scenarioOverride || SCENARIOS[month];
-  const meta = story || STORY_SCENES[month];
+  const scenario = scenarioOverride || SCENARIOS[month % 12];
+  const meta = story || STORY_SCENES[month % 12];
   const index = scenario.options.findIndex((o) => o.id === selected);
   return (
     <article
       className="story-event event-panel"
       aria-labelledby="story-title"
-      data-situation={scenarioId || `main-${month}`}
+      data-situation={scenarioId || `main-${month % 12}`}
     >
       <div className="story-title">
         <div>
           <span className="story-chapter">
-            {MONTHS[month]} / Ситуация {chapter}
+            {monthLabel(month)} / Ситуация {chapter}
           </span>
           <h2 id="story-title">{scenario.title}</h2>
         </div>

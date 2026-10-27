@@ -2,10 +2,14 @@ import type { CharacterId } from '@/lib/character';
 import { downloadCsv } from '@/lib/csv';
 import {
   DEVELOPMENT,
+  PROJECTS,
   DIFFICULTIES,
-  GOALS,
   HOUSING,
-  MONTHS,
+  monthLabel,
+  campaignMonths,
+  campaignYears,
+  campaignGoal,
+  assetValue,
   ROOM_ITEMS,
   capital,
   debt,
@@ -32,6 +36,7 @@ import { useState } from 'react';
 import { CapitalChart } from './CapitalChart';
 import { HardcoreRules } from './HardcoreRules';
 import { HistoryList } from './History';
+import { AnnualReview, AssetsOverview } from './ProjectsPanel';
 import { FinalRoom } from './PlayerRoom';
 import { Badge, Meter } from './shared';
 export function Results({
@@ -50,7 +55,8 @@ export function Results({
   );
   const [error, setError] = useState('');
   const [tab, setTab] = useState<'overview' | 'history'>('overview');
-  const yearComplete = data.month >= 12;
+  const campaignComplete = data.month >= campaignMonths(data.state);
+  const goal = campaignGoal(data.goal, campaignYears(data.state));
   const stats = evaluate(
     data.state,
     data.goal,
@@ -72,6 +78,7 @@ export function Results({
   const exportReport = () =>
     downloadCsv('na-sebe-report.csv', [
       ['Сложность', DIFFICULTIES[data.difficulty].name],
+      ['Длительность, лет', campaignYears(data.state)],
       [],
       [
         'Месяц',
@@ -92,9 +99,12 @@ export function Results({
         'Помощь комнаты: ресурс',
         'Развитие',
         'Навыки от развития',
+        'Машина, оборудование и вклады',
+        'Своё дело: результат',
+        'Проект',
       ],
       ...data.reports.map((report) => [
-        MONTHS[report.month],
+        monthLabel(report.month, campaignYears(data.state) > 1),
         [
           planScenario(report.plan, report.month).options.find(
             (option) => option.id === report.plan.choice,
@@ -121,6 +131,9 @@ export function Results({
         report.room?.energy || 0,
         report.development ? DEVELOPMENT[report.development.action].name : '',
         report.development?.skillsGained || 0,
+        assetValue(report.after),
+        report.assets?.businessNet || 0,
+        PROJECTS[report.plan.project || 'none'].name,
       ]),
     ]);
   return (
@@ -128,19 +141,23 @@ export function Results({
       <div className="page-heading">
         <div>
           <span className="eyebrow">
-            {yearComplete ? 'ТВОЙ ПЕРВЫЙ ГОД / ИТОГИ' : 'ТВОЯ СТРАТЕГИЯ / ПРОМЕЖУТОЧНЫЙ РЕЗУЛЬТАТ'}
+            {campaignComplete ? 'ИТОГИ' : 'ТВОЯ СТРАТЕГИЯ / ПРОМЕЖУТОЧНЫЙ РЕЗУЛЬТАТ'}
           </span>
           <h1>
-            {yearComplete ? 'Итоги года' : 'Промежуточные итоги'}
+            {campaignComplete
+              ? campaignYears(data.state) > 1
+                ? 'Итоги прохождения'
+                : 'Итоги года'
+              : 'Промежуточные итоги'}
             <span className="lime-dot">.</span>
           </h1>
           <p>
-            {data.name} · {DIFFICULTIES[data.difficulty].name} · {GOALS[data.goal].name} ·{' '}
-            {data.month} из 12 месяцев
+            {data.name} · {DIFFICULTIES[data.difficulty].name} · {goal.name} · {data.month} из{' '}
+            {campaignMonths(data.state)} месяцев
           </p>
         </div>
         <div className="heading-actions">
-          {!yearComplete && (
+          {!campaignComplete && (
             <button className="button secondary" onClick={onBack}>
               <ArrowLeft size={16} />К игре
             </button>
@@ -172,10 +189,10 @@ export function Results({
           <section className="results-hero">
             <div>
               <Badge tone="green">
-                {yearComplete
+                {campaignComplete
                   ? stats.achieved
                     ? 'Цель достигнута'
-                    : 'Год завершён'
+                    : 'Прохождение завершено'
                   : 'История продолжается'}
               </Badge>
               <h2>
@@ -186,7 +203,7 @@ export function Results({
                     : 'План стоит пересмотреть'}
               </h2>
               <p>
-                {yearComplete
+                {campaignComplete
                   ? 'Посмотри, какие решения помогли, а какие потребовали пересмотра.'
                   : 'Это промежуточные баллы. Дальнейшие решения ещё изменят результат.'}
               </p>
@@ -240,7 +257,7 @@ export function Results({
             </section>
             <section className="panel results-goal">
               <Flag size={26} />
-              <span className="eyebrow">{GOALS[data.goal].name}</span>
+              <span className="eyebrow">{goal.name}</span>
               <h2>
                 {stats.goalProgress}%<span> пути к цели</span>
               </h2>
@@ -248,8 +265,8 @@ export function Results({
               <div className="goal-checks">
                 {[
                   {
-                    ok: capital(data.state) >= GOALS[data.goal].target,
-                    text: `Капитал от ${rub(GOALS[data.goal].target)}`,
+                    ok: capital(data.state) >= goal.target,
+                    text: `Капитал от ${rub(goal.target)}`,
                   },
                   {
                     ok: data.state.education >= (data.difficulty === 'hardcore' ? 65 : 60),
@@ -277,7 +294,12 @@ export function Results({
                       ]
                     : []),
                   ...(data.goal === 'career'
-                    ? [{ ok: data.state.skills >= 4, text: 'Не меньше 4 навыков' }]
+                    ? [
+                        {
+                          ok: data.state.skills >= goal.skills,
+                          text: `Не меньше ${goal.skills} навыков`,
+                        },
+                      ]
                     : []),
                 ].map((x, i) => (
                   <div key={i} className={x.ok ? 'checked' : ''}>
@@ -289,7 +311,7 @@ export function Results({
             </section>
           </div>
           {data.difficulty === 'hardcore' && (
-            <HardcoreRules state={data.state} month={Math.min(11, data.month)} />
+            <HardcoreRules state={data.state} month={Math.max(0, data.month - 1)} />
           )}
           <section className="panel">
             <div className="section-label">
@@ -302,7 +324,18 @@ export function Results({
               difficulty={data.difficulty}
             />
           </section>
-          {yearComplete && (
+          {data.month >= 12 && <AssetsOverview state={data.state} />}
+          {campaignYears(data.state) > 1 && (
+            <section className="panel annual-history">
+              <h2>Итоги по годам</h2>
+              {data.reports
+                .filter((report) => (report.month + 1) % 12 === 0)
+                .map((report) => (
+                  <AnnualReview key={report.month} report={report} />
+                ))}
+            </section>
+          )}
+          {campaignComplete && (
             <FinalRoom
               state={data.state}
               housing={data.plans.at(-1)?.housing || 'dorm'}
@@ -341,7 +374,8 @@ export function Results({
                   >
                     {data.reports.map((report) => (
                       <option key={report.month} value={report.month}>
-                        {MONTHS[report.month]} — {planScenario(report.plan, report.month).title}
+                        {monthLabel(report.month, campaignYears(data.state) > 1)} —{' '}
+                        {planScenario(report.plan, report.month).title}
                       </option>
                     ))}
                   </select>
@@ -428,9 +462,9 @@ export function Results({
               )}
             </section>
           )}
-          {yearComplete && (
+          {campaignComplete && (
             <div className="restart-row">
-              <p>Можно начать заново с другой целью или сложностью.</p>
+              <p>Можно начать заново с другой целью, длительностью или сложностью.</p>
               <button className="button primary" onClick={onRestart}>
                 Начать новую игру
                 <ArrowUpRight size={18} />

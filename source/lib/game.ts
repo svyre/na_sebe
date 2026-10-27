@@ -49,3 +49,27 @@ export type {
   Solo,
 } from './game/types';
 export { clone, percent, rub } from './game/utils';
+
+export {
+  campaignYears,
+  campaignMonths,
+  campaignGoal,
+  monthLabel,
+  yearNumber,
+  jobSettings,
+  jobsForMonth,
+} from './game/campaign';
+export {
+  CARS,
+  PROJECTS,
+  assetValue,
+  businessValue,
+  depositValue,
+  businessMonth,
+  projectError,
+  transportCost,
+  transportHours,
+} from './game/assets';
+export type { CampaignYears, ProjectAction, CarAction } from './game/types';
+
+export { CAMPAIGN_STORIES, CAMPAIGN_SITUATION_IDS } from './game/situations/campaign';

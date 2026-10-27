@@ -1,4 +1,11 @@
-import { DIFFICULTIES, difficultyId, rub, type DifficultyId, type Solo } from '@/lib/game';
+import {
+  DIFFICULTIES,
+  campaignMonths,
+  difficultyId,
+  rub,
+  type DifficultyId,
+  type Solo,
+} from '@/lib/game';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -40,7 +47,7 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
   };
   const begin = () => (solo ? onSolo() : onDifficulty(preview));
   const startLabel = solo
-    ? solo.month === 12
+    ? solo.month >= campaignMonths(solo.state)
       ? 'Посмотреть результат'
       : 'Продолжить игру'
     : 'Начать игру';
@@ -59,8 +66,8 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
             твоей зарплаты?
           </h1>
           <p className="intro-description">
-            Ты переезжаешь в общежитие. Впереди учебный год: нужно платить за жильё, подрабатывать и
-            готовиться к сессии. Попробуй дойти до августа с накоплениями и без долгов.
+            Ты переезжаешь в общежитие. Нужно платить за жильё, подрабатывать и готовиться к сессии.
+            Выбери срок от одного до трёх лет и попробуй выполнить свою цель.
           </p>
           <div className="intro-actions">
             <button className="button primary" onClick={begin}>
@@ -80,7 +87,7 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
             </span>
             <span>
               <Flag size={16} />
-              12 месяцев · 60 историй
+              1–3 года · 132 ситуации
             </span>
           </div>
           {solo && (
@@ -89,7 +96,9 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
               <span>
                 Игра сохранена
                 <small>
-                  {solo.month === 12 ? 'Год завершён.' : `Пройдено ${solo.month} из 12 месяцев.`}
+                  {solo.month >= campaignMonths(solo.state)
+                    ? 'Прохождение завершено.'
+                    : `Пройдено ${solo.month} из ${campaignMonths(solo.state)} месяцев.`}
                 </small>
               </span>
               <ArrowRight size={18} />
@@ -323,9 +332,10 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
       </section>
       <section className="closing-start">
         <div>
-          <h2>Выбери цель на год</h2>
+          <h2>Выбери срок и цель</h2>
           <p>
-            Накопить 100 000 ₽, получить профессиональные навыки или собрать капитал в 140 000 ₽.
+            Один год — освоиться. Два или три — накопить больше, попробовать своё дело и крупные
+            покупки.
           </p>
         </div>
         <button className="button" onClick={begin}>

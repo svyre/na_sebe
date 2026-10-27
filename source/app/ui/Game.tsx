@@ -1,7 +1,10 @@
 import { CHARACTERS, type CharacterId } from '@/lib/character';
 import {
   DIFFICULTIES,
-  MONTHS,
+  monthLabel,
+  campaignMonths,
+  campaignYears,
+  yearNumber,
   ROOM_ITEMS,
   SHORT_MONTHS,
   defaultPlan,
@@ -32,6 +35,7 @@ import { BankStoryBanner } from './BankIdentity';
 import { BankPanel } from './BankPanel';
 import { BudgetSidebar } from './BudgetSidebar';
 import { CharacterArt } from './Character';
+import { ProjectsPanel } from './ProjectsPanel';
 import { DevelopmentPanel } from './DevelopmentPanel';
 import { HardcoreRules } from './HardcoreRules';
 import { HistoryList } from './History';
@@ -80,7 +84,7 @@ export function Game({
     };
   });
   const [tab, setTab] = useState<
-    'room' | 'decisions' | 'plan' | 'development' | 'bank' | 'history'
+    'room' | 'decisions' | 'plan' | 'development' | 'projects' | 'bank' | 'history'
   >('room');
   const [activeSituation, setActiveSituation] = useState(0);
   const [isShopOpen, setShopOpen] = useState(false);
@@ -95,7 +99,7 @@ export function Game({
     ? 0
     : (plan.extras || []).findIndex((event) => !event.choice) + 1;
   const currentExtra = activeSituation > 0 ? plan.extras?.[activeSituation - 1] : undefined;
-  const situationId = currentExtra?.scenario || plan.scenario || `main-${monthIndex}`;
+  const situationId = currentExtra?.scenario || plan.scenario || `main-${monthIndex % 12}`;
   const sceneScenario = currentExtra ? getScenario(currentExtra.scenario)! : scenario;
   const replaceDesk = situationId === 'desk' && roomInventory(state).includes('desk');
   const sceneStory = useMemo(() => {
@@ -163,6 +167,11 @@ export function Game({
       control.focus({ preventScroll: true });
     });
   const openRoomAction = (action: RoomAction) => {
+    if (action === 'projects') {
+      setTab('projects');
+      focusRoomPanel('.projects-panel');
+      return;
+    }
     if (action === 'development') {
       setTab('development');
       focusRoomPanel('.development-panel');
@@ -213,12 +222,12 @@ export function Game({
         <div>
           <span className="eyebrow">{`ТВОЙ ГОД / ${data.name}`}</span>
           <h1>
-            {MONTHS[monthIndex]}
+            {monthLabel(monthIndex, campaignYears(state) > 1)}
             <span className="lime-dot">.</span>{' '}
             <span className="heading-light">
               {monthIndex === 0
                 ? 'Первый месяц самостоятельности'
-                : monthIndex === 11
+                : monthIndex === campaignMonths(state) - 1
                   ? 'Последние решения года'
                   : 'План на месяц'}
             </span>
@@ -253,18 +262,23 @@ export function Game({
       </div>
       <div className="round-heading">
         <span>
-          Раунд <b>{monthIndex + 1}</b> из 12
+          Месяц <b>{monthIndex + 1}</b> из {campaignMonths(state)}
         </span>
         <span>{tab === 'room' ? 'Твоя комната и планы' : scenario.topic}</span>
       </div>
       {data.difficulty === 'hardcore' && <HardcoreRules state={state} month={monthIndex} />}
-      <div className="month-track" aria-label={`Месяц ${monthIndex + 1} из 12`}>
+      <div
+        className="month-track"
+        aria-label={`Год ${yearNumber(monthIndex)}, месяц ${(monthIndex % 12) + 1} из 12`}
+      >
         {SHORT_MONTHS.map((month, i) => (
           <div
-            className={i === monthIndex ? 'current' : i < monthIndex ? 'complete' : ''}
+            className={i === monthIndex % 12 ? 'current' : i < monthIndex % 12 ? 'complete' : ''}
             key={month}
           >
-            <span>{i < monthIndex ? <Check size={12} /> : String(i + 1).padStart(2, '0')}</span>
+            <span>
+              {i < monthIndex % 12 ? <Check size={12} /> : String(i + 1).padStart(2, '0')}
+            </span>
             <b>{month}</b>
             {i < 11 && <i />}
           </div>
@@ -287,6 +301,9 @@ export function Game({
               { id: 'decisions' as const, name: 'Ситуации', icon: Flag },
               { id: 'plan' as const, name: 'План', icon: BookOpen },
               { id: 'development' as const, name: 'Развитие', icon: BookOpen },
+              ...(monthIndex >= 12
+                ? [{ id: 'projects' as const, name: 'Проекты', icon: House }]
+                : []),
               { id: 'bank' as const, name: 'Мой банк', icon: Landmark },
               { id: 'history' as const, name: 'История', icon: History },
             ].map(({ id, name, icon: Icon }) => (
@@ -297,6 +314,8 @@ export function Game({
                 className={tab === id ? 'selected' : ''}
                 onClick={() => {
                   setTab(id);
+                  if (id === 'projects')
+                    requestAnimationFrame(() => focusSection('.projects-panel'));
                   if (id === 'development')
                     requestAnimationFrame(() => focusSection('.development-panel'));
                 }}
@@ -464,6 +483,15 @@ export function Game({
               month={monthIndex}
               difficulty={data.difficulty}
               onChange={(id) => updatePlan('development', id)}
+            />
+          )}
+          {tab === 'projects' && (
+            <ProjectsPanel
+              state={state}
+              plan={plan}
+              month={monthIndex}
+              difficulty={data.difficulty}
+              onChange={updatePlan}
             />
           )}
           {tab === 'history' && (

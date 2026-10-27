@@ -1,3 +1,4 @@
+import { CAMPAIGN_STORIES } from './game/situations/campaign';
 export const LOCATIONS = {
   home: { name: 'Комната', wall: '#e7e7e0', floor: '#bdc8c1', accent: '#9caec4', outdoor: false },
   kitchen: {
@@ -147,5 +148,5 @@ export const STORY_LOCATIONS: Record<string, LocationId> = {
   'meal-course': 'kitchen',
 };
 export function storyLocation(id: string): LocationId {
-  return STORY_LOCATIONS[id] || 'home';
+  return CAMPAIGN_STORIES[id]?.location || STORY_LOCATIONS[id] || 'home';
 }
