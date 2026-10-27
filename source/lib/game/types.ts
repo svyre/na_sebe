@@ -1,3 +1,6 @@
+import type { NarrativeProgress } from '../narrative';
+import type { TutorialProgress } from '../tutorial';
+
 export type CampaignYears = 1 | 2 | 3;
 export type ProjectAction = 'none' | 'pilot' | 'launch' | 'expand' | 'pause' | 'resume' | 'close';
 export type CarAction = 'keep' | 'compact' | 'family' | 'sell';
@@ -133,6 +136,8 @@ export type Report = {
 };
 
 export type Solo = {
+  narrative?: NarrativeProgress;
+  tutorial?: TutorialProgress;
   name: string;
   goal: GoalId;
   difficulty: DifficultyId;

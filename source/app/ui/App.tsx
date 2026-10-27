@@ -18,6 +18,8 @@ import {
   type Plan,
   type Report,
 } from '@/lib/game';
+import { chooseStory, recordChapter, type StoryChoiceId } from '@/lib/narrative';
+import { firstTutorial, type TutorialProgress } from '@/lib/tutorial';
 import { loadGame, saveGame } from '@/lib/storage';
 import {
   ArrowRight,
@@ -144,6 +146,8 @@ export default function App() {
       state: initialState(difficulty, years),
       reports: [],
       plans: [],
+      narrative: { choices: {}, journal: [] },
+      tutorial: firstTutorial(),
     };
     data.storySchedule = ensureStorySchedule(data);
     setGame(data);
@@ -164,6 +168,10 @@ export default function App() {
         ...game,
         month: game.month + 1,
         state: result.after,
+        narrative: recordChapter(game),
+        ...(game.tutorial?.status === 'active'
+          ? { tutorial: { ...game.tutorial, status: 'completed' as const } }
+          : {}),
         reports: [...game.reports, result],
         plans: [...game.plans, plan],
       };
@@ -176,6 +184,18 @@ export default function App() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Проверь план.');
     }
+  };
+  const chooseDialogue = (choice: StoryChoiceId) => {
+    if (!game) return;
+    const data = { ...game, narrative: chooseStory(game, choice) };
+    setGame(data);
+    if (!saveGame(data)) setToast('Ответ выбран, но браузер не разрешил сохранить его.');
+  };
+  const updateTutorial = (tutorial: TutorialProgress) => {
+    if (!game) return;
+    const data = { ...game, tutorial };
+    setGame(data);
+    if (!saveGame(data)) setToast('Не удалось сохранить шаг обучения.');
   };
   const openCharacter = () => {
     if (!game) return;
@@ -345,6 +365,8 @@ export default function App() {
               situationIds={ensureStorySchedule(game)[game.month]}
               character={game.character}
               onCharacter={openCharacter}
+              onStoryChoice={chooseDialogue}
+              onTutorial={updateTutorial}
               onCommit={commitMonth}
               onHistory={() => navigate('results')}
             />
@@ -461,7 +483,10 @@ export default function App() {
           wide
           onClose={() => setReport(null)}
         >
-          <ReportView report={report} />
+          <ReportView
+            report={report}
+            story={game?.narrative?.journal.find((item) => item.month === report.month)}
+          />
           <button
             className="button primary full"
             onClick={() => {

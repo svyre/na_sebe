@@ -8,10 +8,12 @@ import {
   type Report,
 } from '@/lib/game';
 import { ChevronDown, History, Lightbulb, TriangleAlert } from 'lucide-react';
+import type { StoryRecord } from '@/lib/narrative';
+import { StoryRecap } from './MonthStory';
 import { MonthlyReview } from './MonthlyReview';
 import { Empty } from './shared';
 
-export function ReportView({ report: r }: { report: Report }) {
+export function ReportView({ report: r, story }: { report: Report; story?: StoryRecord }) {
   return (
     <div className="report-view">
       <div className="report-summary">
@@ -55,6 +57,7 @@ export function ReportView({ report: r }: { report: Report }) {
           <span>{w}</span>
         </div>
       ))}
+      <StoryRecap record={story} />
       <MonthlyReview report={r} />
       <details className="ledger-details">
         <summary>
@@ -96,7 +99,13 @@ export function ReportView({ report: r }: { report: Report }) {
   );
 }
 
-export function HistoryList({ reports }: { reports: Report[] }) {
+export function HistoryList({
+  reports,
+  journal = [],
+}: {
+  reports: Report[];
+  journal?: StoryRecord[];
+}) {
   return reports.length ? (
     <div className="history-list">
       {[...reports].reverse().map((r) => (
@@ -113,7 +122,7 @@ export function HistoryList({ reports }: { reports: Report[] }) {
             </span>
             <ChevronDown size={17} />
           </summary>
-          <ReportView report={r} />
+          <ReportView report={r} story={journal.find((item) => item.month === r.month)} />
         </details>
       ))}
     </div>

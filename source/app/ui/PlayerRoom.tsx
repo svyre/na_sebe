@@ -80,6 +80,7 @@ export function PlayerRoom({
   total,
   onAction,
   onClear,
+  arrival = false,
 }: {
   state: GameState;
   plan: Plan;
@@ -91,6 +92,7 @@ export function PlayerRoom({
   total: number;
   onAction: (action: RoomAction) => void;
   onClear: () => void;
+  arrival?: boolean;
 }) {
   const [night, setNight] = useState(() => {
     try {
@@ -186,6 +188,7 @@ export function PlayerRoom({
           energy={state.energy}
           night={night}
           ready={!remaining}
+          arrival={arrival}
         />
         <div className="room-hotspots" role="group" aria-label="Предметы в твоей комнате">
           {actions.map(({ id, place, icon: Icon, x, y }) => (

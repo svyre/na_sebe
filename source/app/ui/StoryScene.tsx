@@ -187,7 +187,11 @@ export function StoryScene({
           </div>
         </div>
         <div className="story-dialogue" aria-live="polite">
-          <span>{index < 0 ? 'Твоя история' : `Твой выбор: ${scenario.options[index].title}`}</span>
+          <span>
+            {index < 0
+              ? meta.speaker || 'История'
+              : meta.responseSpeaker || `Твой выбор: ${scenario.options[index].title}`}
+          </span>
           <p>{index < 0 ? meta.line : meta.response[index]}</p>
         </div>
         <World

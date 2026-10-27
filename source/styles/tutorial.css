@@ -1,0 +1,147 @@
+.game-experience.tutorial-active {
+  padding-bottom: 350px;
+}
+[data-tutorial-highlight='true'] {
+  outline: 2px solid #315fdf;
+  outline-offset: 5px;
+  scroll-margin-top: 160px;
+}
+.tutorial-coach {
+  position: fixed;
+  z-index: 45;
+  right: 24px;
+  bottom: 24px;
+  width: min(370px, calc(100vw - 32px));
+  background: #192e49;
+  color: #f5f8fc;
+  border: 1px solid #486280;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 8px 32px #142b462b;
+}
+.tutorial-coach header {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.tutorial-coach header > div {
+  flex: 1;
+  min-width: 0;
+}
+.tutorial-coach header span {
+  font-size: 10px;
+  color: #a9bfd9;
+}
+.tutorial-coach h2 {
+  font-size: 17px;
+  line-height: 1.4;
+  margin-top: 5px;
+  color: #fff;
+}
+.tutorial-coach button {
+  font: inherit;
+  cursor: pointer;
+}
+.tutorial-coach header > button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 36px;
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: #c4d3e7;
+}
+.tutorial-copy {
+  max-height: 30vh;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.tutorial-copy p {
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #d7e3f4;
+}
+.tutorial-locate {
+  background: transparent;
+  border: 0;
+  padding: 10px 0 3px;
+  color: #b5ceff;
+  font-size: 11px !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tutorial-copy .tutorial-task {
+  color: #e8d3ac;
+}
+.tutorial-coach footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.tutorial-coach footer > button {
+  min-height: 40px;
+  padding: 10px 13px;
+  border: 1px solid #536c89;
+  border-radius: 8px;
+  background: transparent;
+  color: #e7eef8;
+  font-size: 12px;
+}
+.tutorial-coach footer > .tutorial-next {
+  margin-left: auto;
+  background: #eaf0fc;
+  border-color: #eaf0fc;
+  color: #1a365b;
+  font-weight: 600;
+}
+.tutorial-coach button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.tutorial-coach button:focus-visible {
+  outline: 2px solid #a9c6ff;
+  outline-offset: 3px;
+}
+.tutorial-coach.tutorial-collapsed {
+  padding: 12px 16px;
+}
+.tutorial-collapsed h2 {
+  font-size: 14px;
+  margin-top: 2px;
+}
+.tutorial-collapsed footer {
+  margin-top: 9px;
+}
+.tutorial-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #456083;
+  border: 1px solid #d8e2ee;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 11px;
+  min-height: 40px;
+  cursor: pointer;
+}
+@media (max-width: 900px) {
+  .tutorial-coach {
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    left: 12px;
+    right: auto;
+    width: calc(100vw - 24px);
+    padding: 14px 16px;
+  }
+  .tutorial-copy {
+    max-height: 24vh;
+  }
+}
+
+.game-title-row .tutorial-entry {
+  margin-top: 14px;
+  width: max-content;
+}

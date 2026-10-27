@@ -17,6 +17,8 @@ const STYLESHEETS = [
   'styles/room.css',
   'styles/development.css',
   'styles/campaign.css',
+  'styles/narrative.css',
+  'styles/tutorial.css',
 ];
 
 function readStyles() {

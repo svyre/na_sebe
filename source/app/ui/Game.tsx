@@ -18,6 +18,14 @@ import {
   type Plan,
   type Solo,
 } from '@/lib/game';
+import { chapterFor, normalizeNarrative, type StoryChoiceId } from '@/lib/narrative';
+import {
+  TUTORIAL_STEPS,
+  firstTutorial,
+  type GameSection,
+  type TutorialProgress,
+  type TutorialStepId,
+} from '@/lib/tutorial';
 import { extraStory } from '@/lib/story-presentation';
 import {
   ArrowRight,
@@ -29,6 +37,7 @@ import {
   History,
   House,
   Landmark,
+  HelpCircle,
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { BankStoryBanner } from './BankIdentity';
@@ -42,12 +51,16 @@ import { HistoryList } from './History';
 import { PlanPanel } from './PlanPanel';
 import { PlayerRoom, RoomShop, type RoomAction } from './PlayerRoom';
 import { Badge } from './shared';
+import { MonthStory } from './MonthStory';
+import { TutorialCoach } from './TutorialCoach';
 import { StoryScene } from './StoryScene';
 export function Game({
   data,
   situationIds,
   character = 'boy',
   onCharacter,
+  onStoryChoice,
+  onTutorial,
   onCommit,
   onHistory,
 }: {
@@ -55,6 +68,8 @@ export function Game({
   situationIds?: string[];
   character?: CharacterId;
   onCharacter?: () => void;
+  onStoryChoice: (choice: StoryChoiceId) => void;
+  onTutorial: (progress: TutorialProgress) => void;
   onCommit: (p: Plan) => void;
   onHistory: () => void;
 }) {
@@ -83,11 +98,30 @@ export function Game({
         : {}),
     };
   });
-  const [tab, setTab] = useState<
-    'room' | 'decisions' | 'plan' | 'development' | 'projects' | 'bank' | 'history'
-  >('room');
+  const [tab, setTab] = useState<GameSection>('room');
   const [activeSituation, setActiveSituation] = useState(0);
   const [isShopOpen, setShopOpen] = useState(false);
+  const [tutorialRun, setTutorialRun] = useState(0);
+  const chapter = useMemo(() => chapterFor(data), [data]);
+  const narrative = useMemo(() => normalizeNarrative(data.narrative), [data.narrative]);
+  const tutorialActive = data.tutorial?.status === 'active';
+  const showTutorialStep = useCallback(
+    (id: TutorialStepId) => {
+      const step = TUTORIAL_STEPS.find((item) => item.id === id)!;
+      setTab(id === 'future' && monthIndex >= 12 ? 'projects' : step.tab);
+      setShopOpen(id === 'furniture');
+      if (id === 'decisions') setActiveSituation(0);
+    },
+    [monthIndex],
+  );
+  const startTutorial = () => {
+    onTutorial(firstTutorial());
+    setTutorialRun((value) => value + 1);
+  };
+  const finishTutorial = () =>
+    requestAnimationFrame(() =>
+      document.querySelector<HTMLElement>('.tutorial-entry')?.focus({ preventScroll: true }),
+    );
   const updatePlan = useCallback(<K extends keyof Plan>(key: K, value: Plan[K]) => {
     setPlan((current) => (Object.is(current[key], value) ? current : { ...current, [key]: value }));
   }, []);
@@ -105,6 +139,7 @@ export function Game({
   const sceneStory = useMemo(() => {
     const story = extraStory(situationId, monthIndex);
     if (replaceDesk) {
+      story.speaker = undefined;
       story.line =
         'У тебя уже есть удобный стол. Появились варианты замены или доработки рабочего места. Стоит ли тратиться ещё раз?';
     }
@@ -217,7 +252,7 @@ export function Game({
     onCommit(plan);
   };
   return (
-    <div className="game-experience">
+    <div className={`game-experience ${tutorialActive ? 'tutorial-active' : ''}`}>
       <div className="game-title-row">
         <div>
           <span className="eyebrow">{`ТВОЙ ГОД / ${data.name}`}</span>
@@ -232,6 +267,15 @@ export function Game({
                   : 'План на месяц'}
             </span>
           </h1>
+          <button
+            type="button"
+            className="tutorial-entry"
+            aria-label="Открыть обучение"
+            onClick={startTutorial}
+          >
+            <HelpCircle size={16} />
+            Обучение
+          </button>
         </div>
         <div className="game-title-right">
           {onCharacter && (
@@ -342,6 +386,11 @@ export function Game({
           )}
           {tab === 'room' && (
             <>
+              <MonthStory
+                chapter={chapter}
+                selected={narrative.choices[monthIndex]}
+                onChoose={onStoryChoice}
+              />
               <PlayerRoom
                 state={state}
                 plan={plan}
@@ -349,6 +398,10 @@ export function Game({
                 month={monthIndex}
                 difficulty={data.difficulty}
                 character={character}
+                arrival={
+                  monthIndex === 0 ||
+                  (data.plans.at(-1)?.housing || 'dorm') !== (data.plans.at(-2)?.housing || 'dorm')
+                }
                 remaining={remainingDecisions}
                 total={eventCount}
                 onAction={openRoomAction}
@@ -495,15 +548,15 @@ export function Game({
             />
           )}
           {tab === 'history' && (
-            <>
-              <HistoryList reports={data.reports} />
+            <div className="tutorial-history">
+              <HistoryList reports={data.reports} journal={narrative.journal} />
               {data.reports.length > 0 && (
                 <button className="button secondary full" onClick={onHistory}>
                   Сравнить с другим решением
                   <ArrowUpRight size={18} />
                 </button>
               )}
-            </>
+            </div>
           )}
         </section>
         <BudgetSidebar
@@ -516,6 +569,17 @@ export function Game({
           onCommit={onCommit}
         />
       </div>
+      {tutorialActive && data.tutorial && (
+        <TutorialCoach
+          key={tutorialRun}
+          progress={data.tutorial}
+          hasDecision={!!plan.choice}
+          month={monthIndex}
+          onChange={onTutorial}
+          onShowStep={showTutorialStep}
+          onEnd={finishTutorial}
+        />
+      )}
       <div className="mobile-action-bar">
         <button
           className="mobile-balance"

@@ -32,7 +32,9 @@ import {
   RotateCcw,
   TriangleAlert,
 } from 'lucide-react';
-import { useState } from 'react';
+import { normalizeNarrative } from '@/lib/narrative';
+import { NarrativeEnding } from './MonthStory';
+import { useMemo, useState } from 'react';
 import { CapitalChart } from './CapitalChart';
 import { HardcoreRules } from './HardcoreRules';
 import { HistoryList } from './History';
@@ -48,6 +50,7 @@ export function Results({
   onBack: () => void;
   onRestart: () => void;
 }) {
+  const narrative = useMemo(() => normalizeNarrative(data.narrative), [data.narrative]);
   const [comparisonMonth, setComparisonMonth] = useState(0);
   const [alternativeChoice, setAlternativeChoice] = useState('');
   const [alternativeResult, setAlternativeResult] = useState<ReturnType<typeof replay> | null>(
@@ -102,6 +105,8 @@ export function Results({
         'Машина, оборудование и вклады',
         'Своё дело: результат',
         'Проект',
+        'Глава истории',
+        'Ответ в разговоре',
       ],
       ...data.reports.map((report) => [
         monthLabel(report.month, campaignYears(data.state) > 1),
@@ -134,6 +139,8 @@ export function Results({
         assetValue(report.after),
         report.assets?.businessNet || 0,
         PROJECTS[report.plan.project || 'none'].name,
+        narrative.journal.find((item) => item.month === report.month)?.title || '',
+        narrative.journal.find((item) => item.month === report.month)?.choice?.label || '',
       ]),
     ]);
   return (
@@ -183,7 +190,7 @@ export function Results({
         </button>
       </div>
       {tab === 'history' ? (
-        <HistoryList reports={data.reports} />
+        <HistoryList reports={data.reports} journal={narrative.journal} />
       ) : (
         <>
           <section className="results-hero">
@@ -335,6 +342,7 @@ export function Results({
                 ))}
             </section>
           )}
+          {campaignComplete && <NarrativeEnding data={data} achieved={stats.achieved} />}
           {campaignComplete && (
             <FinalRoom
               state={data.state}

@@ -1,3 +1,5 @@
+import { CAST } from './narrative/chapters';
+import { SCENE_VOICES } from './narrative/scene-voices';
 import { CAMPAIGN_STORIES } from './game/situations/campaign';
 import { LOCATIONS } from './locations';
 import { getScenario } from './game';
@@ -85,7 +87,17 @@ const extraScenes: Record<string, SceneSetting> = {
 
 export function extraStory(id: string, month = 0): Story {
   const scenario = getScenario(id)!;
-  if (id.startsWith('main-')) return { ...STORY_SCENES[Number(id.slice(5))], line: scenario.lead };
+  const voice = SCENE_VOICES[id];
+  const dialogue = voice
+    ? {
+        speaker: CAST[voice.from].name,
+        line: voice.line,
+        responseSpeaker: 'Ты',
+        response: scenario.options.map((option) => voice.replies[option.id] || option.description),
+      }
+    : {};
+  if (id.startsWith('main-'))
+    return { ...STORY_SCENES[Number(id.slice(5))], line: scenario.lead, ...dialogue };
   const campaign = CAMPAIGN_STORIES[id];
   const scene = campaign
     ? {
@@ -98,6 +110,8 @@ export function extraStory(id: string, month = 0): Story {
     ...STORY_SCENES[month % 12],
     ...scene,
     line: scenario.lead,
-    response: scenario.options.map((option) => `${option.title}. Решение добавлено в план.`),
+    response: scenario.options.map((option) => option.description),
+    responseSpeaker: 'В плане',
+    ...dialogue,
   };
 }

@@ -80,10 +80,14 @@ try {
         'room-item-preview',
         'room-story-note',
         'scene-object-picked',
+        'cast-sasha',
+        'cast-lera',
+        'cast-ilya',
       ]) {
         assert(styles.includes(`.${name}`), name);
       }
       assert(styles.includes('data-motion=suspended'));
+      assert(styles.includes('data-tutorial-highlight=true'));
       assert(styles.includes('animation-play-state:paused'));
       assert.equal(await fs.readFile(path.join(output, '.nojekyll'), 'utf8'), '');
     },

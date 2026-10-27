@@ -17,6 +17,7 @@ export const RoomInterior = memo(function RoomInterior({
   energy,
   night = false,
   ready = false,
+  arrival = false,
 }: {
   housing: string;
   owned?: string[];
@@ -25,6 +26,7 @@ export const RoomInterior = memo(function RoomInterior({
   energy: number;
   night?: boolean;
   ready?: boolean;
+  arrival?: boolean;
 }) {
   const has = (id: string) => owned.includes(id) || planned.includes(id);
   const pending = (id: string) => !owned.includes(id) && planned.includes(id);
@@ -296,6 +298,21 @@ export const RoomInterior = memo(function RoomInterior({
             fill="#94b69c"
             {...edge}
           />
+        </g>
+      )}
+      {arrival && (
+        <g data-arrival-boxes="true">
+          <g transform="translate(310 412)">
+            <path d="m0 0 36-17 42 18-37 18Z" fill="#d9c19f" {...edge} />
+            <path d="M0 0v37l41 20V19Z" fill="#c8ae89" {...edge} />
+            <path d="m41 19 37-18v36L41 57Z" fill="#b69d7a" {...edge} />
+            <path d="m16-8 42 19 11-5-42-19Z" fill="#ece0bf" />
+          </g>
+          <g transform="translate(378 446)">
+            <path d="m0 0 24-11 31 12-25 12Z" fill="#dcc6a8" {...edge} />
+            <path d="M0 0v25l30 14V13Z" fill="#cbb493" {...edge} />
+            <path d="m30 13 25-12v25L30 39Z" fill="#b8a080" {...edge} />
+          </g>
         </g>
       )}
       <g transform="translate(450 251) scale(.75)">

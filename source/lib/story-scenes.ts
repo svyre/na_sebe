@@ -37,6 +37,8 @@ export type PropKind =
   | 'shoe';
 
 export type Story = {
+  speaker?: string;
+  responseSpeaker?: string;
   place: string;
   line: string;
   response: string[];

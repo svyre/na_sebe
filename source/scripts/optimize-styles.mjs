@@ -2,7 +2,7 @@ import { PurgeCSS } from 'purgecss';
 import { transform } from 'esbuild';
 
 // These class names are composed from ids at runtime, rather than written out in JSX.
-const DYNAMIC_CLASS_FAMILIES = [/^hotspot-/, /^object-/, /^pose-/, /^level-/];
+const DYNAMIC_CLASS_FAMILIES = [/^hotspot-/, /^object-/, /^pose-/, /^level-/, /^cast-/];
 
 export async function optimizeStyles(styles, sources) {
   const [purged] = await new PurgeCSS().purge({
@@ -15,6 +15,7 @@ export async function optimizeStyles(styles, sources) {
       'aria-selected',
       'aria-pressed',
       'data-motion',
+      'data-tutorial-highlight',
       'data-housing',
       'data-season',
       'data-upgraded',
