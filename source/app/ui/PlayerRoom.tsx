@@ -70,6 +70,7 @@ export const roomIcons = {
 export function PlayerRoom({
   state,
   plan,
+  currentHousing,
   month,
   difficulty,
   character,
@@ -80,6 +81,7 @@ export function PlayerRoom({
 }: {
   state: GameState;
   plan: Plan;
+  currentHousing: string;
   month: number;
   difficulty: DifficultyId;
   character: CharacterId;
@@ -96,7 +98,9 @@ export function PlayerRoom({
     }
   });
   const motion = useSceneMotion();
-  const housing = HOUSING.find((h) => h.id === plan.housing)!;
+  const housing = HOUSING.find((h) => h.id === currentHousing) || HOUSING[0];
+  const movingTo =
+    plan.housing !== housing.id ? HOUSING.find((h) => h.id === plan.housing) : undefined;
   const owned = useMemo(() => roomInventory(state), [state.roomItems]);
   const effects = roomEffects(state);
   const planned = useMemo(() => {
@@ -132,7 +136,11 @@ export function PlayerRoom({
         <div>
           <span>{housing.name}</span>
           <h2 id="player-room-title">Твоя комната</h2>
-          <p>Здесь начинается каждый новый месяц.</p>
+          {movingTo && (
+            <p role="status">
+              После завершения {month === 11 ? 'года' : 'месяца'}: {movingTo.name.toLowerCase()}.
+            </p>
+          )}
         </div>
         <div className="room-scene-controls">
           <button
@@ -168,7 +176,7 @@ export function PlayerRoom({
         data-motion={motion.mode}
       >
         <RoomInterior
-          housing={plan.housing}
+          housing={housing.id}
           owned={owned}
           planned={planned}
           character={character}
@@ -290,7 +298,7 @@ export function RoomShop({
     <section className="room-shop panel" aria-labelledby="room-shop-title">
       <header>
         <div>
-          <span>Сделай пространство своим</span>
+          <span>Мебель</span>
           <h2 id="room-shop-title">Обустройство комнаты</h2>
         </div>
         <button
@@ -411,7 +419,7 @@ export function FinalRoom({
           <p>
             {owned.length
               ? `${owned.length} из 6 улучшений за первый самостоятельный год.`
-              : 'Ты завершил год с базовой обстановкой и своей стратегией.'}
+              : 'Дополнительную мебель не покупали.'}
           </p>
         </div>
       </header>

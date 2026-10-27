@@ -66,10 +66,7 @@ export function MonthlyReview({ report: r }: { report: Report }) {
               </div>
             ))
           ) : (
-            <p className="review-empty">
-              Этот месяц дал опыт. Посмотри на последствия выбранного хода и найди, что изменить в
-              следующем плане.
-            </p>
+            <p className="review-empty">Посмотри операции и причины изменений в отчёте ниже.</p>
           )}
         </section>
         <section className="review-improve">
@@ -88,27 +85,19 @@ export function MonthlyReview({ report: r }: { report: Report }) {
               </div>
             ))
           ) : (
-            <p className="review-empty">
-              В этом месяце модель не отметила явных рисков. Это не гарантирует будущий результат —
-              продолжай проверять условия.
-            </p>
+            <p className="review-empty">Дефицита и других заметных проблем в этом месяце нет.</p>
           )}
         </section>
       </div>
       <div className="review-next">
         <Lightbulb size={20} />
         <div>
-          <b>{r.month === 11 ? 'Что взять с собой дальше' : 'Идея на следующий месяц'}</b>
+          <b>{r.month === 11 ? 'После завершения года' : 'Идея на следующий месяц'}</b>
           <p>{review.next}</p>
         </div>
       </div>
       <footer className="review-footer">
         <img src={bankLogo} alt="Газпромбанк" />
-        <span>
-          Финансовый разбор.
-          <br />
-          Последствия зависят от всего плана, а не только от цены покупки.
-        </span>
       </footer>
     </section>
   );

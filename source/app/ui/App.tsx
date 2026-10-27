@@ -127,7 +127,7 @@ export default function App() {
       character,
       storySeed,
       storySchedule: createStorySchedule(storySeed),
-      name: strategyName.trim() || 'Моя стратегия',
+      name: strategyName.trim() || 'Моя игра',
       goal,
       difficulty,
       month: 0,
@@ -200,11 +200,11 @@ export default function App() {
         >
           <X size={22} />
         </button>
-        <span className="nav-caption">ТВОЁ ПРОСТРАНСТВО</span>
+        <span className="nav-caption">МЕНЮ</span>
         <nav className="primary-nav">
           {[
             { id: 'home' as Page, label: 'Обзор', icon: LayoutDashboard },
-            { id: 'play' as Page, label: 'Моя стратегия', icon: Flag },
+            { id: 'play' as Page, label: 'Моя игра', icon: Flag },
             { id: 'glossary' as Page, label: 'Словарь', icon: BookOpen },
             { id: 'guide' as Page, label: 'Как играть', icon: GraduationCap },
           ].map(({ id, label, icon: Icon }) => (
@@ -228,17 +228,10 @@ export default function App() {
           <div className="sidebar-class-icon">
             <Flag size={22} />
           </div>
-          <b>
-            Твой год —<br />
-            твои решения
-          </b>
-          <p>
-            Выбирай свой темп.
-            <br />
-            Возвращайся к стратегии.
-          </p>
+          <b>Год самостоятельной жизни</b>
+          <p>Учёба, работа и расходы с сентября по август.</p>
           <button onClick={resumeGame}>
-            {game ? 'Продолжить игру' : 'Начать свой год'}
+            {game ? 'Продолжить игру' : 'Начать игру'}
             <ArrowRight size={16} />
           </button>
         </div>
@@ -352,8 +345,8 @@ export default function App() {
           {page === 'results' && !game && (
             <div className="empty-state">
               <Flag size={40} />
-              <h2>Начни свою историю</h2>
-              <p>После первого месяца здесь появится разбор твоей стратегии.</p>
+              <h2>Начни игру</h2>
+              <p>Здесь появятся отчёты после завершения первого месяца.</p>
               <button className="button primary" onClick={() => openSetup()}>
                 Настроить игру
                 <ArrowRight size={18} />
@@ -372,8 +365,8 @@ export default function App() {
             modal === 'character'
               ? 'Твой персонаж'
               : modal === 'setup'
-                ? 'Твой первый год'
-                : 'Начать новую историю?'
+                ? 'Новая игра'
+                : 'Начать новую игру?'
           }
           onClose={() => {
             setModal(null);
@@ -387,7 +380,6 @@ export default function App() {
                 Сохранить персонажа
                 <Check size={17} />
               </button>
-              <p className="character-save-note">Деньги, решения и пройденные месяцы сохранятся.</p>
             </div>
           ) : modal === 'restart' ? (
             <>
@@ -407,20 +399,16 @@ export default function App() {
             </>
           ) : (
             <form onSubmit={startGame}>
-              <p className="modal-intro">
-                Выбери персонажа и цель. Твоя комната станет главным экраном игры. Впереди 12
-                месяцев: в каждом случайно выпадет от 1 до 3 ситуаций из набора 60. За год истории
-                не повторяются.
-              </p>
-              {game && <div className="alert">Новый старт заменит сохранённую одиночную игру.</div>}
+              <p className="modal-intro">Выбери персонажа, цель и сложность.</p>
+              {game && <div className="alert">Новая игра заменит текущее сохранение.</div>}
               <CharacterPicker value={character} onChange={setCharacter} />
               <label className="field">
-                Название твоей стратегии
+                Название игры
                 <input
                   value={strategyName}
                   onChange={(e) => setStrategyName(e.target.value)}
                   maxLength={32}
-                  placeholder="Например, Спокойно к своей цели"
+                  placeholder="Например, На первую машину"
                 />
               </label>
               <label className="field">
@@ -433,7 +421,10 @@ export default function App() {
                   ))}
                 </select>
                 <small>
-                  {GOALS[goal].description} Учёба от 60, ресурс от 35 и без дефицита в финале.
+                  {GOALS[goal].description}{' '}
+                  {difficulty === 'hardcore'
+                    ? 'Дополнительные условия победы указаны ниже.'
+                    : 'В финале нужны учёба от 60, ресурс от 35 и отсутствие дефицита.'}
                 </small>
               </label>
               <DifficultyPicker value={difficulty} onChange={setDifficulty} />

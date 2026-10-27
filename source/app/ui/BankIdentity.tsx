@@ -8,10 +8,10 @@ export function BankIdentity({ cash, savings }: { cash: number; savings: number 
       <div className="bank-identity-intro">
         <img src={bankLogo} alt="Газпромбанк" />
         <span className="bank-demo-label">Твой банк</span>
-        <h2>Деньги под твоим управлением.</h2>
+        <h2>Счета и платежи</h2>
         <p>
-          Здесь твоя карта, резерв и будущие платежи. Попробуй пополнение, снятие и сравнение полной
-          стоимости кредита.
+          Переводи деньги в накопления, покупай или продавай долю фонда. Перед кредитом сравни сумму
+          всех платежей.
         </p>
       </div>
       <div className="gpb-game-card">
@@ -50,7 +50,7 @@ export function BankStoryBanner({ onOpen }: { onOpen: () => void }) {
       <img src={bankLogo} alt="Газпромбанк" />
       <span>
         <b>Мой банк</b>
-        <small>Карта, накопления и финансовые решения</small>
+        <small>Счета, фонд и кредиты</small>
       </span>
       <ArrowUpRight size={19} />
     </button>

@@ -293,7 +293,7 @@ export function StoryScene({
               <b>{o.title}</b>
               <small>{o.description}</small>
               <span className="choice-action">
-                {index === i ? 'В твоём плане' : 'Выбрать этот путь'}
+                {index === i ? 'В твоём плане' : 'Выбрать'}
                 {index === i ? <Check size={14} /> : <MousePointer2 size={14} />}
               </span>
             </div>

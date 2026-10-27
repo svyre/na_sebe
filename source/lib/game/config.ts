@@ -48,7 +48,7 @@ export const DIFFICULTIES: Record<
   first: {
     name: 'Первый шаг',
     label: 'Легче',
-    description: 'Больше запаса для экспериментов и спокойного знакомства с бюджетом.',
+    description: 'Больше денег, поддержки семьи и свободных часов.',
     cash: 36000,
     savings: 18000,
     support: 21000,
@@ -59,7 +59,7 @@ export const DIFFICULTIES: Record<
   balance: {
     name: 'Баланс',
     label: 'Средне',
-    description: 'Самостоятельный год, в котором нужно совместить деньги, учёбу и отдых.',
+    description: '38 000 ₽ на старте и 128 часов в месяц на работу, учёбу и другие дела.',
     cash: 26000,
     savings: 12000,
     support: 18000,
@@ -70,7 +70,7 @@ export const DIFFICULTIES: Record<
   challenge: {
     name: 'Вызов',
     label: 'Сложнее',
-    description: 'Меньше поддержки и времени. Резерв и точный расчёт решают больше.',
+    description: 'Меньше денег и свободного времени. Цены растут быстрее.',
     cash: 18000,
     savings: 6000,
     support: 14000,
@@ -82,7 +82,7 @@ export const DIFFICULTIES: Record<
     name: 'Хардкор',
     label: 'На пределе',
     description:
-      'Малый резерв, сессии и дорогой отдых. Ни одного месяца с дефицитом или критическим истощением.',
+      'Сессии сокращают свободное время, летом снижается поддержка. Дефицит, провал учёбы или истощение лишают победы.',
     cash: 12000,
     savings: 4000,
     support: 14000,
@@ -128,7 +128,7 @@ export const GOALS: Record<
   },
   freedom: {
     name: 'Большая цель',
-    description: '140 000 ₽ капитала. Амбициозно, но с заботой о себе.',
+    description: '140 000 ₽ капитала к концу года.',
     target: 140000,
     skills: 0,
   },

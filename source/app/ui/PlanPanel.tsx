@@ -16,12 +16,14 @@ import { Badge, Meter } from './shared';
 export function PlanPanel({
   state,
   plan,
+  currentHousing,
   month: monthIndex,
   difficulty,
   onChange: updatePlan,
 }: {
   state: GameState;
   plan: Plan;
+  currentHousing: string;
   month: number;
   difficulty: DifficultyId;
   onChange: <K extends keyof Plan>(key: K, value: Plan[K]) => void;
@@ -36,7 +38,7 @@ export function PlanPanel({
           <span className="eyebrow">
             <span className="section-step">02</span>ПЛАН НА МЕСЯЦ
           </span>
-          <h2>Твой ритм</h2>
+          <h2>Работа, учёба и расходы</h2>
         </div>
         <Badge tone={hours > rules.hours ? 'orange' : ''}>
           <Clock3 size={13} />
@@ -49,7 +51,11 @@ export function PlanPanel({
         </span>
         <div>
           <b>Где жить</b>
-          <small>Стоимость и время на дорогу</small>
+          <small>
+            {plan.housing === currentHousing
+              ? 'Аренда и время на дорогу'
+              : `Переезд после завершения ${monthIndex === 11 ? 'года' : 'месяца'}. Расходы учтены сейчас.`}
+          </small>
         </div>
         <select
           aria-label="Жильё"

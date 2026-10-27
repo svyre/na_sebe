@@ -24,7 +24,7 @@ export function DifficultyPicker({
     <>
       <fieldset className="difficulty-picker">
         <legend>Сложность</legend>
-        <p>Выбери условия для своего года. Сложность сохраняется до финала.</p>
+        <p>Сложность нельзя изменить после старта.</p>
         <div className="difficulty-options">
           {(Object.entries(DIFFICULTIES) as [DifficultyId, typeof selected][]).map(([id, d]) => (
             <label className={'difficulty-option ' + (value === id ? 'selected' : '')} key={id}>
@@ -48,7 +48,7 @@ export function DifficultyPicker({
       </fieldset>
       {value === 'hardcore' && (
         <div className="hardcore-rules">
-          <b>Один тяжёлый год</b>
+          <b>Условия победы</b>
           <p>
             Ни одного месяца с дефицитом, учёбой ниже 35 или ресурсом ниже 15. В финале: учёба ≥ 65,
             ресурс ≥ 45, безопасность ≥ 8, без долгов и с резервом на месяц.

@@ -85,8 +85,7 @@ export function CharacterPicker({
 }) {
   return (
     <fieldset className="character-picker">
-      <legend>Кем проживёшь этот год?</legend>
-      <p>Выбери своего персонажа. Правила и стартовые условия одинаковые.</p>
+      <legend>Персонаж</legend>
       <div className="character-options">
         {(Object.keys(CHARACTERS) as CharacterId[]).map((id) => (
           <label className={`character-option ${value === id ? 'chosen' : ''}`} key={id}>
@@ -111,9 +110,6 @@ export function CharacterPicker({
           </label>
         ))}
       </div>
-      <span className="character-picker-note">
-        Сменить внешность можно и во время игры — прогресс сохранится.
-      </span>
     </fieldset>
   );
 }

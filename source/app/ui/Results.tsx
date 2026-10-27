@@ -131,7 +131,7 @@ export function Results({
             {yearComplete ? 'ТВОЙ ПЕРВЫЙ ГОД / ИТОГИ' : 'ТВОЯ СТРАТЕГИЯ / ПРОМЕЖУТОЧНЫЙ РЕЗУЛЬТАТ'}
           </span>
           <h1>
-            {yearComplete ? 'Первый год — за плечами' : 'Каждый месяц — шаг вперёд'}
+            {yearComplete ? 'Итоги года' : 'Промежуточные итоги'}
             <span className="lime-dot">.</span>
           </h1>
           <p>
@@ -180,10 +180,10 @@ export function Results({
               </Badge>
               <h2>
                 {stats.total >= 80
-                  ? 'Есть чем гордиться.'
+                  ? 'Высокий результат'
                   : stats.total >= 60
-                    ? 'Сильная основа для следующего шага.'
-                    : 'Уже есть опыт, на который можно опереться.'}
+                    ? 'Есть что улучшить'
+                    : 'План стоит пересмотреть'}
               </h2>
               <p>
                 {yearComplete
@@ -293,7 +293,7 @@ export function Results({
           )}
           <section className="panel">
             <div className="section-label">
-              <h2>Твоя финансовая траектория</h2>
+              <h2>Капитал по месяцам</h2>
               <Badge>{data.month} месяцев</Badge>
             </div>
             <CapitalChart
@@ -422,8 +422,7 @@ export function Results({
                     </div>
                   </div>
                   <p className="soft-note">
-                    Это сравнение в рамках заданной модели. Оно показывает влияние одного выбора при
-                    фиксированных внешних событиях.
+                    Пересчитано только одно решение при фиксированных внешних событиях.
                   </p>
                 </>
               )}
@@ -431,13 +430,9 @@ export function Results({
           )}
           {yearComplete && (
             <div className="restart-row">
-              <p>
-                Попробуй другую цель или стратегию.
-                <br />
-                <span>Теперь у тебя есть опыт первого года.</span>
-              </p>
+              <p>Можно начать заново с другой целью или сложностью.</p>
               <button className="button primary" onClick={onRestart}>
-                Начать новую историю
+                Начать новую игру
                 <ArrowUpRight size={18} />
               </button>
             </div>

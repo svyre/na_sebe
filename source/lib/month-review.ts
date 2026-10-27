@@ -8,7 +8,7 @@ export function reviewMonth(report: Report) {
   if (report.development?.skillsGained)
     good.push({
       title: 'Профессиональный рост',
-      text: `Развитие принесло навыков: ${report.development.skillsGained}. Эти навыки помогают получать более высокую оплату подработки.`,
+      text: `Получено навыков: ${report.development.skillsGained}. Эти навыки помогают получать более высокую оплату подработки.`,
     });
   if (report.month === 11 && report.plan.development === 'course')
     improve.push({
@@ -34,7 +34,7 @@ export function reviewMonth(report: Report) {
   if (option?.safety && option.safety > 0)
     good.push({
       title: 'Внимание к условиям',
-      text: `В решении «${option.title}» учтена безопасность. Показатель в игре: ${report.before.safety} → ${report.after.safety}.`,
+      text: `В решении «${option.title}» учтена безопасность. Безопасность: ${report.before.safety} → ${report.after.safety}.`,
     });
   if (educationChange > 0)
     good.push({
@@ -72,7 +72,7 @@ export function reviewMonth(report: Report) {
   if (report.after.cash < 0)
     improve.push({
       title: 'Расходов больше, чем доступных денег',
-      text: `Дефицит — ${rub(-report.after.cash)}. В следующем месяце модель добавит к нему 3% стоимости.`,
+      text: `Дефицит — ${rub(-report.after.cash)}. В следующем месяце к нему добавится 3%.`,
     });
   if (report.after.education < 50)
     improve.push({
@@ -112,8 +112,7 @@ export function reviewMonth(report: Report) {
       title: 'Резерв использован',
       text: `Накопления уменьшились на ${rub(report.before.savings - report.after.savings)}. Это не ошибка само по себе; запланируй восстановление запаса.`,
     });
-  let next =
-    'Сохрани баланс денег, учёбы и сил. Перед новым ходом проверь доступное время и будущие платежи.';
+  let next = 'Перед следующим месяцем проверь будущие платежи и оставшееся время.';
   if (report.after.cash < 0) {
     next = 'Сначала закрой дефицит: пересмотри расходы, доступный резерв и посильную подработку.';
   } else if (report.after.energy < 35) {
@@ -130,8 +129,7 @@ export function reviewMonth(report: Report) {
     next =
       'Запиши будущие платежи до новых покупок. Сравнивай полную стоимость, а не только платёж сегодня.';
   } else if (report.after.savings < report.before.savings) {
-    next =
-      'Резерв сделал свою работу. Подумай, какую часть следующего дохода сможешь вернуть в накопления.';
+    next = 'Запланируй пополнение накоплений из следующего дохода.';
   }
   return { good, improve, next };
 }

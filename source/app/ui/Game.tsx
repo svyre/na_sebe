@@ -326,6 +326,7 @@ export function Game({
               <PlayerRoom
                 state={state}
                 plan={plan}
+                currentHousing={data.plans.at(-1)?.housing || 'dorm'}
                 month={monthIndex}
                 difficulty={data.difficulty}
                 character={character}
@@ -425,7 +426,7 @@ export function Game({
               <button className="bank-prompt" onClick={() => setTab('bank')}>
                 <Landmark size={20} />
                 <div>
-                  <b>А что с накоплениями?</b>
+                  <b>Накопления и кредиты</b>
                   <span>Переводы, фонд и сравнение кредитов — в твоём банке.</span>
                 </div>
                 <ArrowUpRight size={22} />
@@ -438,6 +439,7 @@ export function Game({
               <PlanPanel
                 state={state}
                 plan={plan}
+                currentHousing={data.plans.at(-1)?.housing || 'dorm'}
                 month={monthIndex}
                 difficulty={data.difficulty}
                 onChange={updatePlan}
@@ -469,7 +471,7 @@ export function Game({
               <HistoryList reports={data.reports} />
               {data.reports.length > 0 && (
                 <button className="button secondary full" onClick={onHistory}>
-                  Посмотреть свой путь и попробовать другой выбор
+                  Сравнить с другим решением
                   <ArrowUpRight size={18} />
                 </button>
               )}

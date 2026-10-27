@@ -8,12 +8,9 @@ import {
   Clock3,
   Flag,
   GitBranch,
-  GraduationCap,
   House,
-  MoveUpRight,
   Play,
   ShieldCheck,
-  Sparkles,
   Wallet,
 } from 'lucide-react';
 import { useState, type CSSProperties } from 'react';
@@ -26,10 +23,10 @@ type HomeProps = {
   onResults: () => void;
 };
 const levelNames: Record<DifficultyId, string> = {
-  first: 'Спокойный старт',
-  balance: 'Золотая середина',
-  challenge: 'Больше самостоятельности',
-  hardcore: 'Ни одного лёгкого решения',
+  first: 'Больше денег и времени',
+  balance: 'Обычные условия',
+  challenge: 'Меньше поддержки',
+  hardcore: 'Ошибки лишают победы',
 };
 
 export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomeProps) {
@@ -45,8 +42,8 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
   const startLabel = solo
     ? solo.month === 12
       ? 'Посмотреть результат'
-      : 'Продолжить свой год'
-    : 'Начать свой год';
+      : 'Продолжить игру'
+    : 'Начать игру';
 
   return (
     <div className="new-home">
@@ -54,18 +51,16 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
         <div className="intro-copy">
           <span className="intro-tag">
             <span className="intro-tag-dot" />
-            Можно попробовать взрослую жизнь
+            Игра о самостоятельной жизни
           </span>
           <h1 id="intro-title">
-            Твой год.
+            На что хватит
             <br />
-            Твои деньги.
-            <br />
-            Твои решения.
+            твоей зарплаты?
           </h1>
           <p className="intro-description">
-            Начни самостоятельный год со своей комнаты: обустраивай её, учись, работай и решай
-            жизненные ситуации.
+            Ты переезжаешь в общежитие. Впереди учебный год: нужно платить за жильё, подрабатывать и
+            готовиться к сессии. Попробуй дойти до августа с накоплениями и без долгов.
           </p>
           <div className="intro-actions">
             <button className="button primary" onClick={begin}>
@@ -87,20 +82,14 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
               <Flag size={16} />
               12 месяцев · 60 историй
             </span>
-            <span>
-              <ShieldCheck size={16} />
-              Деньги виртуальные
-            </span>
           </div>
           {solo && (
             <button className="resume-strip" onClick={onSolo}>
               <CheckCheck size={19} />
               <span>
-                Твоя стратегия сохранена
+                Игра сохранена
                 <small>
-                  {solo.month === 12
-                    ? 'Год завершён. Посмотри свой результат.'
-                    : `Пройдено ${solo.month} из 12 месяцев. Продолжим?`}
+                  {solo.month === 12 ? 'Год завершён.' : `Пройдено ${solo.month} из 12 месяцев.`}
                 </small>
               </span>
               <ArrowRight size={18} />
@@ -109,10 +98,7 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
         </div>
         <div className="budget-playground">
           <div className="playground-head">
-            <span>
-              <Sparkles size={16} />
-              Твой первый бюджет
-            </span>
+            <span>Бюджет на старте</span>
             <span className="demo-pill">Попробуй</span>
           </div>
           <div className="preview-tabs" role="group" aria-label="Сложность пробного бюджета">
@@ -128,12 +114,12 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
                 <Wallet size={23} />
               </span>
               <div>
-                <b>Всё начинается здесь</b>
+                <b>До первого дохода</b>
                 <span>Сентябрь. Первый месяц</span>
               </div>
               <span className="receipt-index">1 / 12</span>
             </div>
-            <span className="receipt-label">Твой стартовый бюджет</span>
+            <span className="receipt-label">Деньги на старте</span>
             <div className="receipt-amount" aria-live="polite">
               {rub(total)}
             </div>
@@ -159,7 +145,6 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
             <div className="reserve-control">
               <div>
                 <label htmlFor="demo-reserve">Сколько отложишь?</label>
-                <span>Подвигай ползунок</span>
               </div>
               <input
                 id="demo-reserve"
@@ -181,40 +166,32 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
               <ShieldCheck size={17} />
               <span>
                 {reserve === 0
-                  ? 'Без резерва любой сюрприз меняет планы.'
+                  ? 'На непредвиденные расходы ничего не отложено.'
                   : reserve === total
-                    ? 'Резерв есть. А на что жить в этом месяце?'
-                    : 'Решать тебе. Найди свой баланс.'}
+                    ? 'На текущие расходы ничего не осталось.'
+                    : `${rub(total - reserve)} на расходы, ${rub(reserve)} в запасе.`}
               </span>
             </div>
           </div>
-          <div className="playground-caption">
-            <span className="demo-cursor">
-              <MoveUpRight size={18} />
-            </span>
-            <span>
-              Здесь можно пробовать.
-              <br />
-              <b>В игре — увидеть последствия.</b>
-            </span>
-          </div>
-          <span className="paper-note">
-            Можно
-            <br />
-            ошибаться.<span>Это и есть опыт.</span>
-          </span>
+          <p className="playground-caption">
+            Ползунок показывает, сколько останется после перевода в резерв.
+          </p>
         </div>
       </section>
       <div className="learning-strip">
         <span className="strip-intro">
-          Навыки, которые
+          Что предстоит
           <br />
-          <b>останутся с тобой</b>
+          <b>решать</b>
         </span>
         {[
-          { icon: Wallet, title: 'Дружить с бюджетом', text: 'Расходы, накопления и кредиты' },
-          { icon: ShieldCheck, title: 'Замечать подвох', text: 'Договоры, предложения и риски' },
-          { icon: GitBranch, title: 'Видеть последствия', text: 'Один выбор — разные истории' },
+          { icon: Wallet, title: 'Планировать расходы', text: 'Расходы, накопления и кредиты' },
+          {
+            icon: ShieldCheck,
+            title: 'Проверять предложения',
+            text: 'Договоры, предложения и риски',
+          },
+          { icon: GitBranch, title: 'Сравнивать решения', text: 'Другой выбор и его результат' },
         ].map(({ icon: Icon, title, text }) => (
           <div className="learning-item" key={title}>
             <Icon size={23} />
@@ -228,12 +205,12 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
       <section className="levels-section" aria-labelledby="levels-title">
         <div className="new-section-head">
           <div>
-            <span className="section-caption">Сложность выбираешь ты</span>
-            <h2 id="levels-title">У каждого свой старт.</h2>
+            <span className="section-caption">Условия на старте</span>
+            <h2 id="levels-title">Выбери сложность</h2>
           </div>
           <p>
-            События одни и те же. Меняются деньги,
-            <br className="desktop-break" /> поддержка и время на твои планы.
+            Чем сложнее режим, тем меньше денег и свободного времени. В хардкоре нужно ещё пройти
+            год без критических ошибок.
           </p>
         </div>
         <div className="new-level-grid">
@@ -278,17 +255,17 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
       </section>
       <section className="how-section" aria-labelledby="how-title">
         <div className="how-intro">
-          <span className="section-caption">Маленькие решения. Целый год.</span>
+          <span className="section-caption">Как проходит месяц</span>
           <h2 id="how-title">
-            Всё как в жизни.
+            Составь план,
             <br />
-            Только с правом
+            проверь расходы,
             <br />
-            попробовать ещё.
+            заверши месяц.
           </h2>
-          <p>В конце увидишь свою историю и сможешь сравнить её с другим решением.</p>
+          <p>После каждого месяца получишь отчёт о расходах, учёбе и самочувствии.</p>
           <button className="text-button" onClick={solo && solo.month > 0 ? onResults : onGuide}>
-            Посмотреть, как устроена игра
+            Открыть правила
             <ArrowUpRight size={17} />
           </button>
           <div className="month-ribbon" aria-label="12 месяцев игры">
@@ -315,18 +292,18 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
         <div className="how-steps">
           {[
             {
-              title: 'Начни со своей комнаты',
-              text: 'Предметы открывают учёбу, работу, банк и ситуации месяца. Обустройство стоит денег, занимает время и помогает в следующих месяцах.',
+              title: 'Открой ситуации месяца',
+              text: 'На доске в комнате появляются новые события. Прочитай условия и выбери, как поступить. Деньги и время на эти решения входят в месячный план.',
               icon: BookOpen,
             },
             {
-              title: 'Собери свой план',
+              title: 'Распредели деньги и время',
               text: 'Распредели деньги и время между работой, учёбой и отдыхом. Бюджет покажет, сколько останется на руках до принятия решения.',
               icon: Wallet,
             },
             {
-              title: 'Узнай, к чему всё привело',
-              text: 'Заверши месяц, посмотри операции и последствия. Измени стратегию в следующем месяце, а в финале сравни альтернативный выбор.',
+              title: 'Посмотри отчёт',
+              text: 'В отчёте видно, сколько ты потратил и заработал, как изменились учёба и ресурс. В конце года можно заменить одно решение и сравнить результаты.',
               icon: GitBranch,
             },
           ].map(({ title, text, icon: Icon }, i) => (
@@ -346,12 +323,10 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
       </section>
       <section className="closing-start">
         <div>
-          <span>
-            <GraduationCap size={19} />
-            Тренировка перед самостоятельностью
-          </span>
-          <h2>А какой год получится у тебя?</h2>
-          <p>Понадобятся любопытство и немного смелости. Остальное — по ходу.</p>
+          <h2>Выбери цель на год</h2>
+          <p>
+            Накопить 100 000 ₽, получить профессиональные навыки или собрать капитал в 140 000 ₽.
+          </p>
         </div>
         <button className="button" onClick={begin}>
           {startLabel}
