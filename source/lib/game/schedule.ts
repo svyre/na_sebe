@@ -3,6 +3,7 @@
 import { SITUATION_IDS, getScenario, planSituationIds } from './situations';
 import { campaignMonths } from './campaign';
 import { CAMPAIGN_STORIES, campaignStoryAvailable } from './situations/campaign';
+import { FRIEND_SITUATIONS } from './situations/friends';
 import type { GameState, Plan } from './types';
 
 export function randomSource(seed: number) {
@@ -15,11 +16,16 @@ export function randomSource(seed: number) {
   };
 }
 
-export function createStorySchedule(seed: number, completed: Plan[] = []): string[][] {
+export function createStorySchedule(
+  seed: number,
+  completed: Plan[] = [],
+  withFriends = false,
+): string[][] {
   const random = randomSource(seed);
   const completedMonths = completed.slice(0, 12).map(planSituationIds);
   const usedIds = new Set(completedMonths.flat());
-  const availableIds = SITUATION_IDS.filter((id) => !usedIds.has(id));
+  const pool = withFriends ? [...SITUATION_IDS, ...Object.keys(FRIEND_SITUATIONS)] : SITUATION_IDS;
+  const availableIds = pool.filter((id) => !usedIds.has(id));
   for (let i = availableIds.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
     [availableIds[i], availableIds[j]] = [availableIds[j], availableIds[i]];
@@ -40,11 +46,16 @@ export function ensureStorySchedule(game: {
   plans: Plan[];
   state?: GameState;
   month?: number;
+  friends?: { version: 1 };
 }): string[][] {
   if (campaignMonths(game.state) > 12 && game.state)
     return campaignSchedule(game as typeof game & { state: GameState });
   const schedule = game.storySchedule;
   const completedMonths = game.plans.slice(0, 12).map(planSituationIds);
+  const pool =
+    game.friends?.version === 1
+      ? [...SITUATION_IDS, ...Object.keys(FRIEND_SITUATIONS)]
+      : SITUATION_IDS;
   if (
     Array.isArray(schedule) &&
     schedule.length === 12 &&
@@ -53,14 +64,14 @@ export function ensureStorySchedule(game: {
         Array.isArray(ids) &&
         ids.length >= 1 &&
         ids.length <= 3 &&
-        ids.every((id) => typeof id === 'string' && SITUATION_IDS.includes(id)) &&
+        ids.every((id) => typeof id === 'string' && pool.includes(id)) &&
         (monthIndex >= completedMonths.length ||
           JSON.stringify(ids) === JSON.stringify(completedMonths[monthIndex])),
     ) &&
     new Set(schedule.flat()).size === schedule.flat().length
   )
     return schedule;
-  return createStorySchedule(game.storySeed ?? 42, game.plans);
+  return createStorySchedule(game.storySeed ?? 42, game.plans, game.friends?.version === 1);
 }
 
 /** Future years are drawn only when the month starts, using the current budget and assets. */
@@ -70,11 +81,13 @@ function campaignSchedule(game: {
   plans: Plan[];
   state: GameState;
   month?: number;
+  friends?: { version: 1 };
 }) {
   const firstYear = ensureStorySchedule({
     storySeed: game.storySeed,
     storySchedule: game.storySchedule?.slice(0, 12),
     plans: game.plans.slice(0, 12),
+    friends: game.friends,
   });
   const months = campaignMonths(game.state);
   const schedule = Array.from({ length: months }, (_, month) =>
@@ -102,9 +115,11 @@ function campaignSchedule(game: {
     return schedule;
   }
   const random = randomSource((game.storySeed ?? 42) ^ Math.imul(month + 1, 2654435761));
-  const candidates = [...SITUATION_IDS, ...Object.keys(CAMPAIGN_STORIES)].filter(
-    (id) => !used.has(id) && campaignStoryAvailable(id, game.state, month),
-  );
+  const candidates = [
+    ...SITUATION_IDS,
+    ...Object.keys(CAMPAIGN_STORIES),
+    ...(game.friends?.version === 1 ? Object.keys(FRIEND_SITUATIONS) : []),
+  ].filter((id) => !used.has(id) && campaignStoryAvailable(id, game.state, month));
   const count = 1 + Math.floor(random() * 3);
   for (let n = 0; n < count && candidates.length; n++) {
     const weights = candidates.map((id) => storyWeight(id, game.state));

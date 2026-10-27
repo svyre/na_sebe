@@ -21,6 +21,7 @@ import {
 import { chooseStory, recordChapter, type StoryChoiceId } from '@/lib/narrative';
 import { firstTutorial, type TutorialProgress } from '@/lib/tutorial';
 import { loadGame, saveGame } from '@/lib/storage';
+import { firstFriends, housingApprovalError, proposeHousing, type RoommateId } from '@/lib/friends';
 import {
   ArrowRight,
   BookOpen,
@@ -42,6 +43,7 @@ import { ReportView } from './History';
 import { Home } from './Home';
 import { Glossary, Guide } from './Info';
 import { Modal } from './Modal';
+import { Phone } from './Phone';
 import { Results } from './Results';
 
 type Page = 'home' | 'play' | 'glossary' | 'guide' | 'results';
@@ -50,6 +52,7 @@ export default function App() {
   const [game, setGame] = useState<PlayerSolo | null>(null);
   const [gameVersion, setGameVersion] = useState(0);
   const [modal, setModal] = useState<'setup' | 'restart' | 'character' | null>(null);
+  const [phoneArchiveOpen, setPhoneArchiveOpen] = useState(false);
   const [report, setReport] = useState<Report | null>(null);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasLoadedSave, setHasLoadedSave] = useState(false);
@@ -138,7 +141,7 @@ export default function App() {
     const data: PlayerSolo = {
       character,
       storySeed,
-      storySchedule: createStorySchedule(storySeed),
+      storySchedule: createStorySchedule(storySeed, [], true),
       name: strategyName.trim() || 'Моя игра',
       goal,
       difficulty,
@@ -148,6 +151,7 @@ export default function App() {
       plans: [],
       narrative: { choices: {}, journal: [] },
       tutorial: firstTutorial(),
+      friends: firstFriends(),
     };
     data.storySchedule = ensureStorySchedule(data);
     setGame(data);
@@ -160,6 +164,8 @@ export default function App() {
   const commitMonth = (plan: Plan) => {
     if (!game) return;
     try {
+      const approvalError = housingApprovalError(game, plan);
+      if (approvalError) throw new Error(approvalError);
       const expected = ensureStorySchedule(game)[game.month];
       if (JSON.stringify(planSituationIds(plan, game.month)) !== JSON.stringify(expected))
         throw new Error('Список ситуаций изменился. Открой текущий месяц заново.');
@@ -190,6 +196,12 @@ export default function App() {
     const data = { ...game, narrative: chooseStory(game, choice) };
     setGame(data);
     if (!saveGame(data)) setToast('Ответ выбран, но браузер не разрешил сохранить его.');
+  };
+  const inviteFriend = (friend: RoommateId) => {
+    if (!game) return;
+    const data = { ...game, friends: proposeHousing(game, friend) };
+    setGame(data);
+    if (!saveGame(data)) setToast('Ответ получен, но браузер не разрешил сохранить его.');
   };
   const updateTutorial = (tutorial: TutorialProgress) => {
     if (!game) return;
@@ -367,6 +379,7 @@ export default function App() {
               onCharacter={openCharacter}
               onStoryChoice={chooseDialogue}
               onTutorial={updateTutorial}
+              onHousingInvite={inviteFriend}
               onCommit={commitMonth}
               onHistory={() => navigate('results')}
             />
@@ -486,6 +499,11 @@ export default function App() {
           <ReportView
             report={report}
             story={game?.narrative?.journal.find((item) => item.month === report.month)}
+            invitation={game?.friends?.invitations.find((item) => item.month === report.month)}
+            onOpenPhone={() => {
+              setReport(null);
+              setPhoneArchiveOpen(true);
+            }}
           />
           <button
             className="button primary full"
@@ -499,6 +517,11 @@ export default function App() {
               : 'К следующему месяцу'}
             <ArrowRight size={18} />
           </button>
+        </Modal>
+      )}
+      {phoneArchiveOpen && game && (
+        <Modal title="Телефон" className="phone-modal" onClose={() => setPhoneArchiveOpen(false)}>
+          <Phone data={game} readOnly />
         </Modal>
       )}
       {toast && (

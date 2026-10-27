@@ -18,7 +18,9 @@ import {
   type Plan,
   type Solo,
 } from '@/lib/game';
-import { chapterFor, normalizeNarrative, type StoryChoiceId } from '@/lib/narrative';
+import { normalizeNarrative, type StoryChoiceId } from '@/lib/narrative';
+import { housingApprovalError, invitationFor, roommateFor, type RoommateId } from '@/lib/friends';
+import { CAST } from '@/lib/narrative';
 import {
   TUTORIAL_STEPS,
   firstTutorial,
@@ -51,7 +53,8 @@ import { HistoryList } from './History';
 import { PlanPanel } from './PlanPanel';
 import { PlayerRoom, RoomShop, type RoomAction } from './PlayerRoom';
 import { Badge } from './shared';
-import { MonthStory } from './MonthStory';
+import { Modal } from './Modal';
+import { Phone, type PhoneView } from './Phone';
 import { TutorialCoach } from './TutorialCoach';
 import { StoryScene } from './StoryScene';
 export function Game({
@@ -61,6 +64,7 @@ export function Game({
   onCharacter,
   onStoryChoice,
   onTutorial,
+  onHousingInvite,
   onCommit,
   onHistory,
 }: {
@@ -70,6 +74,7 @@ export function Game({
   onCharacter?: () => void;
   onStoryChoice: (choice: StoryChoiceId) => void;
   onTutorial: (progress: TutorialProgress) => void;
+  onHousingInvite: (friend: RoommateId) => void;
   onCommit: (p: Plan) => void;
   onHistory: () => void;
 }) {
@@ -102,7 +107,7 @@ export function Game({
   const [activeSituation, setActiveSituation] = useState(0);
   const [isShopOpen, setShopOpen] = useState(false);
   const [tutorialRun, setTutorialRun] = useState(0);
-  const chapter = useMemo(() => chapterFor(data), [data]);
+  const [phoneView, setPhoneView] = useState<PhoneView | null>(null);
   const narrative = useMemo(() => normalizeNarrative(data.narrative), [data.narrative]);
   const tutorialActive = data.tutorial?.status === 'active';
   const showTutorialStep = useCallback(
@@ -160,21 +165,24 @@ export function Game({
         : sceneScenario,
     [sceneScenario, replaceDesk],
   );
-  const selectDecision = (value: string) => {
-    if (activeSituation === 0) {
+  const selectDecisionAt = (index: number, value: string) => {
+    if (index === 0) {
       updatePlan('choice', value);
       return;
     }
     updatePlan(
       'extras',
-      (plan.extras || []).map((event, index) =>
-        index === activeSituation - 1 ? { ...event, choice: value } : event,
+      (plan.extras || []).map((event, extraIndex) =>
+        extraIndex === index - 1 ? { ...event, choice: value } : event,
       ),
     );
   };
+  const selectDecision = (value: string) => selectDecisionAt(activeSituation, value);
   const validationError = useMemo(
-    () => validatePlan(plan, state, monthIndex, false, data.difficulty),
-    [plan, state, monthIndex, data.difficulty],
+    () =>
+      validatePlan(plan, state, monthIndex, false, data.difficulty) ||
+      housingApprovalError(data, plan),
+    [plan, state, monthIndex, data],
   );
   const forecast = useMemo(() => {
     try {
@@ -202,6 +210,10 @@ export function Game({
       control.focus({ preventScroll: true });
     });
   const openRoomAction = (action: RoomAction) => {
+    if (action === 'phone') {
+      setPhoneView('inbox');
+      return;
+    }
     if (action === 'projects') {
       setTab('projects');
       focusRoomPanel('.projects-panel');
@@ -386,11 +398,6 @@ export function Game({
           )}
           {tab === 'room' && (
             <>
-              <MonthStory
-                chapter={chapter}
-                selected={narrative.choices[monthIndex]}
-                onChoose={onStoryChoice}
-              />
               <PlayerRoom
                 state={state}
                 plan={plan}
@@ -405,6 +412,8 @@ export function Game({
                 remaining={remainingDecisions}
                 total={eventCount}
                 onAction={openRoomAction}
+                canMove={!housingApprovalError(data, plan)}
+                roommateName={roommateFor(data) ? CAST[roommateFor(data)!].name : undefined}
                 onClear={() => {
                   updatePlan('roomBuy', []);
                 }}
@@ -465,6 +474,16 @@ export function Game({
                   selected={currentExtra ? currentExtra.choice : plan.choice}
                   onSelect={selectDecision}
                   energy={state.energy}
+                  onOpenPhone={
+                    sceneStory.speaker
+                      ? () => {
+                          const contact = (Object.keys(CAST) as (keyof typeof CAST)[]).find(
+                            (id) => CAST[id].name === sceneStory.speaker,
+                          );
+                          setPhoneView(contact || 'inbox');
+                        }
+                      : undefined
+                  }
                 />
                 {roomGifts(plan, monthIndex).length > 0 && (
                   <div className="room-story-note">
@@ -515,6 +534,25 @@ export function Game({
                 month={monthIndex}
                 difficulty={data.difficulty}
                 onChange={updatePlan}
+                housingConversation={
+                  plan.housing === 'shared' &&
+                  (data.plans.at(-1)?.housing || 'dorm') !== 'shared' ? (
+                    <div className="housing-phone-note">
+                      <p>
+                        {invitationFor(data)?.accepted
+                          ? 'Согласие на переезд получено. Комната сменится после завершения месяца.'
+                          : housingApprovalError(data, plan)}
+                      </p>
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={() => setPhoneView('housing')}
+                      >
+                        Обсудить в телефоне
+                      </button>
+                    </div>
+                  ) : undefined
+                }
               />
             </fieldset>
           )}
@@ -549,7 +587,12 @@ export function Game({
           )}
           {tab === 'history' && (
             <div className="tutorial-history">
-              <HistoryList reports={data.reports} journal={narrative.journal} />
+              <HistoryList
+                reports={data.reports}
+                journal={narrative.journal}
+                invitations={data.friends?.invitations}
+                onOpenPhone={() => setPhoneView('inbox')}
+              />
               {data.reports.length > 0 && (
                 <button className="button secondary full" onClick={onHistory}>
                   Сравнить с другим решением
@@ -569,6 +612,31 @@ export function Game({
           onCommit={onCommit}
         />
       </div>
+      {phoneView && (
+        <Modal title="Телефон" className="phone-modal" onClose={() => setPhoneView(null)}>
+          <Phone
+            data={data}
+            plan={plan}
+            initialView={phoneView}
+            events={[
+              { scenario: plan.scenario || `main-${monthIndex % 12}`, choice: plan.choice },
+              ...(plan.extras || []),
+            ]}
+            onStoryChoice={onStoryChoice}
+            onDecision={selectDecisionAt}
+            onHousingInvite={(friend) => {
+              onHousingInvite(friend);
+              updatePlan('housing', 'shared');
+            }}
+            onHousingChange={(housing) => updatePlan('housing', housing)}
+            onOpenScene={(index) => {
+              setPhoneView(null);
+              setActiveSituation(index);
+              setTab('decisions');
+            }}
+          />
+        </Modal>
+      )}
       {tutorialActive && data.tutorial && (
         <TutorialCoach
           key={tutorialRun}

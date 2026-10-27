@@ -9,11 +9,22 @@ import {
 } from '@/lib/game';
 import { ChevronDown, History, Lightbulb, TriangleAlert } from 'lucide-react';
 import type { StoryRecord } from '@/lib/narrative';
-import { StoryRecap } from './MonthStory';
+import { CAST } from '@/lib/narrative';
+import type { HousingInvitation } from '@/lib/friends';
 import { MonthlyReview } from './MonthlyReview';
 import { Empty } from './shared';
 
-export function ReportView({ report: r, story }: { report: Report; story?: StoryRecord }) {
+export function ReportView({
+  report: r,
+  story,
+  invitation,
+  onOpenPhone,
+}: {
+  report: Report;
+  story?: StoryRecord;
+  invitation?: HousingInvitation;
+  onOpenPhone?: () => void;
+}) {
   return (
     <div className="report-view">
       <div className="report-summary">
@@ -57,7 +68,26 @@ export function ReportView({ report: r, story }: { report: Report; story?: Story
           <span>{w}</span>
         </div>
       ))}
-      <StoryRecap record={story} />
+      {(story || invitation) && (
+        <div className="report-phone-note">
+          {story && <span>{story.title}</span>}
+          {invitation && (
+            <p>
+              {CAST[invitation.friend].name}:{' '}
+              {invitation.accepted
+                ? r.plan.housing === 'shared'
+                  ? 'согласие получено, переезд состоялся'
+                  : 'согласие получено, переезд не включён в план'
+                : 'не может переехать в этом месяце'}
+            </p>
+          )}
+          {onOpenPhone && (
+            <button type="button" className="button secondary" onClick={onOpenPhone}>
+              Открыть переписку в телефоне
+            </button>
+          )}
+        </div>
+      )}
       <MonthlyReview report={r} />
       <details className="ledger-details">
         <summary>
@@ -102,9 +132,13 @@ export function ReportView({ report: r, story }: { report: Report; story?: Story
 export function HistoryList({
   reports,
   journal = [],
+  invitations = [],
+  onOpenPhone,
 }: {
   reports: Report[];
   journal?: StoryRecord[];
+  invitations?: HousingInvitation[];
+  onOpenPhone?: () => void;
 }) {
   return reports.length ? (
     <div className="history-list">
@@ -122,7 +156,12 @@ export function HistoryList({
             </span>
             <ChevronDown size={17} />
           </summary>
-          <ReportView report={r} story={journal.find((item) => item.month === r.month)} />
+          <ReportView
+            report={r}
+            story={journal.find((item) => item.month === r.month)}
+            invitation={invitations.find((item) => item.month === r.month)}
+            onOpenPhone={onOpenPhone}
+          />
         </details>
       ))}
     </div>

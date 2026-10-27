@@ -87,7 +87,7 @@ export function Home({ solo, onSolo, onDifficulty, onGuide, onResults }: HomePro
             </span>
             <span>
               <Flag size={16} />
-              1–3 года · 132 ситуации
+              1–3 года · 144 ситуации
             </span>
           </div>
           {solo && (

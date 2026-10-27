@@ -34,6 +34,7 @@ import {
   Plus,
   ShoppingBag,
   Sun,
+  Smartphone,
   Table2,
   X,
 } from 'lucide-react';
@@ -42,6 +43,7 @@ import { RoomInterior } from './PlayerRoomArt';
 import { useSceneMotion } from './useSceneMotion';
 
 export type RoomAction =
+  | 'phone'
   | 'study'
   | 'work'
   | 'rest'
@@ -56,7 +58,8 @@ const actions = [
   { id: 'study', name: 'Учёба', place: 'Рабочий стол', icon: BookOpen, x: 25, y: 53 },
   { id: 'work', name: 'Работа', place: 'Ноутбук', icon: BriefcaseBusiness, x: 30, y: 38 },
   { id: 'rest', name: 'Отдых', place: 'Кровать', icon: BedDouble, x: 74, y: 65 },
-  { id: 'bank', name: 'Мой банк', place: 'Телефон', icon: Landmark, x: 41, y: 48 },
+  { id: 'bank', name: 'Мой банк', place: 'Банковское приложение', icon: Landmark, x: 41, y: 48 },
+  { id: 'phone', name: 'Сообщения', place: 'Телефон', icon: Smartphone, x: 49, y: 78 },
   { id: 'furniture', name: 'Обустройство', place: 'Мебель и уют', icon: Armchair, x: 87, y: 56 },
   { id: 'housing', name: 'Жильё', place: 'Сменить жильё', icon: House, x: 89, y: 29 },
 ] as const;
@@ -81,6 +84,8 @@ export function PlayerRoom({
   onAction,
   onClear,
   arrival = false,
+  canMove = true,
+  roommateName,
 }: {
   state: GameState;
   plan: Plan;
@@ -93,6 +98,8 @@ export function PlayerRoom({
   onAction: (action: RoomAction) => void;
   onClear: () => void;
   arrival?: boolean;
+  canMove?: boolean;
+  roommateName?: string;
 }) {
   const [night, setNight] = useState(() => {
     try {
@@ -104,7 +111,7 @@ export function PlayerRoom({
   const motion = useSceneMotion();
   const housing = HOUSING.find((h) => h.id === currentHousing) || HOUSING[0];
   const movingTo =
-    plan.housing !== housing.id ? HOUSING.find((h) => h.id === plan.housing) : undefined;
+    canMove && plan.housing !== housing.id ? HOUSING.find((h) => h.id === plan.housing) : undefined;
   const owned = useMemo(() => roomInventory(state), [state.roomItems]);
   const effects = roomEffects(state);
   const planned = useMemo(() => {
@@ -121,25 +128,28 @@ export function PlayerRoom({
     }
   };
   const note = (id: RoomAction) =>
-    id === 'events'
-      ? `${total - remaining} из ${total} решений`
-      : id === 'study'
-        ? `${plan.study} ч в плане`
-        : id === 'work'
-          ? jobSettings(plan.job).name
-          : id === 'rest'
-            ? `${rub(plan.leisure)} в плане`
-            : id === 'bank'
-              ? 'Резерв, фонд и платежи'
-              : id === 'housing'
-                ? `${rub(Math.round(housing.cost * macroFor(month, difficulty).inflation))} в месяц`
-                : `${owned.length} из 6 улучшений`;
+    id === 'phone'
+      ? 'Разговоры, друзья и переезд'
+      : id === 'events'
+        ? `${total - remaining} из ${total} решений`
+        : id === 'study'
+          ? `${plan.study} ч в плане`
+          : id === 'work'
+            ? jobSettings(plan.job).name
+            : id === 'rest'
+              ? `${rub(plan.leisure)} в плане`
+              : id === 'bank'
+                ? 'Резерв, фонд и платежи'
+                : id === 'housing'
+                  ? `${rub(Math.round(housing.cost * macroFor(month, difficulty).inflation))} в месяц`
+                  : `${owned.length} из 6 улучшений`;
   return (
     <section className="player-room" aria-labelledby="player-room-title">
       <header className="player-room-heading">
         <div>
           <span>{housing.name}</span>
           <h2 id="player-room-title">Твоя комната</h2>
+          {roommateName && <p className="roommate-name">Вместе с тобой: {roommateName}</p>}
           {movingTo && (
             <p role="status">
               После завершения {month === campaignMonths(state) - 1 ? 'игры' : 'месяца'}:{' '}
@@ -255,7 +265,12 @@ export function PlayerRoom({
         {actions
           .filter((a) => a.id !== 'events')
           .map(({ id, name, icon: Icon }) => (
-            <button type="button" key={id} onClick={() => onAction(id)}>
+            <button
+              type="button"
+              key={id}
+              className={id === 'phone' ? 'room-phone-button' : undefined}
+              onClick={() => onAction(id)}
+            >
               <Icon size={20} />
               <span>
                 <b>{name}</b>

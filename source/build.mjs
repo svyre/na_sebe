@@ -19,6 +19,7 @@ const STYLESHEETS = [
   'styles/campaign.css',
   'styles/narrative.css',
   'styles/tutorial.css',
+  'styles/phone.css',
 ];
 
 function readStyles() {

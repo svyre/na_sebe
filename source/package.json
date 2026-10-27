@@ -7,7 +7,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run check && npm run test:game && npm run test:review && npm run test:stories && npm run test:room && npm run test:storage && npm run test:build && npm run test:progression && npm run test:campaign && npm run test:narrative",
+    "test": "npm run check && npm run test:game && npm run test:review && npm run test:stories && npm run test:room && npm run test:storage && npm run test:build && npm run test:progression && npm run test:campaign && npm run test:narrative && npm run test:friends",
     "test:game": "node scripts/check-game.mjs",
     "test:review": "node scripts/check-review.mjs",
     "test:stories": "node scripts/check-situations.mjs && node scripts/check-random-stories.mjs",
@@ -17,7 +17,8 @@
     "benchmark": "node scripts/benchmark-model.mjs",
     "test:progression": "node scripts/check-progression.mjs",
     "test:campaign": "node scripts/check-campaign.mjs",
-    "test:narrative": "node scripts/check-narrative.mjs"
+    "test:narrative": "node scripts/check-narrative.mjs",
+    "test:friends": "node scripts/check-friends.mjs"
   },
   "dependencies": {
     "lucide-react": "1.31.0",

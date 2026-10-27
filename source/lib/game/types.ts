@@ -1,5 +1,6 @@
 import type { NarrativeProgress } from '../narrative';
 import type { TutorialProgress } from '../tutorial';
+import type { FriendsProgress } from '../friends';
 
 export type CampaignYears = 1 | 2 | 3;
 export type ProjectAction = 'none' | 'pilot' | 'launch' | 'expand' | 'pause' | 'resume' | 'close';
@@ -136,6 +137,7 @@ export type Report = {
 };
 
 export type Solo = {
+  friends?: FriendsProgress;
   narrative?: NarrativeProgress;
   tutorial?: TutorialProgress;
   name: string;

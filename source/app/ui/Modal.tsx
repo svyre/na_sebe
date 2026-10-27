@@ -6,11 +6,13 @@ export function Modal({
   children,
   onClose,
   wide = false,
+  className = '',
 }: {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
   wide?: boolean;
+  className?: string;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
@@ -24,7 +26,7 @@ export function Modal({
       if (event.key === 'Escape') closeRef.current();
       if (event.key === 'Tab') {
         const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]),input,select,a[href],[tabindex="0"]',
+          'button:not([disabled]),input,select,a[href],summary,[tabindex="0"]',
         );
         if (!focusableElements?.length) return;
         const first = focusableElements[0];
@@ -53,7 +55,7 @@ export function Modal({
       }}
     >
       <div
-        className={'modal ' + (wide ? 'modal-wide' : '')}
+        className={`modal ${wide ? 'modal-wide' : ''} ${className}`}
         role="dialog"
         aria-modal="true"
         aria-label={title}

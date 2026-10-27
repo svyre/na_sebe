@@ -12,6 +12,7 @@ import {
   Play,
   ShieldCheck,
   Sparkles,
+  Smartphone,
 } from 'lucide-react';
 import { memo, useState } from 'react';
 import { bankLogo } from './bank-brand';
@@ -101,6 +102,7 @@ export function StoryScene({
   selected,
   onSelect,
   energy,
+  onOpenPhone,
   scenarioOverride,
   story,
   chapter = 1,
@@ -115,6 +117,7 @@ export function StoryScene({
   selected: string;
   onSelect: (choice: string) => void;
   energy: number;
+  onOpenPhone?: () => void;
 }) {
   const [documentOpen, setDocumentOpen] = useState(false);
   const [reaction, setReaction] = useState(0);
@@ -186,14 +189,24 @@ export function StoryScene({
             </span>
           </div>
         </div>
-        <div className="story-dialogue" aria-live="polite">
-          <span>
-            {index < 0
-              ? meta.speaker || 'История'
-              : meta.responseSpeaker || `Твой выбор: ${scenario.options[index].title}`}
-          </span>
-          <p>{index < 0 ? meta.line : meta.response[index]}</p>
-        </div>
+        {onOpenPhone ? (
+          <button type="button" className="scene-phone-link" onClick={onOpenPhone}>
+            <Smartphone size={18} />
+            <span>
+              {meta.speaker} ·{' '}
+              {index < 0 ? 'Открыть сообщение' : 'Ответ в плане — открыть переписку'}
+            </span>
+          </button>
+        ) : (
+          <div className="story-dialogue" aria-live="polite">
+            <span>
+              {index < 0
+                ? meta.speaker || 'История'
+                : meta.responseSpeaker || `Твой выбор: ${scenario.options[index].title}`}
+            </span>
+            <p>{index < 0 ? meta.line : meta.response[index]}</p>
+          </div>
+        )}
         <World
           month={month}
           choice={index}

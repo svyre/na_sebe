@@ -21,6 +21,7 @@ export function PlanPanel({
   month: monthIndex,
   difficulty,
   onChange: updatePlan,
+  housingConversation,
 }: {
   state: GameState;
   plan: Plan;
@@ -28,6 +29,7 @@ export function PlanPanel({
   month: number;
   difficulty: DifficultyId;
   onChange: <K extends keyof Plan>(key: K, value: Plan[K]) => void;
+  housingConversation?: React.ReactNode;
 }) {
   const rules = monthRules(difficulty, monthIndex);
   const monthlyConditions = macroFor(monthIndex, difficulty);
@@ -46,6 +48,7 @@ export function PlanPanel({
           {hours} / {rules.hours} ч
         </Badge>
       </div>
+      {housingConversation}
       <div className="planning-row">
         <span className="planning-icon">
           <House size={20} />

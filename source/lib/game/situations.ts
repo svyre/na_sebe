@@ -2,6 +2,7 @@ import { CAMPAIGN_STORIES } from './situations/campaign';
 import { SCENARIOS } from './situations/core';
 import { NEW_SITUATIONS } from './situations/extended';
 import { EXTRA_SITUATIONS } from './situations/legacy';
+import { FRIEND_SITUATIONS } from './situations/friends';
 import type { Plan, Scenario } from './types';
 
 /** Stable ids are stored with each plan so history and replays survive a new shuffle. */
@@ -12,6 +13,7 @@ export const SITUATION_IDS = [
 ];
 
 export function getScenario(id: string): Scenario | undefined {
+  if (Object.hasOwn(FRIEND_SITUATIONS, id)) return FRIEND_SITUATIONS[id].scenario;
   if (Object.hasOwn(CAMPAIGN_STORIES, id)) return CAMPAIGN_STORIES[id].scenario;
   if (/^main-(?:[0-9]|1[01])$/.test(id)) return SCENARIOS[Number(id.slice(5))];
   if (Object.hasOwn(EXTRA_SITUATIONS, id)) return EXTRA_SITUATIONS[id].scenario;

@@ -83,6 +83,9 @@ try {
         'cast-sasha',
         'cast-lera',
         'cast-ilya',
+        'player-phone',
+        'phone-outgoing',
+        'phone-modal',
       ]) {
         assert(styles.includes(`.${name}`), name);
       }

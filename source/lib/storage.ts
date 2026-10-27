@@ -1,5 +1,6 @@
 import { normalizeNarrative } from './narrative';
 import { normalizeTutorial } from './tutorial';
+import { normalizeFriends } from './friends';
 import { characterId, type PlayerSolo } from './character';
 import { campaignMonths, difficultyId, ensureStorySchedule, GOALS } from './game';
 
@@ -37,6 +38,7 @@ export function loadGame(storage?: GameStorage): PlayerSolo | null {
       difficulty: difficultyId(data.difficulty),
       ...(data.narrative ? { narrative: normalizeNarrative(data.narrative) } : {}),
       ...(data.tutorial ? { tutorial: normalizeTutorial(data.tutorial) } : {}),
+      ...(data.friends ? { friends: normalizeFriends(data.friends) } : {}),
       character: characterId(data.character),
       storySeed: Number.isInteger(data.storySeed) ? data.storySeed : 42,
     };

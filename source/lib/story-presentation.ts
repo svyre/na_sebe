@@ -1,5 +1,6 @@
 import { CAST } from './narrative/chapters';
 import { SCENE_VOICES } from './narrative/scene-voices';
+import { FRIEND_SITUATIONS } from './game/situations/friends';
 import { CAMPAIGN_STORIES } from './game/situations/campaign';
 import { LOCATIONS } from './locations';
 import { getScenario } from './game';
@@ -87,7 +88,14 @@ const extraScenes: Record<string, SceneSetting> = {
 
 export function extraStory(id: string, month = 0): Story {
   const scenario = getScenario(id)!;
-  const voice = SCENE_VOICES[id];
+  const friend = FRIEND_SITUATIONS[id];
+  const voice = friend
+    ? {
+        from: friend.from,
+        line: scenario.lead,
+        replies: Object.fromEntries(friend.choices.map((option) => [option.id, option.say])),
+      }
+    : SCENE_VOICES[id];
   const dialogue = voice
     ? {
         speaker: CAST[voice.from].name,
@@ -99,13 +107,19 @@ export function extraStory(id: string, month = 0): Story {
   if (id.startsWith('main-'))
     return { ...STORY_SCENES[Number(id.slice(5))], line: scenario.lead, ...dialogue };
   const campaign = CAMPAIGN_STORIES[id];
-  const scene = campaign
+  const scene = friend
     ? {
-        place: LOCATIONS[campaign.location].name,
-        props: campaign.props,
-        outdoor: LOCATIONS[campaign.location].outdoor,
+        place: LOCATIONS[friend.location].name,
+        props: friend.choices.map((option) => option.art),
+        outdoor: LOCATIONS[friend.location].outdoor,
       }
-    : extraScenes[id];
+    : campaign
+      ? {
+          place: LOCATIONS[campaign.location].name,
+          props: campaign.props,
+          outdoor: LOCATIONS[campaign.location].outdoor,
+        }
+      : extraScenes[id];
   return {
     ...STORY_SCENES[month % 12],
     ...scene,

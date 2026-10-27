@@ -32,8 +32,10 @@ import {
   RotateCcw,
   TriangleAlert,
 } from 'lucide-react';
-import { normalizeNarrative } from '@/lib/narrative';
-import { NarrativeEnding } from './MonthStory';
+import { normalizeNarrative, epilogueFor, CAST } from '@/lib/narrative';
+import { invitationFor } from '@/lib/friends';
+import { Phone } from './Phone';
+import { Modal } from './Modal';
 import { useMemo, useState } from 'react';
 import { CapitalChart } from './CapitalChart';
 import { HardcoreRules } from './HardcoreRules';
@@ -58,6 +60,7 @@ export function Results({
   );
   const [error, setError] = useState('');
   const [tab, setTab] = useState<'overview' | 'history'>('overview');
+  const [phoneOpen, setPhoneOpen] = useState(false);
   const campaignComplete = data.month >= campaignMonths(data.state);
   const goal = campaignGoal(data.goal, campaignYears(data.state));
   const stats = evaluate(
@@ -107,6 +110,7 @@ export function Results({
         'Проект',
         'Глава истории',
         'Ответ в разговоре',
+        'Предложение о совместной аренде',
       ],
       ...data.reports.map((report) => [
         monthLabel(report.month, campaignYears(data.state) > 1),
@@ -141,10 +145,25 @@ export function Results({
         PROJECTS[report.plan.project || 'none'].name,
         narrative.journal.find((item) => item.month === report.month)?.title || '',
         narrative.journal.find((item) => item.month === report.month)?.choice?.label || '',
+        (() => {
+          const invite = invitationFor(data, report.month);
+          return invite
+            ? `${CAST[invite.friend].name}: ${invite.accepted ? 'согласие' : 'отказ'}`
+            : '';
+        })(),
       ]),
     ]);
   return (
     <>
+      {phoneOpen && (
+        <Modal title="Телефон" className="phone-modal" onClose={() => setPhoneOpen(false)}>
+          <Phone
+            data={data}
+            readOnly
+            ending={campaignComplete ? epilogueFor(data, stats.achieved) : null}
+          />
+        </Modal>
+      )}
       <div className="page-heading">
         <div>
           <span className="eyebrow">
@@ -190,7 +209,12 @@ export function Results({
         </button>
       </div>
       {tab === 'history' ? (
-        <HistoryList reports={data.reports} journal={narrative.journal} />
+        <HistoryList
+          reports={data.reports}
+          journal={narrative.journal}
+          invitations={data.friends?.invitations}
+          onOpenPhone={() => setPhoneOpen(true)}
+        />
       ) : (
         <>
           <section className="results-hero">
@@ -342,7 +366,15 @@ export function Results({
                 ))}
             </section>
           )}
-          {campaignComplete && <NarrativeEnding data={data} achieved={stats.achieved} />}
+          {campaignComplete && narrative.journal.length > 0 && (
+            <section className="panel phone-final-note">
+              <h2>Друзья написали</h2>
+              <p>После последнего месяца в телефоне остались новые сообщения.</p>
+              <button type="button" className="button primary" onClick={() => setPhoneOpen(true)}>
+                Открыть телефон
+              </button>
+            </section>
+          )}
           {campaignComplete && (
             <FinalRoom
               state={data.state}
